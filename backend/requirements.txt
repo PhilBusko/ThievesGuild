@@ -8,7 +8,7 @@ python-dotenv~=0.19.2
 
 psycopg2
 gunicorn
-daphne==4.0.0
+#daphne==4.0.0
 
 jupyter
 django-extensions

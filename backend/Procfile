@@ -1,1 +1,1 @@
-web: daphne -b 0.0.0.0 -p $PORT app_proj.server_asgi:application -v2
+web: gunicorn app_proj.server_wsgi
