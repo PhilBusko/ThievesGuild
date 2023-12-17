@@ -1,0 +1,37 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+HTTP URLS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+from django.urls import include, re_path
+import members.views as MV
+import emporium.views as EV
+import engine.views as NV
+
+
+auth_url = [
+    re_path(r'^click-login',    MV.ClickLogin ),
+    re_path(r'^token-refresh',  MV.TokenRefresh ),
+    re_path(r'^create-user',    MV.CreateUser ),
+    re_path(r'^send-verification',      MV.SendVerification ),
+    re_path(r'^verify-registration',    MV.VerifyRegistration), 
+    re_path(r'^forgot-password',        MV.ForgotPassword), 
+    re_path(r'^reset-password',         MV.ResetPassword), 
+]
+
+emporium_url = [
+    # re_path(r'^tower', CV.UserAccount), 
+]
+
+engine_url = [
+    re_path(r'^user-account', NV.UserAccount), 
+    re_path(r'^create-guild', NV.CreateGuild), 
+    re_path(r'^delete-guild', NV.DeleteGuild), 
+    re_path(r'^select-guild', NV.SelectGuild), 
+]
+
+
+urlpatterns = [
+    re_path(r'^auth/', include((auth_url, 'auth_url'))),
+    re_path(r'^emporium/', include((emporium_url, 'emporium_url'))),
+    re_path(r'^engine/', include((engine_url, 'engine_url'))),
+]
+
