@@ -70,7 +70,8 @@ const onResponseError = async (error) => {
 
 
 const AxiosConfig = axios.create({
-    baseURL: (process.env.NODE_ENV == 'development' ? 'http://localhost:8000' : 'https://thieves-guild.herokuapp.com/'),
+    baseURL: (process.env.NODE_ENV == 'development' ? 
+        'http://localhost:8000' : 'https://thieves-guild-05cb8c06292b.herokuapp.com/'),
     headers: {'Content-Type': 'application/json'},
 });
 
