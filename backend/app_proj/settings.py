@@ -70,8 +70,8 @@ CHANNEL_LAYERS = {
 
 # SERVER
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'website-factory.herokuapp.com']
-CORS_ORIGIN_WHITELIST = ['http://localhost:3000', 'https://websitefactory.vercel.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'thieves-guild.herokuapp.com']
+CORS_ORIGIN_WHITELIST = ['http://localhost:3000', 'https://thieves-guild.vercel.app']
 DEBUG = True #if DEPLOYMENT_ENV == 'DEV' else False
 
 ROOT_URLCONF = 'app_proj.urls'
