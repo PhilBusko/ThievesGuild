@@ -24,20 +24,20 @@ function GlobalProvider(props) {
 
     // onload for the app 
 
-    function tryLogin() {
+    const tryLogin = () => {
 
         // log in the user if a refresh token is found 
 
         const refreshToken = TK.retrieveRefreshToken();
-    
+
         if (!refreshToken) {
             console.log('onload: no refresh token');
-            const newUser = {'name': '', 'status': 'guest',}
+            const newUser = {'name': '', 'status': 'guest', 'guild': '***'}
             setUserDx(newUser);
             return;
         }
 
-        console.log('start login from refresh')
+        console.log('onload: refresh token found')
         AxiosConfig({
             method: 'POST',
             url: '/auth/token-refresh',
@@ -48,6 +48,7 @@ function GlobalProvider(props) {
                 const newUser = {
                     'name': responseData.user,
                     'status': responseData.admin ? 'admin' : 'user',
+                    'guild': '***',
                 }
                 setUserDx(newUser);
             }

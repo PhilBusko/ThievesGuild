@@ -8,14 +8,15 @@ import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { GlobalContext } from '../app-main/global-store';
 import * as ST from '../elements/styled-elements';
-
-
 import authBanner from '../assets/nav-auth.png'
 
+
 const AuthGroup = styled(Box)(({ theme }) => ({
-    postion: 'relative',
-    height: '100px',
-    margin: '6px 0px', 
+    display: 'block',
+    position: 'relative',
+    height: '102px',
+    minHeight: '102px',
+    margin: '6px 4px', 
     backgroundImage: `url(${authBanner})`,
     backgroundSize: 'contain',
     backgroundPosition: 'center center',
@@ -24,7 +25,7 @@ const AuthGroup = styled(Box)(({ theme }) => ({
 
 const UserName = styled(ST.TitleText)(({ theme }) => ({
     position: 'absolute', 
-    top: 16, left: 10,
+    top: 10, left: 10,
     width: '108px',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
@@ -35,7 +36,7 @@ const UserName = styled(ST.TitleText)(({ theme }) => ({
 
 const SelectedGuild = styled(ST.TitleText)(({ theme }) => ({
     position: 'absolute', 
-    top: 46, left: 10,
+    top: 40, left: 10,
     width: '108px',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
@@ -58,12 +59,12 @@ const AuthButton = styled(ButtonBase)(({ theme }) => ({
 
 const AuthButtonTop = styled(AuthButton)(({ theme }) => ({
     position: 'absolute',
-    top: 35, right: 18,
+    top: 29, right: 15,
 }));
 
 const AuthButtonBottom = styled(AuthButton)(({ theme }) => ({
     position: 'absolute',
-    top: 66, right: 18,
+    top: 60, right: 15,
 }));
 
 
