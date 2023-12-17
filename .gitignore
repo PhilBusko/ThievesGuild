@@ -184,7 +184,7 @@ typings/
 ### CUSTOM
 
 frontend/build/
-**.sqlite3
+#**.sqlite3
 **/data/backup/
 desktop.ini
 .DS_Store
