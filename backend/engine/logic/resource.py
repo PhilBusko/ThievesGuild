@@ -4,8 +4,8 @@ ENGINE RESOURCE
 import random
 import pandas as PD
 import emporium.models as EM 
+import emporium.logic.character_names as CN
 import engine.models as GM 
-import engine.logic.character_names as CN
 
 POWER_FACTOR = 50
 

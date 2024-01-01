@@ -147,8 +147,21 @@ def ChangeEquip(request):
         prevItem.save()
 
     if nextItem:
+
+        # is the item claimed?
+
+        prevClaimant = None
+        if nextItem.ThiefFK:
+            prevClaimant = GM.ThiefInGuild.objects.GetOrNone(id=nextItem.ThiefFK)
+
+        # equip the new claimant
+
         nextItem.ThiefFK = thiefMd
         nextItem.save()
+
+        # reset the previous claimant when necessary
+
+        if prevClaimant: RS.SetThiefTotals(prevClaimant)
 
     RS.SetThiefTotals(thiefMd)
     RS.SetGuildPower(guildMd)
