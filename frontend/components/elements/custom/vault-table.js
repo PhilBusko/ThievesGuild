@@ -2,7 +2,8 @@
 VAULT TABLE
 **************************************************************************************************/
 import { useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { Box, } from '@mui/material';
+import { DataGrid,  } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
 import * as ST from '../styled-elements';
 import * as IC from '../../assets/equipment-icons';
@@ -15,6 +16,10 @@ const StyledTable = styled(DataGrid)(({ theme }) => ({
 
     '& .MuiDataGrid-main': {
         height: '439px',    // keep table consistent over all pages
+    },
+    '& .MuiDataGrid-cell, & .MuiDataGrid-main, & .MuiDataGrid-virtualScroller': {
+        // allow zoomed icons to spill out
+        overflow: 'visible !important', 
     },
     '& .MuiDataGrid-columnHeader': {
         fontFamily: 'started by a mouse', 
@@ -55,6 +60,18 @@ const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
     background: ST.TableBkgd, 
 }));
 
+const InventoryIcon = styled('img')(({ theme }) => ({
+    position: 'absolute',
+    width: '32px',
+    top: '-16px',
+    ':hover': {
+        zIndex: 10,
+        width: '64px',
+        top: '-32px',
+        left: '-16px',
+    }
+}));
+
 const tableWidth = '750px';
 
 
@@ -73,9 +90,10 @@ function VaultTable(props) {
         {
             field: 'iconCode', headerName: '', sortable: false,
             width: 40,
-            renderCell: (params) => (<>
-                <IC.SmallIcon src={ IC.GetIconAsset(params.value) } />
-            </>),
+            renderCell: (params) => (
+                <Box sx={{position: 'relative', }}>
+                    <InventoryIcon src={ IC.GetIconAsset(params.value) } />
+                </Box>),
         },
         {
             field: 'Name', headerName: 'Item', sortable: false,
