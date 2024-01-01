@@ -106,6 +106,7 @@ def DeleteGuild(request):
 def GuildDetails(request):
 
     userMd = request.user
+    print(userMd)
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
     if not guildMd:

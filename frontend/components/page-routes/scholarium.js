@@ -43,39 +43,23 @@ function Scholarium(props) {
 
                 <ST.GridItemCenter item xs={12} lg={6}>
                     <ST.ContentCard elevation={3}> 
+                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Getting Started</ST.BaseHighlight>
                         <ST.BaseText>
-                            Welcome to Thieves' Guild, a mobile auto-battle game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game. - -- _ 
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
+                            Well met, fellow guild master.
+                            Thieves' Guild is a mobile auto-battle game.
+                            It takes great inspiration in Fallout Shelter and AC Rebellion.
                         </ST.BaseText>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12} lg={6}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Getting Started</ST.BaseHighlight>
+                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Contents</ST.BaseHighlight>
                         <ST.BaseText>
-                            First sign up and log in.<br></br>
-                            1 2 3 4 5 6 7 8 9 0
+                            Thief Characters<br></br>
+                            Heists<br></br>
+                            The Castle<br></br>
                         </ST.BaseText>
-                        <ST.RegularButton variant='contained'>
-                            <ST.LinkText>Button</ST.LinkText>
-                        </ST.RegularButton>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 

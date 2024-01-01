@@ -1,5 +1,5 @@
 /**************************************************************************************************
-CASTLE
+ARMORY VAULT
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { Grid, Box, Stack } from '@mui/material';
@@ -10,14 +10,16 @@ import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
+import VaultTable from '../elements/custom/vault-table';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
 
 }));
 
-function Castle(props) {
+function Armory(props) {
 
+    
     // keep track of current page for nav menu
 
     const { pageStore } = useContext(GlobalContext);
@@ -29,6 +31,7 @@ function Castle(props) {
         pageStore[1](newUrl);
     });
 
+
     // globals
 
     const { userStore } = useContext(GlobalContext);
@@ -36,8 +39,35 @@ function Castle(props) {
     const [errorLs, setErrorLs] = useState([]);
 
 
+    // inventory
+
+    const [vaultLs, setVaultLs] = useState([]);
+
+    useEffect(() => {
+        AxiosConfig({
+            url: '/engine/guild-details',
+        }).then(responseData => {
+            if (!responseData.message) {
+                console.log(responseData.assetLs);
+                setVaultLs(responseData.assetLs);
+            }
+            else {
+                setMessage(responseData.message)
+            }
+        }).catch(errorLs => {
+            if (errorLs[0].includes('401'))
+                setMessage("* You must be logged in to view your guild's information.")
+            else
+                setErrorLs(errorLs);
+        });
+    }, []);
+
+    
 
 
+    const handleSellItem = (sellId) => {
+        console.log(sellId);
+    }
 
 
     // render
@@ -48,7 +78,7 @@ function Castle(props) {
 
                 <Grid item xs={12}>
                     <ST.TitleGroup>
-                        <ST.TitleText>Castle</ST.TitleText>
+                        <ST.TitleText>Armory</ST.TitleText>
                     </ST.TitleGroup>
                 </Grid>
 
@@ -60,15 +90,22 @@ function Castle(props) {
                     </ST.FlexHorizontal>
                 </Grid> }
 
-
-
-
-                <ST.GridItemCenter item xs={12} lg={4}>
+                <ST.GridItemCenter item xs={12} lg={9}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Base page</ST.BaseHighlight>
-                        <Stack spacing='8px' sx={{ width: '280px' }}>
+                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Vault</ST.BaseHighlight>
+                        <Stack spacing='8px'>
 
 
+
+
+
+
+
+
+                            <VaultTable
+                                dataLs={vaultLs}
+                                notifySell={handleSellItem}
+                            />
 
                             { errorLs.length > 0 &&
                                 <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
@@ -78,10 +115,9 @@ function Castle(props) {
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
-
             </ST.GridPage >
         </PageLayout>
     );
 }
 
-export default Castle;
+export default Armory;

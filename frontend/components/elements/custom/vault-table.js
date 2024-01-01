@@ -1,5 +1,5 @@
 /**************************************************************************************************
-THIEF TABLE
+VAULT TABLE
 **************************************************************************************************/
 import { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
@@ -13,6 +13,9 @@ const StyledTable = styled(DataGrid)(({ theme }) => ({
     border: `1px solid ${ST.FadedBlue}`,
     background: ST.TableBkgd, 
 
+    '& .MuiDataGrid-main': {
+        height: '439px',    // keep table consistent over all pages
+    },
     '& .MuiDataGrid-columnHeader': {
         fontFamily: 'started by a mouse', 
         fontSize: '180%',
@@ -20,7 +23,6 @@ const StyledTable = styled(DataGrid)(({ theme }) => ({
         color: ST.DefaultText,
         fontWeight: 'bold',
     },
-    // remove outline on click
     '& .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator': {
         display: 'none', 
     },
@@ -40,9 +42,6 @@ const StyledTable = styled(DataGrid)(({ theme }) => ({
     '& .MuiTablePagination-displayedRows': {
         fontFamily: 'mercy christole', 
     },
-    '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-        background: ST.FadedBlue,  
-    },
     '& .MuiButtonBase-root.MuiIconButton-root': {
         color: ST.DefaultText,
     }
@@ -56,13 +55,15 @@ const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
     background: ST.TableBkgd, 
 }));
 
+const tableWidth = '750px';
 
-function ThiefTable(props) {
+
+function VaultTable(props) {
 
     const [sortModel, setSortModel] = useState([
         {
-            field: 'Power',
-            sort: 'desc',
+            field: 'equippedThief',
+            sort: 'asc',
         },
     ]);
 
@@ -70,60 +71,61 @@ function ThiefTable(props) {
 
     var colDefs = [
         {
-            field: 'Name', headerName: 'Name', sortable: false,
-            width: 70, 
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
-        },
-        {
-            field: 'Class', headerName: 'Class', 
-            sortable: true, sortingOrder: ['asc', 'desc'],
-            width: 80, 
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
-        },
-        {
-            field: 'Power', headerName: 'Power', 
-            sortable: true, sortingOrder: ['asc', 'desc'],
-            width: 90, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
-        },
-        {
-            field: 'Level', headerName: 'Rank', sortable: false,
-            width: 70, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (
-                <>
-                    <ST.BaseText sx={{marginRight: '4px'}}> { params.value } </ST.BaseText>
-                    { params.row.Stars >= 1 && <RC.StarImage src={ RC.StarIcon } /> }
-                    { params.row.Stars >= 2 && <RC.StarImage src={ RC.StarIcon } /> }
-                    { params.row.Stars >= 3 && <RC.StarImage src={ RC.StarIcon } /> }
-                    { params.row.Stars >= 4 && <RC.StarImage src={ RC.StarIcon } /> }
-                </>
-            ),
-        },
-        {
-            field: 'equipment', headerName: 'Requisitions', sortable: false,
-            width: 205, 
+            field: 'iconCode', headerName: '', sortable: false,
+            width: 40,
             renderCell: (params) => (<>
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.weapon.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.armor.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.head.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.hands.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.feet.iconCode) } />
+                <IC.SmallIcon src={ IC.GetIconAsset(params.value) } />
             </>),
         },
         {
-            field: 'Cooldown', headerName: 'Status', 
+            field: 'Name', headerName: 'Item', sortable: false,
+            width: 110, 
+            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
+        },
+        {
+            field: 'Slot', headerName: 'Slot', 
             sortable: true, sortingOrder: ['asc', 'desc'],
             width: 80, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         },
         {
-            field: 'Position', headerName: 'Staffing', 
+            field: 'Power', headerName: 'Power',
             sortable: true, sortingOrder: ['asc', 'desc'],
-            width: 80, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
+            width: 90, headerAlign: 'center', align: 'center',
+            renderCell: (params) => (<>
+                <ST.BaseText> { `${params.value} ( ${params.row.Level}`} </ST.BaseText> 
+                { !!params.row.Magic && <RC.StarImage src={ RC.StarIcon } /> }
+                <ST.BaseText> &nbsp;) </ST.BaseText> 
+            </>),
+        },
+        {
+            field: 'Requirement', headerName: 'Class', 
+            sortable: true, sortingOrder: ['asc', 'desc'],
+            width: 90, 
+            renderCell: (params) => (
+                <ST.BaseText> { params.value ? params.value : 'Any' } </ST.BaseText>
+            ),
+        },
+        {
+            field: 'bonusLs', headerName: 'Bonuses', sortable: false,
+            width: 180, 
+            renderCell: (params) => (<>
+                <ST.FlexHorizontal sx={{justifyContent: 'flex-start', }}>
+                    { params.value.map((bns, id) => (
+                        <ST.BaseText key={id} sx={{marginRight: '8px'}}>{ bns }</ST.BaseText>
+                    ))}
+                </ST.FlexHorizontal>
+            </>),
+        },
+        {
+            field: 'equippedThief', headerName: 'Claimant', 
+            sortable: true, sortingOrder: ['asc', 'desc'],
+            width: 110, 
+            renderCell: (params) => (
+                <ST.BaseText> { params.value ? params.value : '- Unclaimed -' } </ST.BaseText>
+            ),
         },
     ];
-
 
     // render
 
@@ -132,28 +134,28 @@ function ThiefTable(props) {
             <StyledTable
                 rows={props.dataLs}
                 columns={colDefs}
-                sx={{ width: '680px' }}
+                sx={{ width: tableWidth }}
                 rowHeight={58}
                 autoHeight={true}
                 density='compact'            
+                pageSize={10}
                 disableColumnMenu            
-                hideFooter
-                onSelectionModelChange={props.notifySelect}
+                disableSelectionOnClick
                 sortModel={sortModel}
                 onSortModelChange={(model) => setSortModel(model)}
             />
         }
         { props.dataLs.length === 0 &&
-            <EmptyTable sx={{ width: props.width, }}>
-                <ST.BaseText>No Thieves</ST.BaseText>
+            <EmptyTable sx={{ width: tableWidth, }}>
+                <ST.BaseText>No Guilds</ST.BaseText>
             </EmptyTable>
         }
     </>);
 }
 
-ThiefTable.defaultProps = {
+VaultTable.defaultProps = {
     dataLs: [],
-    notifySelect: () => {},
+    notifySell: () => {},
 };
 
-export default ThiefTable;
+export default VaultTable;

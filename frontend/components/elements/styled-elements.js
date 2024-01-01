@@ -105,7 +105,7 @@ const BaseText = styled(Typography)(({ theme }) => ({
 }));
 
 const BaseHighlight = styled(BaseText)(({ theme }) => ({
-    fontSize: '180%',
+    fontSize: '210%',
     fontWeight: 'bold',
     lineHeight: 1.0,
 }));

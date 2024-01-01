@@ -2,8 +2,9 @@
 APP-MAIN ROUTES
 **************************************************************************************************/
 import Scholarium from '../page-routes/scholarium';
-import Barracks from '../page-routes/barracks';
 import Castle from '../page-routes/castle';
+import Barracks from '../page-routes/barracks';
+import Armory from '../page-routes/armory';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -36,16 +37,22 @@ export const RoutesConfig = [
         'order': 3,
     },
     {
+        'title': 'Armory',
+        'path': '/armory/',
+        'element': <Armory />, 
+        'order': 4,
+    },
+    {
         'title': 'Heists',
         'path': '/heists/',
         'element': <Scholarium />, 
-        'order': 4,
+        'order': 5,
     },
     {
         'title': 'Market',
         'path': '/market/',
         'element': <Scholarium />, 
-        'order': 7,
+        'order': 6,
     },
 
     {
