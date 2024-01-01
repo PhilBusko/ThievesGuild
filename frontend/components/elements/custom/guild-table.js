@@ -43,10 +43,10 @@ const StyledTable = styled(DataGrid)(({ theme }) => ({
 
 const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
     width: '460px',
-    height: '200px',
-    border: '1px solid black',
+    height: '120px',
+    border: `1px solid ${ST.FadedBlue}`,
     borderRadius: '2px',
-    background: 'white', 
+    background: ST.TableBkgd, 
 }));
 
 const ThiefCheckbox = styled(Checkbox)(({ theme }) => ({
@@ -129,7 +129,7 @@ function GuildTable(props) {
         }
         { props.dataLs.length === 0 &&
             <EmptyTable sx={{ width: props.width, }}>
-                <ST.BaseText>No Data</ST.BaseText>
+                <ST.BaseText>No Guilds</ST.BaseText>
             </EmptyTable>
         }
     </>);

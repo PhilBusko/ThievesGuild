@@ -9,6 +9,9 @@ python-dotenv~=0.19.2
 psycopg2
 gunicorn
 #daphne==4.0.0
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
 
 jupyter
 django-extensions

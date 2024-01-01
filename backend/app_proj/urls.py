@@ -3,7 +3,6 @@ HTTP URLS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 from django.urls import include, re_path
 import members.views as MV
-import emporium.views as EV
 import engine.views as NV
 
 
@@ -24,8 +23,10 @@ emporium_url = [
 engine_url = [
     re_path(r'^user-account', NV.UserAccount), 
     re_path(r'^create-guild', NV.CreateGuild), 
-    re_path(r'^delete-guild', NV.DeleteGuild), 
     re_path(r'^select-guild', NV.SelectGuild), 
+    re_path(r'^delete-guild', NV.DeleteGuild), 
+    re_path(r'^guild-details', NV.GuildDetails), 
+    re_path(r'^change-equip', NV.ChangeEquip), 
 ]
 
 

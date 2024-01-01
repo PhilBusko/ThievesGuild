@@ -5,25 +5,28 @@ import random
 import pandas as PD
 import emporium.models as EM 
 import engine.models as GM 
+import engine.logic.character_names as CN
 
 POWER_FACTOR = 50
+
 
 def CreateNewGuild(user, guildName):
 
     newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True})
     newGuild.save()
 
-    newThief = AppendStartingThief(newGuild, 'Burglar', 1)
+    thiefNames = CN.CharacterNames()
+    newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
     AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1)
+    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
     AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Ruffian', 1)
+    newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
     AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Burglar', 1)
+    newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
     AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1)
+    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
     AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Ruffian', 1)
+    newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
     AttachStartingWargear(newThief)
 
     StartingAccessories(newGuild)
@@ -35,26 +38,26 @@ def CreateNewGuild(user, guildName):
 
     return newGuild
 
-def AppendStartingThief(guildMd, thiefClass, stars):
+def AppendStartingThief(guildMd, thiefClass, stars, allNames):
 
     thiefMd = EM.UnlockableThief.objects.filter(Class=thiefClass, Stars=stars)
     thiefDx = list(thiefMd.values())[0]
 
-    startAgi = 3 if 'agi' in thiefDx['StartTrait'] else 0
-    startCun = 3 if 'cun' in thiefDx['StartTrait'] else 0
-    startMig = 3 if 'mig' in thiefDx['StartTrait'] else 0
-    # startRand = thiefDx['RandomTraits'] if thiefDx['RandomTraits'] else 0
-    # baseTraits = RS.BaseTraits(startMig, startAgi, startCun, startRand)
+    # random name that doesn't yet appear in guild
+    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    existingNameLs = [x.Name for x in thiefMds]
+    availableNames = [x for x in allNames if x not in existingNameLs]
+    thiefName = random.choice(availableNames)
 
     newThief ={
         'GuildFK': guildMd,
-        'Name': 'aletta',
+        'Name': thiefName,
         'Class': thiefDx['Class'],
         'Stars': thiefDx['Stars'],
         'BasePower': thiefDx['StoreCost'] / POWER_FACTOR,
-        'BaseMig': startMig,
-        'BaseAgi': startAgi,
-        'BaseCun': startCun,
+        'BaseAgi': 3 if 'agi' in thiefDx['StartTrait'] else 0,
+        'BaseCun': 3 if 'cun' in thiefDx['StartTrait'] else 0,
+        'BaseMig': 3 if 'mig' in thiefDx['StartTrait'] else 0,
         'BaseEnd': 0,
     }
     newModel = GM.ThiefInGuild(**newThief)
@@ -72,6 +75,7 @@ def AttachStartingWargear(thiefMd):
         'ThiefFK': thiefMd,
         'Name': weaponDx['Name'],
         'Level': weaponDx['Level'],
+        'TotalLv': weaponDx['TotalLv'],
         'Slot': weaponDx['Slot'],
         'Power': weaponDx['StoreCost'] / POWER_FACTOR,
         'Requirement': weaponDx['Requirement'],
@@ -90,12 +94,13 @@ def AttachStartingWargear(thiefMd):
         'ThiefFK': thiefMd,
         'Name': armorDx['Name'],
         'Level': armorDx['Level'],
+        'TotalLv': armorDx['TotalLv'],
         'Slot': armorDx['Slot'],
-        'Power': armorDx['StoreCost'],
+        'Power': armorDx['StoreCost'] / POWER_FACTOR,
         'Requirement': armorDx['Requirement'],
-        'Trait': weaponDx['Trait'],
-        'Combat': weaponDx['Combat'],
-        'Skill': weaponDx['Skill'],
+        'Trait': armorDx['Trait'],
+        'Combat': armorDx['Combat'],
+        'Skill': armorDx['Skill'],
     }
     newModel = GM.ItemInGuild(**newArmor).save()
 
@@ -110,9 +115,11 @@ def StartingAccessories(guildMd):
             'ThiefFK': None,
             'Name': accessoryDx['Name'],
             'Level': accessoryDx['Level'],
+            'TotalLv': accessoryDx['TotalLv'],
             'Slot': accessoryDx['Slot'],
-            'Power': accessoryDx['StoreCost'],
+            'Power': accessoryDx['StoreCost'] / POWER_FACTOR,
             'Skill': accessoryDx['Skill'],
+            'Combat': accessoryDx['Combat'],
         }
         newModel = GM.ItemInGuild(**newAccessory).save()
 
@@ -122,9 +129,11 @@ def StartingAccessories(guildMd):
             'ThiefFK': None,
             'Name': accessoryDx['Name'],
             'Level': accessoryDx['Level'],
+            'TotalLv': accessoryDx['TotalLv'],
             'Slot': accessoryDx['Slot'],
-            'Power': accessoryDx['StoreCost'],
+            'Power': accessoryDx['StoreCost'] / POWER_FACTOR,
             'Skill': accessoryDx['Skill'],
+            'Combat': accessoryDx['Combat'],
         }
         newModel = GM.ItemInGuild(**newAccessory).save()
 
@@ -204,7 +213,7 @@ def SetThiefTotals(thiefMd):
 
     thiefMd.Attack = (thiefMd.Agility + GetItemCombat(weapon, 'att') + GetItemCombat(armor, 'att') +
                     GetItemCombat(head, 'att') + GetItemCombat(hands, 'att') + GetItemCombat(feet, 'att'))
-    thiefMd.Damage = (thiefMd.Cunning + GetItemCombat(weapon, 'dmg') + GetItemCombat(armor, 'dmg') +
+    thiefMd.Damage = (6 + thiefMd.Cunning + GetItemCombat(weapon, 'dmg') + GetItemCombat(armor, 'dmg') +
                     GetItemCombat(head, 'dmg') + GetItemCombat(hands, 'dmg') + GetItemCombat(feet, 'dmg'))
     thiefMd.Defense = (10 + thiefMd.Might + GetItemCombat(weapon, 'def') + GetItemCombat(armor, 'def') +
                     GetItemCombat(head, 'def') + GetItemCombat(hands, 'def') + GetItemCombat(feet, 'def'))
@@ -229,4 +238,95 @@ def SetGuildPower(guildMd):
 
     guildMd.TotalPower = power
     guildMd.save()
+
+
+def GetThiefList(guildMd):
+
+    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    thiefLs = []
+
+    for md in thiefMds:
+
+        thiefDx = md.__dict__
+        thiefLs.append(thiefDx)
+        
+        thiefItems = GM.ItemInGuild.objects.filter(ThiefFK=md).values()
+        thiefDx['ItemCount'] = len(thiefItems)
+        dmgMin = thiefDx['Damage'] - int(thiefDx['Damage'] /2)
+        dmgMax = thiefDx['Damage'] + int(thiefDx['Damage'] /2)
+        thiefDx['DisplayDamage'] = f"{dmgMin}-{dmgMax}"
+        
+        slots = ['weapon', 'armor', 'head', 'hands', 'feet', ]
+
+        for sl in slots:
+            itemCheck = [x for x in thiefItems if x['Slot']==sl]
+
+            if itemCheck:
+                item = itemCheck[0]
+                res = item.pop('GuildFK_id')
+                res = item.pop('ThiefFK_id')
+                code, bonuses = GetDisplayInfo(item)
+                item['iconCode'] = code
+                item['bonusLs'] = bonuses 
+            else:
+                item = {}
+                item['id'] = -1
+                item['iconCode'] = f"{sl}-empty"
+                item['bonusLs'] = [] 
+
+            thiefDx[sl] = item
+
+    thiefDf = PD.DataFrame(thiefLs)
+    thiefDf = thiefDf.drop(['_state', 'GuildFK_id', 'BasePower', 'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
+                            'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd',
+                            'Wounds',], 
+                        axis=1, errors='ignore')
+    thiefDf = thiefDf.sort_values('Power', ascending=False)
+
+    return thiefDf
+
+def GetAssetList(guildMd):
+
+    assetMds = GM.ItemInGuild.objects.filter(GuildFK=guildMd)
+    assetLs = list(assetMds.values())
+
+    for st in assetLs:
+        code, bonuses = GetDisplayInfo(st)
+        st['iconCode'] = code
+        st['bonusLs'] = bonuses
+
+        claimant = None
+        if st['ThiefFK_id']:
+            thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=st['ThiefFK_id'])
+            claimant = thiefMd.Name
+        st['equippedThief'] = claimant
+
+    assetDf = PD.DataFrame(assetLs)
+    assetDf = assetDf.drop(['GuildFK_id', ], axis=1, errors='ignore')
+    assetDf = assetDf.sort_values('Power', ascending=False)
+
+    return assetDf
+
+def GetDisplayInfo(itemDx):
+
+    if itemDx['Slot'] in ['weapon', 'armor']: stat = itemDx['Trait'][:3]
+    else:     stat = 'skl' if itemDx['Skill'] else 'cmb'
+    iconCode = f"{itemDx['Slot']}-{stat}"
+
+    bonusLs = []
+    if itemDx['Trait']:
+        statLs = itemDx['Trait'].split(' ')
+        bonusLs.append(f"{statLs[0].title()} +{statLs[1]}")
+    if itemDx['Skill']:
+        statLs = itemDx['Skill'].split(' ')
+        bonusLs.append(f"{statLs[0].title()} +{statLs[1]}")
+    if itemDx['Combat']:
+        statLs = itemDx['Combat'].split(' ')
+        bonusLs.append(f"{statLs[0].title()} +{statLs[1]}")
+    if itemDx['Magic']:
+        bonusLs.append(itemDx['Magic'])
+
+    print(bonusLs, itemDx['Combat'])
+
+    return iconCode, bonusLs
 

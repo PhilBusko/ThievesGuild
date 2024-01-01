@@ -77,18 +77,6 @@ def CreateGuild(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def DeleteGuild(request):
-
-    userMd = request.user
-    guild = request.data.get('guildName') 
-
-    guildMd = GM.Guild.objects.filter(UserFK=userMd, Name=guild)[0]
-    guildMd.delete()
-
-    return Response(f"Charter {guild} has been abolished.")
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def SelectGuild(request):
 
     userMd = request.user
@@ -101,6 +89,81 @@ def SelectGuild(request):
 
     return Response(f"Charter {guildName} is selected.")
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def DeleteGuild(request):
+
+    userMd = request.user
+    guild = request.data.get('guildName') 
+
+    guildMd = GM.Guild.objects.filter(UserFK=userMd, Name=guild)[0]
+    guildMd.delete()
+
+    return Response(f"Charter {guild} has been abolished.")
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GuildDetails(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({
+            'thiefLs': None,
+            'assetLs': None,
+            'message': '* A guild must be chosen in the Account page.',
+        })
+
+    thiefDf = RS.GetThiefList(guildMd)
+    assetDf = RS.GetAssetList(guildMd)
+
+    details = {
+        'thiefLs': NT.DataframeToDicts(thiefDf),
+        'assetLs': NT.DataframeToDicts(assetDf),
+        'message': None,
+    }
+    return Response(details)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ChangeEquip(request):
+
+    userMd = request.user
+    thiefId = request.data.get('thief') 
+    nextItemId = request.data.get('item')       # an id or -1 for unequip
+    slot = request.data.get('slot')  
+
+    # change or unequip
+
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
+    nextItem = GM.ItemInGuild.objects.GetOrNone(id=nextItemId)
+
+    prevItem = GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot=slot)
+
+    if prevItem:
+        prevItem.ThiefFK = None
+        prevItem.save()
+
+    if nextItem:
+        nextItem.ThiefFK = thiefMd
+        nextItem.save()
+
+    RS.SetThiefTotals(thiefMd)
+    RS.SetGuildPower(guildMd)
+
+    # refresh the frontend
+
+    thiefDf = RS.GetThiefList(guildMd)
+    assetDf = RS.GetAssetList(guildMd)
+
+    details = {
+        'thiefLs': NT.DataframeToDicts(thiefDf),
+        'assetLs': NT.DataframeToDicts(assetDf),
+        'message': None,
+    }
+    return Response(details)
 
 
 

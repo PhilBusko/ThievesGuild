@@ -20,8 +20,8 @@ class UnlockableThief(JM.Model):
 class UnlockableItem(JM.Model):
     Name = JM.TextField()
     Level = JM.IntegerField()
-    Magic = JM.IntegerField()
-    Points = JM.IntegerField()
+    MagicLv = JM.IntegerField()
+    TotalLv = JM.IntegerField()
     Slot = JM.TextField()
     StoreCost = JM.IntegerField(null=True)
     UnlockCost = JM.IntegerField(null=True)
@@ -29,10 +29,10 @@ class UnlockableItem(JM.Model):
     Trait = JM.TextField(null=True)
     Combat = JM.TextField(null=True)
     Skill = JM.TextField(null=True)
-    Enchantments = JM.TextField(null=True)
+    EnchantmentList = JM.TextField(null=True)
 
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Name', 'Level', 'Points')
+    class Meta: unique_together = ('Name', 'Level', 'MagicLv')
 
 class ThiefLevel(JM.Model):
     Level = JM.IntegerField(unique=True)

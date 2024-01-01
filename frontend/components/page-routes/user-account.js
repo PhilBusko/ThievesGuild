@@ -3,7 +3,6 @@ USER ACCOUNT
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { Grid, Stack } from '@mui/material';
-
 import { GlobalContext } from '../app-main/global-store';
 import AxiosConfig from '../app-main/axios-config'
 import PageLayout from '../layout/page-layout'

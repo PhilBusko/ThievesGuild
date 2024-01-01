@@ -8,7 +8,7 @@ import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { GlobalContext } from '../app-main/global-store';
 import * as ST from '../elements/styled-elements';
-import authBanner from '../assets/nav-auth.png'
+import authBanner from '../assets/layout-pieces/nav-auth.png'
 
 
 const AuthGroup = styled(Box)(({ theme }) => ({
@@ -16,7 +16,7 @@ const AuthGroup = styled(Box)(({ theme }) => ({
     position: 'relative',
     height: '102px',
     minHeight: '102px',
-    margin: '6px 4px', 
+    margin: '6px 4px 10px 4px', 
     backgroundImage: `url(${authBanner})`,
     backgroundSize: 'contain',
     backgroundPosition: 'center center',

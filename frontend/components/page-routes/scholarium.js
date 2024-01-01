@@ -1,5 +1,5 @@
 /**************************************************************************************************
-GUIDE PAGE
+SCHOLARIUM
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { Grid, Box, Stack } from '@mui/material';
@@ -11,7 +11,7 @@ import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 
 
-function GuidePage(props) {
+function Scholarium(props) {
 
 
     // keep track of current page for nav menu
@@ -19,11 +19,14 @@ function GuidePage(props) {
     const { pageStore } = useContext(GlobalContext);
     useEffect(() => {
         const urlParts = window.location.toString().split('/');
-        let newUrl = '/scholarium/';
+        let newUrl = '';
         if (urlParts.length > 3 && urlParts[3])
             newUrl = `/${urlParts[3]}/`;
         pageStore[1](newUrl);
     });
+
+
+
 
 
     // render
@@ -59,28 +62,20 @@ function GuidePage(props) {
                             This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
                             Welcome to Thieves' Guild, a mobile game.
                             This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
-                            Welcome to Thieves' Guild, a mobile game.
-                            This game takes great inspiration in Fallout Shelter and Assassin's Creed Rebellion.
                         </ST.BaseText>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12} lg={6}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight>
-                            Getting Started
-                        </ST.BaseHighlight>
+                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Getting Started</ST.BaseHighlight>
                         <ST.BaseText>
                             First sign up and log in.<br></br>
                             1 2 3 4 5 6 7 8 9 0
                         </ST.BaseText>
-
                         <ST.RegularButton variant='contained'>
                             <ST.LinkText>Button</ST.LinkText>
                         </ST.RegularButton>
-
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
@@ -89,4 +84,4 @@ function GuidePage(props) {
     );
 }
 
-export default GuidePage;
+export default Scholarium;

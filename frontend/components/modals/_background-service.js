@@ -2,15 +2,15 @@
 BACKGROUNDS SERVICE
 **************************************************************************************************/
 
-import shield01 from '../assets/shield01.png'
-import shield02 from '../assets/shield02.png'
-import shield03 from '../assets/shield03.png'
-import shield04 from '../assets/shield04.png'
-import shield05 from '../assets/shield05.png'
-import shield06 from '../assets/shield06.png'
-import shield07 from '../assets/shield07.png'
-import shield08 from '../assets/shield08.png'
-import shield09 from '../assets/shield09.png'
+import shield01 from '../assets/modals/shield01.png'
+import shield02 from '../assets/modals/shield02.png'
+import shield03 from '../assets/modals/shield03.png'
+import shield04 from '../assets/modals/shield04.png'
+import shield05 from '../assets/modals/shield05.png'
+import shield06 from '../assets/modals/shield06.png'
+import shield07 from '../assets/modals/shield07.png'
+import shield08 from '../assets/modals/shield08.png'
+import shield09 from '../assets/modals/shield09.png'
 
 const backgrounds = [];
 backgrounds.push(shield01);

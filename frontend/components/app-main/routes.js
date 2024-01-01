@@ -1,8 +1,9 @@
 /**************************************************************************************************
 APP-MAIN ROUTES
 **************************************************************************************************/
-import GuidePage from '../page-routes/guide-page';
-import Headquarters from '../page-routes/headquarters';
+import Scholarium from '../page-routes/scholarium';
+import Barracks from '../page-routes/barracks';
+import Castle from '../page-routes/castle';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -13,37 +14,37 @@ export const RoutesConfig = [
     {
         'title': 'Default',
         'path': '',
-        'element': <GuidePage />, 
+        'element': <Scholarium />, 
         'order': 0,
     },    
     {
         'title': 'Scholarium',
         'path': '/scholarium/',
-        'element': <GuidePage />, 
+        'element': <Scholarium />, 
         'order': 1,
     },
     {
         'title': 'Castle',
         'path': '/castle/',
-        'element': <Headquarters />, 
+        'element': <Castle />, 
         'order': 2,
     },
     {
         'title': 'Barracks',
         'path': '/barracks/',
-        'element': <Headquarters />, 
+        'element': <Barracks />, 
         'order': 3,
     },
     {
         'title': 'Heists',
         'path': '/heists/',
-        'element': <GuidePage />, 
+        'element': <Scholarium />, 
         'order': 4,
     },
     {
         'title': 'Market',
         'path': '/market/',
-        'element': <GuidePage />, 
+        'element': <Scholarium />, 
         'order': 7,
     },
 

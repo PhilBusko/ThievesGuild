@@ -5,7 +5,7 @@ import { Button, ButtonBase} from '@mui/material';
 import { Box, Grid, Card } from '@mui/material';
 import { Typography } from '@mui/material';
 import { createTheme, styled } from '@mui/material/styles';
-import cardTexture from '../assets/card-texture.jpg'
+import cardTexture from '../assets/layout-pieces/card-texture.jpg'
 
 
 // THEME
@@ -98,7 +98,7 @@ const SmallButton = styled(ButtonBase)(({ theme }) => ({
 
 const BaseText = styled(Typography)(({ theme }) => ({
     fontFamily: 'started by a mouse', 
-    fontSize: '160%',
+    fontSize: '170%',
     lineHeight: 0.9,
     letterSpacing: 0.6,
     color: DefaultText,
@@ -132,6 +132,7 @@ const DarkGold = 'goldenrod';
 const FadedBlue = '#6666ff';
 const ControlBkgd = '#e4c49b';
 const TableBkgd = '#32325A';
+const MenuBkgd = '#2f4f4f';
 
 
 // EXPORTS
@@ -162,4 +163,5 @@ export {
     HighlightPurple,
     DarkGold,
     TableBkgd,
+    MenuBkgd,
 }

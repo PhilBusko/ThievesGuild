@@ -2,6 +2,7 @@
 GUILD DELETE MODAL
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Backdrop } from '@mui/material';
 import { Box, ButtonBase, Button, Stack, FormHelperText } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -75,6 +76,7 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 function GuildDelete(props) {
 
     const [formResult, setFormResult] = useState('');
+    let navigate = useNavigate();  
 
     // clear the fields when the modal is closed
 
@@ -95,9 +97,10 @@ function GuildDelete(props) {
             setFormResult(responseData);
 
             setTimeout(() => {
-                //props.setOpen(false);
+                props.setOpen(false);
                 props.notifyDelete();
-            }, 2000);
+                navigate('/account/');
+            }, 1200);
 
         }).catch(errorLs => {
             setFormResult(errorLs[errorLs.length -1]);

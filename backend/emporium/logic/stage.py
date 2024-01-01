@@ -8,9 +8,9 @@ import app_proj.notebooks as NT
 import emporium.models as EM
 
 
-def TowerStageType():
+def RandomStageType():
     potential = ['balanced', 'balanced', 'balanced', 'balanced',
-        'biased agi', 'biased cun', 'biased mig', ]
+        'biased agi', 'biased cun', 'biased mig', 'biased cmb']
     chosen = random.choice(potential)
     return chosen
 

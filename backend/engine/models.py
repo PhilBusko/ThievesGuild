@@ -54,9 +54,9 @@ class ThiefInGuild(JM.Model):
     Perceive = JM.IntegerField(null=True)
     Traverse = JM.IntegerField(null=True)
 
-    Position = JM.TextField(default='main hall')           # training, healing, adventuring
+    Position = JM.TextField(default='Available')
     Wounds = JM.IntegerField(null=True)
-    Cooldown = JM.DateTimeField(null=True)
+    Cooldown = JM.TextField(default='Ready')   # ready/on deck, training, wounded/recovering
 
     objects = DB.BaseManager()
     def __str__(self): return f"{self.Class} {self.Power} {self.Level}"
@@ -64,15 +64,16 @@ class ThiefInGuild(JM.Model):
 class ItemInGuild(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     ThiefFK = JM.ForeignKey(ThiefInGuild, on_delete=JM.CASCADE, null=True)
+    Slot = JM.TextField()
     Name = JM.TextField()
     Level = JM.IntegerField()
-    Slot = JM.TextField()
+    TotalLv = JM.IntegerField()
     Power = JM.IntegerField()
 
     Requirement = JM.TextField(null=True)
     Trait = JM.TextField(null=True)
-    Combat = JM.TextField(null=True)
     Skill = JM.TextField(null=True)
+    Combat = JM.TextField(null=True)
     Magic = JM.TextField(null=True)
     objects = DB.BaseManager()
 
