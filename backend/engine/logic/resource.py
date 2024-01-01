@@ -326,7 +326,5 @@ def GetDisplayInfo(itemDx):
     if itemDx['Magic']:
         bonusLs.append(itemDx['Magic'])
 
-    print(bonusLs, itemDx['Combat'])
-
     return iconCode, bonusLs
 

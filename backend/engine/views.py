@@ -152,9 +152,9 @@ def ChangeEquip(request):
 
         prevClaimant = None
         if nextItem.ThiefFK:
-            prevClaimant = GM.ThiefInGuild.objects.GetOrNone(id=nextItem.ThiefFK)
+            prevClaimant = nextItem.ThiefFK
 
-        # equip the new claimant
+        # equip the new claimant, which unequips any previous claimant
 
         nextItem.ThiefFK = thiefMd
         nextItem.save()

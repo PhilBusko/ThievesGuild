@@ -2,8 +2,7 @@
 CHARACTER NAMES
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import os
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
+import app_proj.excel_service as XS
 
 MODULE_PATH = os.path.dirname(os.path.dirname(__file__))
 DATA_PATH = os.path.join(MODULE_PATH, 'data')
