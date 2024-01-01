@@ -14,7 +14,10 @@ import VaultTable from '../elements/custom/vault-table';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
-
+    '& .MuiTypography-root': {
+        fontSize: '220%',
+        padding: '0px 0px 20px 40px',
+    }, 
 }));
 
 function Armory(props) {

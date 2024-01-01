@@ -13,7 +13,10 @@ import ReadOnlyArea from '../elements/controls/read-only-area';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
-
+    '& .MuiTypography-root': {
+        fontSize: '220%',
+        padding: '0px 0px 20px 40px',
+    }, 
 }));
 
 function Castle(props) {

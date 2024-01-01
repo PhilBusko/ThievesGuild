@@ -147,7 +147,7 @@ function VaultTable(props) {
         }
         { props.dataLs.length === 0 &&
             <EmptyTable sx={{ width: tableWidth, }}>
-                <ST.BaseText>No Guilds</ST.BaseText>
+                <ST.BaseText>No Items</ST.BaseText>
             </EmptyTable>
         }
     </>);
