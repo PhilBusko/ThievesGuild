@@ -2,13 +2,13 @@
 THIEF EQUIPMENT
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
-import { ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
+import { Box, ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import * as ST from '../styled-elements';
 import * as IC from '../../assets/equipment-icons';
 import * as RC from '../../assets/resource-icons';
-import SeparatorVert from '../../assets/layout-pieces/separator-vert.png';
+import SeparatorSilver from '../../assets/layout-pieces/separator-silver.png';
 import CardTexture from '../../assets/layout-pieces/card-texture.jpg';
 
 
@@ -43,7 +43,8 @@ const MenuWrapper = styled(ST.FlexHorizontal)(({ theme }) => ({
 }));
 
 const InventoryBlock = styled(ST.FlexVertical)(({ theme }) => ({
-    height: '49px', 
+    height: '49px',
+    padding: '0px 6px',
     margin: '0px 0px 8px 0px',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
@@ -51,11 +52,9 @@ const InventoryBlock = styled(ST.FlexVertical)(({ theme }) => ({
     background:'',
 }));
 
-
 const SeparatorStats = styled('img')(({ theme }) => ({
-    height: '40px',
-    width: '4px', 
-    //margin: '10px 0px 0px 0px',
+    height: '46px',
+    width: '8px', 
 }));
 
 const EquipButton = styled(ButtonBase)(({ theme }) => ({
@@ -101,9 +100,11 @@ function ThiefEquipment(props) {
     return (
         <MainPanel >
 
-            <EquipButton type='submit' onClick={ handleMenu } variant='contained'>
-                <EquipIcon src={ IC.GetIconAsset(props.equipmentInfo.iconCode) } />
-            </EquipButton>
+            <Box sx={{padding: '0px 6px',}}>
+                <EquipButton type='submit' onClick={ handleMenu } variant='contained'>
+                    <EquipIcon src={ IC.GetIconAsset(props.equipmentInfo.iconCode) } />
+                </EquipButton>
+            </Box>
 
             <GothMenu
                 anchorEl={anchorEl}
@@ -129,14 +130,14 @@ function ThiefEquipment(props) {
                                         <ST.BaseText sx={{}}>Pwr { inv.Power } </ST.BaseText>
                                     </ST.FlexHorizontal>
                                 </InventoryBlock>
-                                <SeparatorStats src={ SeparatorVert } />
+                                <SeparatorStats src={ SeparatorSilver } />
 
                                 <InventoryBlock sx={{ width: '110px' }}> 
                                     { inv.bonusLs.map((bns, id) => (
                                         <ST.BaseText key={id}>{ bns }</ST.BaseText>
                                     ))}
                                 </InventoryBlock>
-                                <SeparatorStats src={ SeparatorVert } />
+                                <SeparatorStats src={ SeparatorSilver } />
 
                                 <InventoryBlock sx={{ width: '80px' }}>
                                     {!!inv.equippedThief && <>
@@ -164,7 +165,7 @@ function ThiefEquipment(props) {
             </GothMenu>
 
             {props.equipmentInfo.id != -1 && <>
-                <SeparatorStats src={ SeparatorVert } />
+                <SeparatorStats src={ SeparatorSilver } />
                 <InventoryBlock sx={{ width: '100px' }}>
                     <ST.BaseText>{props.equipmentInfo.Name}</ST.BaseText>
                     <ST.FlexHorizontal sx={{justifyContent: 'space-between',}}>
@@ -174,7 +175,7 @@ function ThiefEquipment(props) {
                         <ST.BaseText sx={{}}>Pwr { props.equipmentInfo.Power } </ST.BaseText>
                     </ST.FlexHorizontal>
                 </InventoryBlock>
-                <SeparatorStats src={ SeparatorVert } />
+                <SeparatorStats src={ SeparatorSilver } />
 
                 <InventoryBlock sx={{ width: '110px' }}>
                     { props.equipmentInfo.bonusLs.map((bns, id) => (

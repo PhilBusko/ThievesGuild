@@ -9,6 +9,7 @@ import * as ST from '../styled-elements';
 import * as RC from '../../assets/resource-icons';
 import SeparatorHoriz from '../../assets/layout-pieces/separator-horiz.png';
 import SeparatorVert from '../../assets/layout-pieces/separator-vert.png';
+import SeparatorSilver from '../../assets/layout-pieces/separator-silver.png';
 import ThiefEquipment from './thief-equipment';
 
 
