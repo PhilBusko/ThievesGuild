@@ -2,145 +2,425 @@
 ENGINE CONTENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random, json
+import pandas as PD
+import app_proj.notebooks as NT
 
 import emporium.models as EM 
-import emporium.logic.stage as SG
+import emporium.logic.stage as ST
 import engine.models as GM 
 
 
-def SetTestRamp(guildMd):
+def GetOrCreateTower(guildMd, currDate):
 
-    # wipe previous day
-    GM.GuildRamp.objects.filter(GuildFK=guildMd).delete()
+    # check for existing daily stages
 
-    rawStages = EM.TestRamp.objects.filter(World=1).values()
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='tower', CreateDate=currDate
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create when update needed
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').delete()
+
+    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
     lastType = ''
 
     for st in rawStages:
 
-        newStage = GM.GuildRamp()
+        newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
+        newStage.Heist = 'tower'
         newStage.StageNo = st['StageNo']
+        newStage.CreateDate = currDate
 
-        # stage 1 
+        # room 1 
 
-        stageType = SG.TowerStageType()
-        if 'biased' in stageType and 'biased' in lastType:   
-            stageType = 'balanced'
-        lastType = stageType
+        roomType = ST.RandomRoomType(lastType)
+        lastType = roomType
+        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
 
-        if stageType == 'balanced':
-            potentialLs = SG.GetObstacleTable(st['LevelR1'],2,1,1,1)
-            obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR1'], 'balanced')
-    
-        else:
-            if 'agi' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR1'],2,3,1,1)
-            if 'cun' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR1'],2,1,3,1)
-            if 'mig' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR1'],2,1,1,3)
-            obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR1'], 'biased')
-
-        newStage.ObstaclesR1 = json.dumps(obstacleLs)
-        newStage.TypeR1 = stageType
+        newStage.ObstaclesR1 = json.dumps(obstacles)
         newStage.CompleteR1 = False
+        newStage.TypeR1 = roomType
 
-        newStage.save()
+        # room 2
 
+        if st['LevelR2']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
 
-def SetGuildTower(guildMd):
-
-    # wipe previous day
-    GM.GuildTower.objects.filter(GuildFK=guildMd).delete()
-
-    # TODO: set the world based on the campaign?
-    rawStages = EM.GothicTower.objects.filter(World=1).values()
-    lastType = ''
-
-    for st in rawStages:
-
-        newStage = GM.GuildTower()
-        newStage.GuildFK = guildMd
-        newStage.StageNo = st['StageNo']
-
-        # stage 1 
-
-        stageType = SG.TowerStageType()
-        if 'biased' in stageType and 'biased' in lastType:   
-            stageType = 'balanced'
-        lastType = stageType
-
-        if stageType == 'balanced':
-            potentialLs = SG.GetObstacleTable(st['LevelR1'],4,2,2,2)
-            obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR1'], 'balanced')
-
-        else:
-            if 'agi' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR1'],2,3,1,1)
-            if 'cun' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR1'],2,1,3,1)
-            if 'mig' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR1'],2,1,1,3)
-            obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR1'], 'biased')
-
-        newStage.ObstaclesR1 = json.dumps(obstacleLs)
-        newStage.CompleteR1 = False
-        newStage.TypeR1 = stageType
-
-        # stage 2
-
-        if st['ObstaclesR2']:
-            stageType = SG.TowerStageType()
-            if 'biased' in stageType and 'biased' in lastType:   
-                stageType = 'balanced'
-            lastType = stageType
-
-            if stageType == 'balanced':
-                potentialLs = SG.GetObstacleTable(st['LevelR2'],2,1,1,1)
-                obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR2'], 'balanced')
-
-            else:
-                if 'agi' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR2'],2,3,1,1)
-                if 'cun' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR2'],2,1,3,1)
-                if 'mig' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR2'],2,1,1,3)
-                obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR2'], 'biased')
-
-            newStage.ObstaclesR2 = json.dumps(obstacleLs)
+            newStage.ObstaclesR2 = json.dumps(obstacles)
             newStage.CompleteR2 = False
-            newStage.TypeR2 = stageType
+            newStage.TypeR2 = roomType
 
-        # stage 3
+        # room 3 
 
-        if st['ObstaclesR3']:
-            stageType = SG.TowerStageType()
-            if 'biased' in stageType and 'biased' in lastType:   
-                stageType = 'balanced'
-            lastType = stageType
+        if st['LevelR3']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
 
-            if stageType == 'balanced':
-                potentialLs = SG.GetObstacleTable(st['LevelR3'],2,1,1,1)
-                obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR3'], 'balanced')
-
-            else:
-                if 'agi' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR3'],2,3,1,1)
-                if 'cun' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR3'],2,1,3,1)
-                if 'mig' in stageType: potentialLs = SG.GetObstacleTable(st['LevelR3'],2,1,1,3)
-                obstacleLs = SG.ObstacleSequence(potentialLs, st['ObstaclesR3'], 'biased')
-
-            newStage.ObstaclesR3 = json.dumps(obstacleLs)
+            newStage.ObstaclesR3 = json.dumps(obstacles)
             newStage.CompleteR3 = False
-            newStage.TypeR3 = stageType
+            newStage.TypeR3 = roomType
 
         newStage.save()
 
+    # dev can create duplicate stages
 
-def SetGuildTrial(guildMd):
-    pass
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').values()
+    stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+    stageLs = NT.DataframeToDicts(stageDf)
 
-
-def SetCommonWares(guildMd):
-    pass
-
- 
-def SetMagicMarket(guildMd):
-    pass
+    return stageLs
 
 
-def SetGuildAssets(guildMd):
-    pass
+def GetOrCreateTrial(guildMd, currDate):
+
+    # check for existing daily stages
+
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='trial', CreateDate=currDate
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create when update needed
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').delete()
+
+    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    lastType = ''
+
+    for st in rawStages:
+
+        newStage = GM.GuildStage()
+        newStage.GuildFK = guildMd
+        newStage.Heist = 'trial'
+        newStage.StageNo = st['StageNo']
+        newStage.CreateDate = currDate
+
+        # room 1 
+
+        roomType = ST.RandomRoomType(lastType)
+        lastType = roomType
+        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
+
+        newStage.ObstaclesR1 = json.dumps(obstacles)
+        newStage.CompleteR1 = False
+        newStage.TypeR1 = roomType
+
+        # room 2
+
+        if st['LevelR2']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
+
+            newStage.ObstaclesR2 = json.dumps(obstacles)
+            newStage.CompleteR2 = False
+            newStage.TypeR2 = roomType
+
+        # room 3 
+
+        if st['LevelR3']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
+
+            newStage.ObstaclesR3 = json.dumps(obstacles)
+            newStage.CompleteR3 = False
+            newStage.TypeR3 = roomType
+
+        newStage.save()
+
+    # dev can create duplicate stages
+
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').values()
+    stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+    stageLs = NT.DataframeToDicts(stageDf)
+
+    return stageLs
+
+
+def GetOrCreateRaid(guildMd, currDate):
+
+    # check for existing daily stages
+
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='raid', CreateDate=currDate
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create when update needed
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='raid').delete()
+
+    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    lastType = ''
+
+    for st in rawStages:
+
+        newStage = GM.GuildStage()
+        newStage.GuildFK = guildMd
+        newStage.Heist = 'raid'
+        newStage.StageNo = st['StageNo']
+        newStage.CreateDate = currDate
+
+        # room 1 
+
+        roomType = ST.RandomRoomType(lastType)
+        lastType = roomType
+        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
+
+        newStage.ObstaclesR1 = json.dumps(obstacles)
+        newStage.CompleteR1 = False
+        newStage.TypeR1 = roomType
+
+        # room 2
+
+        if st['LevelR2']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
+
+            newStage.ObstaclesR2 = json.dumps(obstacles)
+            newStage.CompleteR2 = False
+            newStage.TypeR2 = roomType
+
+        # room 3 
+
+        if st['LevelR3']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
+
+            newStage.ObstaclesR3 = json.dumps(obstacles)
+            newStage.CompleteR3 = False
+            newStage.TypeR3 = roomType
+
+        newStage.save()
+
+    # dev can create duplicate stages
+
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='raid').values()
+    stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+    stageLs = NT.DataframeToDicts(stageDf)
+
+    return stageLs
+
+
+def GetOrCreateDungeon(guildMd, currDate):
+
+    # check for existing daily stages
+
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='dungeon', CreateDate=currDate
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create when update needed
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').delete()
+
+    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    lastType = ''
+
+    for st in rawStages:
+
+        newStage = GM.GuildStage()
+        newStage.GuildFK = guildMd
+        newStage.Heist = 'dungeon'
+        newStage.StageNo = st['StageNo']
+        newStage.CreateDate = currDate
+
+        # room 1 
+
+        roomType = ST.RandomRoomType(lastType)
+        lastType = roomType
+        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
+
+        newStage.ObstaclesR1 = json.dumps(obstacles)
+        newStage.CompleteR1 = False
+        newStage.TypeR1 = roomType
+
+        # room 2
+
+        if st['LevelR2']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
+
+            newStage.ObstaclesR2 = json.dumps(obstacles)
+            newStage.CompleteR2 = False
+            newStage.TypeR2 = roomType
+
+        # room 3 
+
+        if st['LevelR3']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
+
+            newStage.ObstaclesR3 = json.dumps(obstacles)
+            newStage.CompleteR3 = False
+            newStage.TypeR3 = roomType
+
+        newStage.save()
+
+    # dev can create duplicate stages
+
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').values()
+    stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+    stageLs = NT.DataframeToDicts(stageDf)
+
+    return stageLs
+
+
+def GetOrCreateCampaign(guildMd, currDate):
+
+    # check for existing daily stages
+
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='campaign', CreateDate=currDate
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create when update needed
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').delete()
+
+    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    lastType = ''
+
+    for st in rawStages:
+
+        newStage = GM.GuildStage()
+        newStage.GuildFK = guildMd
+        newStage.Heist = 'campaign'
+        newStage.StageNo = st['StageNo']
+        newStage.CreateDate = currDate
+
+        # room 1 
+
+        roomType = ST.RandomRoomType(lastType)
+        lastType = roomType
+        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
+
+        newStage.ObstaclesR1 = json.dumps(obstacles)
+        newStage.CompleteR1 = False
+        newStage.TypeR1 = roomType
+
+        # room 2
+
+        if st['LevelR2']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
+
+            newStage.ObstaclesR2 = json.dumps(obstacles)
+            newStage.CompleteR2 = False
+            newStage.TypeR2 = roomType
+
+        # room 3 
+
+        if st['LevelR3']:
+            roomType = ST.RandomRoomType(lastType)
+            lastType = roomType
+            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
+
+            newStage.ObstaclesR3 = json.dumps(obstacles)
+            newStage.CompleteR3 = False
+            newStage.TypeR3 = roomType
+
+        newStage.save()
+
+    # dev can create duplicate stages
+
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').values()
+    stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+    stageLs = NT.DataframeToDicts(stageDf)
+
+    return stageLs
+
+
+
+def AttachDisplayData(stageLs):
+
+    for st in stageLs:
+
+        # print(st)
+
+        complete = True
+        obstLs = json.loads(st['ObstaclesR1'])
+        st['TrapsR1'] = len(obstLs)
+        st['LevelR1'] = obstLs[0]['Level']
+        if st['CompleteR1'] == False: complete = False
+
+        try:
+            obstLs = json.loads(st['ObstaclesR2'])
+            st['TrapsR2'] = len(obstLs)
+            st['LevelR2'] = obstLs[0]['Level']
+            if st['CompleteR2'] == False: complete = False
+        except:
+            pass
+
+        try:
+            obstLs = json.loads(st['ObstaclesR3'])
+            st['TrapsR3'] = len(obstLs)
+            st['LevelR3'] = obstLs[0]['Level']
+            if st['CompleteR3'] == False: complete = False
+        except:
+            pass
+
+        try:
+            obstLs = json.loads(st['ObstaclesR4'])
+            st['TrapsR4'] = len(obstLs)
+            st['LevelR4'] = obstLs[0]['Level']
+            if st['CompleteR4'] == False: complete = False
+        except:
+            pass
+
+        try:
+            obstLs = json.loads(st['ObstaclesR5'])
+            st['TrapsR5'] = len(obstLs)
+            st['LevelR5'] = obstLs[0]['Level']
+            if st['CompleteR5'] == False: complete = False
+        except:
+            pass
+
+        st['CompleteStage'] = complete
+
+    return stageLs
 

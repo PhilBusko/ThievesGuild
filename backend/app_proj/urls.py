@@ -27,6 +27,7 @@ engine_url = [
     re_path(r'^delete-guild', NV.DeleteGuild), 
     re_path(r'^guild-details', NV.GuildDetails), 
     re_path(r'^change-equip', NV.ChangeEquip), 
+    re_path(r'^daily-heists', NV.DailyHeists), 
 ]
 
 

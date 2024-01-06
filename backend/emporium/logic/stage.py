@@ -8,11 +8,59 @@ import app_proj.notebooks as NT
 import emporium.models as EM
 
 
-def RandomStageType():
-    potential = ['balanced', 'balanced', 'balanced', 'balanced',
-        'biased agi', 'biased cun', 'biased mig', 'biased cmb']
+def RandomRoomType(prevType):
+    potential = [
+        'balanced', 'balanced', 'balanced', 'balanced',
+        'biased agi', 'biased cun', 'biased mig', 'biased cmb'
+    ]
     chosen = random.choice(potential)
+    if 'biased' in prevType and 'biased' in chosen:   
+        chosen = 'balanced'
+
     return chosen
+
+def AssembleRoom(stageType, stageLevel, maxObstacles):
+
+    if stageType == 'balanced':
+        potentialLs = ProductionTable(stageLevel,4,2,2,2)
+        obstacleLs = ObstacleSequence(potentialLs, maxObstacles, 'balanced')
+
+    else:
+        if 'agi' in stageType: potentialLs = ProductionTable(stageLevel,2,3,1,1)
+        if 'cun' in stageType: potentialLs = ProductionTable(stageLevel,2,1,3,1)
+        if 'mig' in stageType: potentialLs = ProductionTable(stageLevel,2,1,1,3)
+        if 'cmb' in stageType: potentialLs = ProductionTable(stageLevel,4,1,1,1)
+        obstacleLs = ObstacleSequence(potentialLs, maxObstacles, 'biased')
+
+    return obstacleLs
+
+def ProductionTable(level, combat, agility, cunning, might):
+
+    table = []
+
+    enemyOb = EM.Enemy.objects.filter(Level=level)
+    enemyLs = list(enemyOb.values())
+    for ct in range(0, combat):
+        table += enemyLs
+
+    trapOb = EM.Trap.objects.filter(Level=level, Trait='Agi')
+    trapLs = list(trapOb.values())
+    for ct in range(0, agility):
+        table += trapLs
+
+    trapOb = EM.Trap.objects.filter(Level=level, Trait='Cun')
+    trapLs = list(trapOb.values())
+    for ct in range(0, cunning):
+        table += trapLs
+
+    trapOb = EM.Trap.objects.filter(Level=level, Trait='Mig')
+    trapLs = list(trapOb.values())
+    for ct in range(0, might):
+        table += trapLs
+
+    obsDf = PD.DataFrame(table).drop(['id'], axis=1, errors='ignore')
+    obsLs = NT.DataframeToDicts(obsDf)
+    return obsLs
 
 def ObstacleSequence(potentialLs, maxObstacles, configType):
     # create the obstacle sequence back to front
@@ -61,34 +109,6 @@ def ObstacleSequence(potentialLs, maxObstacles, configType):
         obstacleLs.insert(0, currentObs)
     
     return obstacleLs
-
-def GetProductionTable(level, combat, agility, cunning, might):
-
-    table = []
-
-    enemyOb = EM.Enemy.objects.filter(Level=level)
-    enemyLs = list(enemyOb.values())
-    for ct in range(0, combat):
-        table += enemyLs
-
-    trapOb = EM.Trap.objects.filter(Level=level, Trait='Agi')
-    trapLs = list(trapOb.values())
-    for ct in range(0, agility):
-        table += trapLs
-
-    trapOb = EM.Trap.objects.filter(Level=level, Trait='Cun')
-    trapLs = list(trapOb.values())
-    for ct in range(0, cunning):
-        table += trapLs
-
-    trapOb = EM.Trap.objects.filter(Level=level, Trait='Mig')
-    trapLs = list(trapOb.values())
-    for ct in range(0, might):
-        table += trapLs
-
-    obsDf = PD.DataFrame(table).drop(['id'], axis=1, errors='ignore')
-    obsLs = NT.DataframeToDicts(obsDf)
-    return obsLs
 
 
 DIFFICULTY = 13

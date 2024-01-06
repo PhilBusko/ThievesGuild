@@ -2,6 +2,7 @@
 ENGINE VIEWS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import pandas as PD
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -10,7 +11,12 @@ from rest_framework import status
 import app_proj.notebooks as NT
 import engine.models as GM
 import engine.logic.resource as RS
+import engine.logic.content as CT
 
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+RESOURCE VIEWS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -106,7 +112,6 @@ def DeleteGuild(request):
 def GuildDetails(request):
 
     userMd = request.user
-    print(userMd)
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
     if not guildMd:
@@ -178,6 +183,54 @@ def ChangeEquip(request):
         'message': None,
     }
     return Response(details)
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+CONTENT VIEWS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def DailyHeists(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({
+            'thiefLs': None,
+            'assetLs': None,
+            'message': '* A guild must be chosen in the Account page.',
+        })
+
+    currDt = timezone.now()
+    currDate = f"{currDt.year}-{str(currDt.month).zfill(2)}-{str(currDt.day).zfill(2)}"
+    currWeekDay = currDt.weekday()   # 0 monday, 1 tuesday, .. 6 sunday
+
+    tower = CT.GetOrCreateTower(guildMd, currDate)
+    tower = CT.AttachDisplayData(tower)
+
+    trial = CT.GetOrCreateTrial(guildMd, currDate)[1:3]
+    trial = CT.AttachDisplayData(trial)
+
+    raid = [CT.GetOrCreateRaid(guildMd, currDate)[4]]
+    raid = CT.AttachDisplayData(raid)
+
+    dungeon = [CT.GetOrCreateDungeon(guildMd, currDate)[9]]
+    dungeon = CT.AttachDisplayData(dungeon)
+
+    campaign = CT.GetOrCreateCampaign(guildMd, currDate)[2:] + CT.GetOrCreateCampaign(guildMd, currDate)[6:10]
+    campaign = CT.AttachDisplayData(campaign)
+
+    responseDx = {
+        'tower': tower,
+        'trial': trial,
+        'raid': raid,
+        'dungeon': [],
+        'campaign': campaign,
+        'message': None,
+    }
+    return Response(responseDx)
 
 
 

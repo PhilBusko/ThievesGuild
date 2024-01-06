@@ -3,6 +3,11 @@ RESOURCE ICONS
 **************************************************************************************************/
 import { styled } from '@mui/material/styles';
 import StarIcon from '../assets/resource-icons/star-rank.png'
+import TowerHeist from '../assets/resource-icons/heist-tower.png'
+import TrialHeist from '../assets/resource-icons/heist-trial.png'
+import RaidHeist from '../assets/resource-icons/heist-raid.png'
+import DungeonHeist from '../assets/resource-icons/heist-dungeon.png'
+import CampaignHeist from '../assets/resource-icons/heist-campaign.png'
 
 
 const StarImage = styled('img')(({ theme }) => ({
@@ -12,6 +17,6 @@ const StarImage = styled('img')(({ theme }) => ({
 
 
 export {
-    StarImage,
-    StarIcon,
+    StarImage, StarIcon,
+    TowerHeist, TrialHeist, RaidHeist, DungeonHeist, CampaignHeist,
 }

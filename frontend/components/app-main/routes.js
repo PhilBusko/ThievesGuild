@@ -5,6 +5,8 @@ import Scholarium from '../page-routes/scholarium';
 import Castle from '../page-routes/castle';
 import Barracks from '../page-routes/barracks';
 import Armory from '../page-routes/armory';
+import Heists from '../page-routes/heists';
+import Stage from '../page-routes/stage';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -45,7 +47,7 @@ export const RoutesConfig = [
     {
         'title': 'Heists',
         'path': '/heists/',
-        'element': <Scholarium />, 
+        'element': <Heists />, 
         'order': 5,
     },
     {
@@ -55,6 +57,12 @@ export const RoutesConfig = [
         'order': 6,
     },
 
+    {
+        'title': 'Stage',
+        'path': '/stage/',
+        'element': <Stage />, 
+        'order': 0,
+    },
     {
         'title': 'User Account',
         'path': '/account/',

@@ -51,7 +51,7 @@ function Armory(props) {
             url: '/engine/guild-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData.assetLs);
+                // console.log(responseData.assetLs);
                 setVaultLs(responseData.assetLs);
             }
             else {
@@ -66,7 +66,6 @@ function Armory(props) {
     }, []);
 
     
-
 
     const handleSellItem = (sellId) => {
         console.log(sellId);
@@ -97,13 +96,6 @@ function Armory(props) {
                     <ST.ContentCard elevation={3}> 
                         <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Vault</ST.BaseHighlight>
                         <Stack spacing='8px'>
-
-
-
-
-
-
-
 
                             <VaultTable
                                 dataLs={vaultLs}

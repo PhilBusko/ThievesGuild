@@ -124,7 +124,7 @@ function UserAccount(props) {
 
                 <ST.GridItemCenter item xs={12} lg={8}>
                     <ST.ContentCard elevation={3}> 
-                        <Stack spacing='8px' alignItems='start' >
+                        <Stack spacing='8px' alignItems='start'>
 
                             <ST.FlexHorizontal sx={{ justifyContent: 'space-between', alignItems: 'flex-start'}}>
                                 <ST.BaseHighlight>Lordly Guilds</ST.BaseHighlight>

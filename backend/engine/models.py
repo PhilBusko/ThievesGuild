@@ -13,10 +13,12 @@ import emporium.models as EM
 class Guild(JM.Model):
     UserFK = JM.ForeignKey(MM.User, on_delete=JM.CASCADE)
     Name = JM.TextField()
+
     KeepLevel = JM.IntegerField(default=1)
     TotalPower = JM.IntegerField(default=0)
     VaultGold = JM.IntegerField(default=0)
     VaultGems = JM.IntegerField(default=0)
+
     Selected = JM.BooleanField(default=False)
     LastPlayed = JM.DateField(default=now)
     CreateDate = JM.DateField(default=now)
@@ -89,38 +91,27 @@ class ItemUnlocked(JM.Model):
     objects = DB.BaseManager()
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ENGINE STAGES
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-class GuildRamp(JM.Model):
+class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    Heist = JM.TextField()          # tower, trial, raid, dungeon, campaign
     StageNo = JM.IntegerField()
-    StageDate = JM.DateField(default=now)
+    CreateDate = JM.DateField(default=now)
 
-    ObstaclesR1 = JM.TextField()
-    TypeR1 = JM.TextField(null=True)
-    CompleteR1 = JM.BooleanField(default=False)
-
-    objects = DB.BaseManager()
-    def __str__(self): 
-        msg = f"TestRamp {str(self.StageNo).zfill(2)} {len(json.loads(self.ObstaclesR1))} "
-        return msg
-
-class GuildTower(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    StageNo = JM.IntegerField()
-    StageDate = JM.DateField(default=now)
-
+    TypeR1 = JM.TextField()
+    TypeR2 = JM.TextField(null=True)
+    TypeR3 = JM.TextField(null=True)
+    TypeR4 = JM.TextField(null=True)
+    TypeR5 = JM.TextField(null=True)
     ObstaclesR1 = JM.TextField()
     ObstaclesR2 = JM.TextField(null=True)
     ObstaclesR3 = JM.TextField(null=True)
-    TypeR1 = JM.TextField(null=True)
-    TypeR2 = JM.TextField(null=True)
-    TypeR3 = JM.TextField(null=True)
+    ObstaclesR4 = JM.TextField(null=True)
+    ObstaclesR5 = JM.TextField(null=True)
     CompleteR1 = JM.BooleanField(default=False)
-    CompleteR2 = JM.BooleanField(null=True)
-    CompleteR3 = JM.BooleanField(null=True)
+    CompleteR2 = JM.BooleanField(default=False)
+    CompleteR3 = JM.BooleanField(default=False)
+    CompleteR4 = JM.BooleanField(default=False)
+    CompleteR5 = JM.BooleanField(default=False)
 
     objects = DB.BaseManager()
     def __str__(self): 
@@ -128,30 +119,4 @@ class GuildTower(JM.Model):
         msg += f"{len(json.loads(self.ObstaclesR2)) if self.ObstaclesR2 else 0} "
         msg += f"{len(json.loads(self.ObstaclesR3)) if self.ObstaclesR3 else 0} "
         return msg
-
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ENGINE STORES
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-class MagicMarket(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    ThiefFK = JM.ForeignKey(EM.UnlockableThief, on_delete=JM.CASCADE, null=True)
-    ItemFK = JM.ForeignKey(EM.UnlockableItem, on_delete=JM.CASCADE, null=True)
-    InventoryDate = JM.DateField(default=now)
-    objects = DB.BaseManager()
-
-class CommonWares(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    ItemFK = JM.ForeignKey(EM.UnlockableItem, on_delete=JM.CASCADE)
-    InventoryDate = JM.DateField(default=now)
-    objects = DB.BaseManager()
-
-class GuildAssets(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    ThiefFK = JM.ForeignKey(EM.UnlockableThief, on_delete=JM.CASCADE, null=True)
-    ItemFK = JM.ForeignKey(EM.UnlockableItem, on_delete=JM.CASCADE, null=True)
-    InventoryDate = JM.DateField(default=now)
-    objects = DB.BaseManager()
 
