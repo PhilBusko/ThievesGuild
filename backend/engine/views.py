@@ -232,6 +232,28 @@ def DailyHeists(request):
     }
     return Response(responseDx)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ThiefDetails(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({
+            'thiefLs': None,
+            'message': '* A guild must be chosen in the Account page.',
+        })
+
+    thiefDf = RS.GetThiefList(guildMd)
+    thiefDf = thiefDf.sort_values(by=['Class', 'Power'], ascending=[True, False])
+
+    details = {
+        'thiefLs': NT.DataframeToDicts(thiefDf),
+        'message': None,
+    }
+    return Response(details)
+
 
 
 

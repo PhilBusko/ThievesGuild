@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
 import * as ST from '../styled-elements';
-import * as IC from '../../assets/equipment-icons';
+import * as IC from '../../assets/guild-icons';
 import * as RC from '../../assets/resource-icons';
 
 

@@ -255,7 +255,8 @@ def GetThiefList(guildMd):
         dmgMin = thiefDx['Damage'] - int(thiefDx['Damage'] /2)
         dmgMax = thiefDx['Damage'] + int(thiefDx['Damage'] /2)
         thiefDx['DisplayDamage'] = f"{dmgMin}-{dmgMax}"
-        
+        thiefDx['iconCode'] = f"class-{thiefDx['Class'].lower()}"
+
         slots = ['weapon', 'armor', 'head', 'hands', 'feet', ]
 
         for sl in slots:

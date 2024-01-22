@@ -376,51 +376,80 @@ def GetOrCreateCampaign(guildMd, currDate):
 
 
 
+def AttachObstacleDisplay(obstacleLs):
+
+    for ob in obstacleLs:
+
+        obstType = 'Trap' 
+        if ob['Failure'] == 'knockout': obstType = 'Enemy'
+        if 'next' in ob['Success']: obstType = 'Passage'
+        if ob['Failure'] == 'pass': obstType = 'Favor'
+        ob['Type'] = obstType
+
+        dmgMin = ob['Damage'] - int(ob['Damage'] /2)
+        dmgMax = ob['Damage'] + int(ob['Damage'] /2)
+        ob['DisplayDamage'] = f"{dmgMin}-{dmgMax}"
+
+        ob['IconCode'] = None
+
+    return obstacleLs
+
 def AttachDisplayData(stageLs):
 
     for st in stageLs:
 
         # print(st)
-
         complete = True
+        roomCount = 1
+
         obstLs = json.loads(st['ObstaclesR1'])
+        st['ObstaclesR1'] = json.dumps(AttachObstacleDisplay(obstLs))
         st['TrapsR1'] = len(obstLs)
         st['LevelR1'] = obstLs[0]['Level']
         if st['CompleteR1'] == False: complete = False
 
         try:
             obstLs = json.loads(st['ObstaclesR2'])
+            st['ObstaclesR2'] = json.dumps(AttachObstacleDisplay(obstLs))
             st['TrapsR2'] = len(obstLs)
             st['LevelR2'] = obstLs[0]['Level']
             if st['CompleteR2'] == False: complete = False
+            roomCount += 1
         except:
             pass
 
         try:
             obstLs = json.loads(st['ObstaclesR3'])
+            st['ObstaclesR3'] = json.dumps(AttachObstacleDisplay(obstLs))
             st['TrapsR3'] = len(obstLs)
             st['LevelR3'] = obstLs[0]['Level']
             if st['CompleteR3'] == False: complete = False
+            roomCount += 1
         except:
             pass
 
         try:
             obstLs = json.loads(st['ObstaclesR4'])
+            st['ObstaclesR4'] = json.dumps(AttachObstacleDisplay(obstLs))
             st['TrapsR4'] = len(obstLs)
             st['LevelR4'] = obstLs[0]['Level']
             if st['CompleteR4'] == False: complete = False
+            roomCount += 1
         except:
             pass
 
         try:
             obstLs = json.loads(st['ObstaclesR5'])
+            st['ObstaclesR5'] = json.dumps(AttachObstacleDisplay(obstLs))
             st['TrapsR5'] = len(obstLs)
             st['LevelR5'] = obstLs[0]['Level']
             if st['CompleteR5'] == False: complete = False
+            roomCount += 1
         except:
             pass
 
-        st['CompleteStage'] = complete
+        st['StageComplete'] = complete
+        st['NumberRooms'] = roomCount
 
     return stageLs
 

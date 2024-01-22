@@ -6,7 +6,7 @@ import { Box, ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import * as ST from '../styled-elements';
-import * as IC from '../../assets/equipment-icons';
+import * as IC from '../../assets/guild-icons';
 import * as RC from '../../assets/resource-icons';
 import SeparatorSilver from '../../assets/layout-pieces/separator-silver.png';
 import CardTexture from '../../assets/layout-pieces/card-texture.jpg';

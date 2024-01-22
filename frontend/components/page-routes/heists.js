@@ -82,6 +82,7 @@ function Heists(props) {
     const [campaign, setCampaign] = useState([]);
 
     useEffect(() => {
+        setErrorLs([]);
         AxiosConfig({
             url: '/engine/daily-heists',
         }).then(responseData => {
@@ -138,11 +139,8 @@ function Heists(props) {
     // start heist
 
     const handleStart = (startId) => {
-
         const stage = selectedHeist.filter((item) => item.id == startId)[0];
-
         navigate('/stage/', {state: {stage: stage}});
-
     }
 
     // render
@@ -168,7 +166,8 @@ function Heists(props) {
                         <HeistGroup
                             buttonImage={RC.RaidHeist}
                             title={ 'Burglary Raid' }
-                            infoTx={["Attack another guild master's headquarters", 'Rewards are 3x']}
+                            infoTx={["Attack another guild master's headquarters", 
+                                'Rewards are 3x', 'Available at Keep 3', ]}
                             notifyHeist={ handleHeist }
                         />
                         <HeistGroup

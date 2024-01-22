@@ -11,9 +11,9 @@ auth_url = [
     re_path(r'^token-refresh',  MV.TokenRefresh ),
     re_path(r'^create-user',    MV.CreateUser ),
     re_path(r'^send-verification',      MV.SendVerification ),
-    re_path(r'^verify-registration',    MV.VerifyRegistration), 
-    re_path(r'^forgot-password',        MV.ForgotPassword), 
-    re_path(r'^reset-password',         MV.ResetPassword), 
+    re_path(r'^verify-registration',    MV.VerifyRegistration),
+    re_path(r'^forgot-password',        MV.ForgotPassword),
+    re_path(r'^reset-password',         MV.ResetPassword),
 ]
 
 emporium_url = [
@@ -21,13 +21,16 @@ emporium_url = [
 ]
 
 engine_url = [
-    re_path(r'^user-account', NV.UserAccount), 
-    re_path(r'^create-guild', NV.CreateGuild), 
-    re_path(r'^select-guild', NV.SelectGuild), 
-    re_path(r'^delete-guild', NV.DeleteGuild), 
-    re_path(r'^guild-details', NV.GuildDetails), 
-    re_path(r'^change-equip', NV.ChangeEquip), 
-    re_path(r'^daily-heists', NV.DailyHeists), 
+    re_path(r'^user-account', NV.UserAccount),
+    re_path(r'^create-guild', NV.CreateGuild),
+    re_path(r'^select-guild', NV.SelectGuild),
+    re_path(r'^delete-guild', NV.DeleteGuild),
+
+    re_path(r'^guild-details',  NV.GuildDetails),
+    re_path(r'^change-equip',   NV.ChangeEquip),
+
+    re_path(r'^daily-heists',   NV.DailyHeists),
+    re_path(r'^thief-details',   NV.ThiefDetails),
 ]
 
 
