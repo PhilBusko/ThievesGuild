@@ -156,16 +156,16 @@ function Barracks(props) {
 
                 <ST.GridItemCenter item xs={12} md={8} sx={{background: ''}}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Rogue Ranks</ST.BaseHighlight>
-
-                        <ThiefTable 
-                            dataLs={thiefLs}
-                            notifySelect={handleThiefSelected}
-                        />
-
-                        { errorLs.length > 0 &&
-                            <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                        }
+                        <Stack spacing={'8px'}>
+                            <ST.BaseHighlight>Rogue Ranks</ST.BaseHighlight>
+                            <ThiefTable 
+                                dataLs={thiefLs}
+                                notifySelect={handleThiefSelected}
+                            />
+                            { errorLs.length > 0 &&
+                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                            }
+                        </Stack>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 

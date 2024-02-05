@@ -237,11 +237,18 @@ function SelectThief(props) {
             <ButtonWorkspace sx={{ backgroundImage: `url(${getStageBkgd(props.heist)})` }} >
 
                 <ST.FlexHorizontal sx={{ justifyContent: 'space-between', }}>
-                    <SelectorButton variant='contained' onClick={()=> { props.notifySeeTraps(props.roomNumber) }}>
-                        <ST.BaseText sx={{marginTop: '-6px', }}>Traps</ST.BaseText>
+                    <SelectorButton 
+                        variant='contained' 
+                        onClick={()=> { props.notifySeeTraps(props.roomNumber) }}
+                        disabled={ props.roomNumber == props.selectedRoom }
+                    >
+                        <ST.BaseText sx={{marginTop: '-6px', }}>Scope</ST.BaseText>
                     </SelectorButton>
-                    <SelectorButton variant='contained' onClick={()=> { handleThiefChoice(null) }}
-                        disabled={ !props.selectedThief }>
+                    <SelectorButton 
+                        variant='contained' 
+                        onClick={()=> { handleThiefChoice(null) }}
+                        disabled={ !props.selectedThief }
+                    >
                         <ST.BaseText sx={{marginTop: '-6px', }}>Unassign</ST.BaseText>
                     </SelectorButton>
                 </ST.FlexHorizontal>
@@ -260,6 +267,7 @@ SelectThief.defaultProps = {
     level: 0,
     thiefChoices: [],
     selectedThief: null,
+    selectedRoom: 0,
     notifyThiefChoice: () => {},
     notifySeeTraps: () => {},
 };

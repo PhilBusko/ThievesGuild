@@ -45,9 +45,11 @@ function Scholarium(props) {
                     <ST.ContentCard elevation={3}> 
                         <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Getting Started</ST.BaseHighlight>
                         <ST.BaseText>
-                            Well met, fellow guild master.
-                            Thieves' Guild is a mobile auto-battle game.
-                            It takes great inspiration in Fallout Shelter and AC Rebellion.
+                            Welcome to Thieves' Guild, a mobile auto-battle game.
+                            This project is a prototype and has minimal graphics and user interface.
+                            It's meant to demonstrate the game mechanics,
+                            which are heavily inspired from AC Rebellion and Fallout Shelter.
+                            
                         </ST.BaseText>
                     </ST.ContentCard>
                 </ST.GridItemCenter>

@@ -83,6 +83,7 @@ def GetOrCreateTower(guildMd, currDate):
     return stageLs
 
 
+
 def GetOrCreateTrial(guildMd, currDate):
 
     # check for existing daily stages

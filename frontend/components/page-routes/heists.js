@@ -14,7 +14,7 @@ import * as RC from '../assets/resource-icons';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import HeistGroup from '../elements/custom/heist-group';
 
-import SeparatorSilver from '../assets/layout-pieces/separator-silver.png';
+import SeparatorSilver from '../assets/layout-pieces/separator-silver-vert.png';
 import TowerTexture from '../assets/layout-pieces/texture-tower.jpg'
 import TrialTexture from '../assets/layout-pieces/texture-trial.jpg'
 import RaidTexture from '../assets/layout-pieces/texture-raid.jpg'
@@ -71,7 +71,7 @@ function Heists(props) {
 
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
-    let navigate = useNavigate();  
+    const navigate = useNavigate();  
 
     // heists data
 
@@ -140,7 +140,7 @@ function Heists(props) {
 
     const handleStart = (startId) => {
         const stage = selectedHeist.filter((item) => item.id == startId)[0];
-        navigate('/stage/', {state: {stage: stage}});
+        navigate('/deployment/', {state: {stage: stage}});
     }
 
     // render

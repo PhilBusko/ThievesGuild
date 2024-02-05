@@ -6,7 +6,8 @@ import Castle from '../page-routes/castle';
 import Barracks from '../page-routes/barracks';
 import Armory from '../page-routes/armory';
 import Heists from '../page-routes/heists';
-import Stage from '../page-routes/stage';
+import Deployment from '../page-routes/deployment';
+import Playthrough from '../page-routes/playthrough';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -58,9 +59,15 @@ export const RoutesConfig = [
     },
 
     {
-        'title': 'Stage',
-        'path': '/stage/',
-        'element': <Stage />, 
+        'title': 'Deployment',
+        'path': '/deployment/',
+        'element': <Deployment />, 
+        'order': 0,
+    },
+    {
+        'title': 'Playthrough',
+        'path': '/playthrough/',
+        'element': <Playthrough />, 
         'order': 0,
     },
     {

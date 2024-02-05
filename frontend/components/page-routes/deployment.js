@@ -1,8 +1,8 @@
 /**************************************************************************************************
-STAGE PAGE
+DEPLOYMENT PAGE
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Grid, Box, Stack, ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DoubleArrow } from '@mui/icons-material';
@@ -22,7 +22,7 @@ const Broadcast = styled(Box)(({ theme }) => ({
     }, 
 }));
 
-const StageCollapse = styled(ButtonBase)(({ theme }) => ({
+const DeploymentCollapse = styled(ButtonBase)(({ theme }) => ({
     '& svg': {
         borderRadius: '50%',
         fontSize: '280%',
@@ -34,8 +34,6 @@ const StageCollapse = styled(ButtonBase)(({ theme }) => ({
     },
 }));
 
-
-
 const ObstacleGroup = styled(ST.FlexVertical)(({ theme }) => ({
     width: '100px',
     padding: '6px',
@@ -46,15 +44,10 @@ const ObstacleGroup = styled(ST.FlexVertical)(({ theme }) => ({
 }));
 
 
-
-function Stage(props) {
+function Deployment(props) {
 
 
     // globals
-
-    const [message, setMessage] = useState('');
-    const [errorLs, setErrorLs] = useState([]);
-    const location = useLocation();
 
     const { pageStore } = useContext(GlobalContext);
     useEffect(() => {
@@ -65,8 +58,26 @@ function Stage(props) {
         pageStore[1](newUrl);
     });
 
+    const [message, setMessage] = useState('');
+    const [errorLs, setErrorLs] = useState([]);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+
+    // stage data 
+
+    const [stage, setStage] = useState([]);
+
     useEffect(() => {
-        // console.log(location.state.stage);
+        if ( !location.state ) {
+            setStage([]);
+            navigate('/heists/');
+        }
+        else {
+            console.log(location.state.stage);
+            setStage(location.state.stage);
+            // window.history.replaceState({}, document.title);
+        }
     });
 
 
@@ -75,11 +86,8 @@ function Stage(props) {
     const [roomsCollapsed, setRoomsCollapsed] = useState(false);
 
     const handleCollapse = () => {
-        
         const newCollapse = !roomsCollapsed;
         setRoomsCollapsed(newCollapse);
-
-
     }
 
 
@@ -147,10 +155,12 @@ function Stage(props) {
     // choose room to see
 
     const [selectedRoom, setSelectedRoom] = useState([]);
+    const [selectedRoomNo, setSelectedRoomNo] = useState(0);
 
     useEffect(() => {
         const newRoom = JSON.parse(location.state.stage.ObstaclesR1);
         setSelectedRoom(newRoom);
+        setSelectedRoomNo(1);
     }, []);
 
     const handleTraps = (roomNo) => {
@@ -161,6 +171,17 @@ function Stage(props) {
         if (roomNo == 4) newRoom = JSON.parse(location.state.stage.ObstaclesR4);
         if (roomNo == 5) newRoom = JSON.parse(location.state.stage.ObstaclesR5);
         setSelectedRoom(newRoom);
+        setSelectedRoomNo(roomNo);
+    }
+
+    const handleLaunch = () => {
+        const stage = location.state.stage;
+        const thiefDeployment = [thiefR1, thiefR2, thiefR3, thiefR4, thiefR5];
+
+        navigate(
+            '/playthrough/', 
+            {state: {stage: stage, thiefDeployment: thiefDeployment}}
+        );
     }
 
 
@@ -227,17 +248,17 @@ function Stage(props) {
                 </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12} lg={8} >
-                    <ST.ContentCard elevation={3} sx={{padding: '4px 8px 16px 16px',}}> 
+                    <ST.ContentCard elevation={3} sx={{padding: '16px 8px 16px 16px',}}> 
 
-                        <ST.FlexHorizontal sx={{justifyContent: 'flex-start', }}>
+                        <ST.FlexHorizontal sx={{justifyContent: 'flex-start', display: 'none' }}>
                             <Box sx={{ width: `${location.state.stage.NumberRooms * 175 + 65}px`,
                                 borderBottom: `4px solid ${ST.GoldText}` }}>
                             </Box>
                             <ST.FlexHorizontal sx={{ width: '36px', margin: '0px 0px 0px 8px', }}>
-                                <StageCollapse onClick={handleCollapse}
+                                <DeploymentCollapse onClick={handleCollapse}
                                     sx={{transform: roomsCollapsed ? 'rotate(90deg)' : 'rotate(270deg)'}}>
                                     <DoubleArrow></DoubleArrow>
-                                </StageCollapse>
+                                </DeploymentCollapse>
                             </ST.FlexHorizontal>
                         </ST.FlexHorizontal>
 
@@ -254,6 +275,7 @@ function Stage(props) {
                                 level={location.state.stage.LevelR1}
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefR1}
+                                selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             />
@@ -267,6 +289,7 @@ function Stage(props) {
                                 level={location.state.stage.LevelR2}
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefR2}
+                                selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
@@ -280,12 +303,15 @@ function Stage(props) {
                                 level={location.state.stage.LevelR3}
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefR3}
+                                selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
 
-                            <ST.RegularButton variant='contained'
-                                onClick={() => {}} disabled={!isFulfilled}
+                            <ST.RegularButton 
+                                variant='contained'
+                                onClick={ handleLaunch } 
+                                disabled={ !isFulfilled }
                             >
                                 <ST.BaseHighlight sx={{marginTop: '-8px'}}>Loot</ST.BaseHighlight>
                             </ST.RegularButton>
@@ -296,7 +322,7 @@ function Stage(props) {
                 </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12} lg={12}>
-                    <ST.ContentCard elevation={3} sx={{paddingTop: '16px', }}> 
+                    <ST.ContentCard elevation={3} sx={{paddingTop: '16px', display: 'inherit', }}> 
                         <ST.FlexHorizontal sx={{justifyContent: 'flex-start'}}>
 
                             { !!selectedRoom && selectedRoom.map((trap, id) => (
@@ -340,4 +366,4 @@ function Stage(props) {
     );
 }
 
-export default Stage;
+export default Deployment;

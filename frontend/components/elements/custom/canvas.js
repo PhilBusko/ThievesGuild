@@ -20,28 +20,40 @@ function Canvas(props) {
         const context = canvasRef.current.getContext('2d');
 
         canvasRef.current.width = 400;
+        canvasRef.current.height = 200;
 
         // 60fps browser animation; a while loop locks the UI
         let frameCount = 0;
         let animationFrameId;
         const animate = () => {
-            frameCount++
-            props.draw(context, frameCount)
-            animationFrameId = window.requestAnimationFrame(animate)
+            frameCount++;
+            props.draw(context, frameCount);
+            animationFrameId = window.requestAnimationFrame(animate);
         }
         animate();
 
         // cleanup function for unmount
         return () => {
-            window.cancelAnimationFrame(animationFrameId)
+            console.log(frameCount, animationFrameId);
+            window.cancelAnimationFrame(animationFrameId);
         }
 
-    }, [props.draw]);    // unclear if draw needs to be called here, otherwise it's just onload
+    }, [ ]);
+
+
+    const handleClick = (event) => {
+
+        const offsetTop = event.target.offsetTop;
+        const offsetLeft = event.target.offsetLeft;
+
+
+    }
 
 
     return (
-        <StyledCanvas ref={ canvasRef } 
-            onClick={(e) => {alert(e.offsetX );}}
+        <StyledCanvas 
+            ref={ canvasRef } 
+            onClick={ handleClick }
         />
     );
 }

@@ -65,14 +65,14 @@ const TitleGroup = styled('h1')(({ theme }) => ({
 }));
 
 const ContentCard = styled(Card)(({ theme }) => ({
-    padding: '0px 16px 16px 16px', 
-    border: '3px ridge goldenrod', 
-    overflow: 'visible', 
+    padding: '0px 16px 16px 16px',
+    border: '3px ridge goldenrod',
+    overflow: 'visible',
 
     backgroundImage: `url(${cardTexture})`,
     backgroundSize: 'auto',
-    backgroundPosition: 'center center', 
-    backgroundRepeat: 'repeat', 
+    backgroundPosition: 'center center',
+    backgroundRepeat: 'repeat',
 }));
 
 const RegularButton = styled(Button)(({ theme }) => ({
