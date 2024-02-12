@@ -210,23 +210,23 @@ def DailyHeists(request):
     tower = CT.GetOrCreateTower(guildMd, currDate)
     tower = CT.AttachDisplayData(tower)
 
-    trial = CT.GetOrCreateTrial(guildMd, currDate)[1:3]
+    trial = CT.GetOrCreateTower(guildMd, currDate)[1:3]
     trial = CT.AttachDisplayData(trial)
 
-    raid = [CT.GetOrCreateRaid(guildMd, currDate)[4]]
+    raid = [CT.GetOrCreateTower(guildMd, currDate)[4]]
     raid = CT.AttachDisplayData(raid)
 
-    dungeon = [CT.GetOrCreateDungeon(guildMd, currDate)[9]]
+    dungeon = []
     dungeon = CT.AttachDisplayData(dungeon)
 
-    campaign = CT.GetOrCreateCampaign(guildMd, currDate)[2:] + CT.GetOrCreateCampaign(guildMd, currDate)[6:10]
+    campaign = CT.GetOrCreateTower(guildMd, currDate)[2:] + CT.GetOrCreateTower(guildMd, currDate)[6:10]
     campaign = CT.AttachDisplayData(campaign)
 
     responseDx = {
         'tower': tower,
         'trial': trial,
         'raid': raid,
-        'dungeon': [],
+        'dungeon': dungeon,
         'campaign': campaign,
         'message': None,
     }

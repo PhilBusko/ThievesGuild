@@ -13,8 +13,7 @@ import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import SeparatorSilver from '../assets/layout-pieces/separator-silver-horiz.png';
 
-import CanvasEngine from '../elements/custom/canvas-engine';
-
+import StageConfig from '../elements/engine/stage-config';
 
 
 
@@ -25,13 +24,11 @@ const Broadcast = styled(Box)(({ theme }) => ({
     }, 
 }));
 
-
 const RoomSeparator = styled('img')(({ theme }) => ({
     height: '12px',
     width: '110px', 
     padding: '10px 0px 0px 8px',
 }));
-
 
 
 
@@ -52,30 +49,47 @@ function Playthrough(props) {
         if (urlParts.length > 3 && urlParts[3])
             newUrl = `/${urlParts[3]}/`;
         pageStore[1](newUrl);
-    });
+    }, []);
 
 
     // playthrough data 
 
-    const [stage, setStage] = useState([]);
+    const [stage, setStage] = useState({});
     const [thiefDeployment, setThiefDeployment] = useState([]);
+    const [roomNo, setRoomNo] = useState(0);
 
     useEffect(() => {
         if ( !location.state ) {
-            setStage([]);
+            setStage({});
             setThiefDeployment([]);
             navigate('/heists/');
         }
         else {
-            // console.log(location.state.stage);
-            // console.log(location.state.thiefDeployment);    
+            console.log(location.state.stage);
+            // console.log(location.state.thiefDeployment);  
+
             setStage(location.state.stage);
             setThiefDeployment(location.state.thiefDeployment);
+
+            setRoomNo(1);
             // window.history.replaceState({}, document.title);
         }
-    });
+    }, []);
 
 
+
+
+    // stage canvas engine
+
+    useEffect(() => {
+
+        var obstacles = '';
+        if (roomNo == 1) obstacles = stage.ObstaclesR1;
+        if (roomNo == 2) obstacles = stage.ObstaclesR2;
+
+        
+
+    }, [roomNo]);
 
 
 
@@ -97,14 +111,6 @@ function Playthrough(props) {
         if (roomCode.includes('cmb')) return 'Combat';
         return 'Mixed';
     }
-
-
-
-    // stage canvas engine
-
-    
-
-
 
     // render
 
@@ -129,47 +135,50 @@ function Playthrough(props) {
                 </Grid> }
 
 
-
-
-
                 <ST.GridItemCenter item xs={12} lg={2}>
                     <ST.ContentCard elevation={3} sx={{width: '120px'}}>
 
-                            { !!stage.TypeR1 && <>
-                                <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                    <ST.BaseHighlight sx={{}}>Room I</ST.BaseHighlight>
-                                    <ST.BaseText>{getRoomType(stage.TypeR1)}: {stage.TrapsR1} - {stage.LevelR1}</ST.BaseText>
-                                    <ST.BaseText>{ thiefDeployment[0].Name }</ST.BaseText>
-                                    <ST.BaseText> In Play </ST.BaseText>
-                                </ST.FlexVertical>
-                                { stage.NumberRooms > 1 && <RoomSeparator src={ SeparatorSilver }/> }
-                            </>}
+                        { Object.keys(stage).length != 0 && !!stage.RoomTypes[0] && <>
+                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
+                                <ST.BaseHighlight sx={{}}>Room I</ST.BaseHighlight>
+                                <ST.BaseText>
+                                    {getRoomType(stage.RoomTypes[0])}: {stage.ObstCount[0]} - {stage.ObstLevels[0]}
+                                </ST.BaseText>
+                                <ST.BaseText>{ thiefDeployment[0].Name }</ST.BaseText>
+                                <ST.BaseText> In Play </ST.BaseText>
+                            </ST.FlexVertical>
+                            { stage.NumberRooms > 1 && <RoomSeparator src={ SeparatorSilver }/> }
+                        </>}
 
-                            { !!stage.TypeR2 && <>
-                                <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                    <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Room II</ST.BaseHighlight>
-                                    <ST.BaseText>{getRoomType(stage.TypeR2)}: {stage.TrapsR2} - {stage.LevelR2}</ST.BaseText>
-                                    <ST.BaseText>{ thiefDeployment[1].Name }</ST.BaseText>
-                                    <ST.BaseText> In Play </ST.BaseText>
-                                </ST.FlexVertical>
-                                { stage.NumberRooms > 2 && <RoomSeparator src={ SeparatorSilver }/> }
-                            </>}
+                        { Object.keys(stage).length != 0 && !!stage.RoomTypes[1] && <>
+                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
+                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Room II</ST.BaseHighlight>
+                                <ST.BaseText>
+                                    {getRoomType(stage.RoomTypes[1])}: {stage.ObstCount[1]} - {stage.ObstLevels[1]}
+                                </ST.BaseText>
+                                <ST.BaseText>{ thiefDeployment[1].Name }</ST.BaseText>
+                                <ST.BaseText> In Play </ST.BaseText>
+                            </ST.FlexVertical>
+                            { stage.NumberRooms > 2 && <RoomSeparator src={ SeparatorSilver }/> }
+                        </>}
 
-                            { !!stage.TypeR3 && <>
-                                <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                    <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Room III</ST.BaseHighlight>
-                                    <ST.BaseText>{getRoomType(stage.TypeR3)}: {stage.TrapsR3} - {stage.LevelR3}</ST.BaseText>
-                                    <ST.BaseText>{ thiefDeployment[2].Name }</ST.BaseText>
-                                    <ST.BaseText> In Play </ST.BaseText>
-                                </ST.FlexVertical>
-                                { stage.NumberRooms > 3 && <RoomSeparator src={ SeparatorSilver }/> }
-                            </>}
+                        { Object.keys(stage).length != 0 && !!stage.RoomTypes[2] && <>
+                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
+                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Room III</ST.BaseHighlight>
+                                <ST.BaseText>
+                                    {getRoomType(stage.RoomTypes[2])}: {stage.ObstCount[2]} - {stage.ObstLevels[2]}
+                                </ST.BaseText>
+                                <ST.BaseText>{ thiefDeployment[2].Name }</ST.BaseText>
+                                <ST.BaseText> In Play </ST.BaseText>
+                            </ST.FlexVertical>
+                            { stage.NumberRooms > 3 && <RoomSeparator src={ SeparatorSilver }/> }
+                        </>}
 
-                            { errorLs.length > 0 &&
-                                <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
-                                    <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                                </ST.FlexHorizontal>
-                            }
+                        { errorLs.length > 0 &&
+                            <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
+                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                            </ST.FlexHorizontal>
+                        }
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>
@@ -177,12 +186,9 @@ function Playthrough(props) {
 
                 <ST.GridItemCenter item xs={12} lg={10}>
 
-                    <CanvasEngine
+                    <StageConfig
                         windowSize={{width: 920, height: 400}}
-                        backgroundSize={{width: 2160, height: 400}}
-                        imageBkgd={''}
-                        spriteLs={[]}
-                        buttonLs={[]}
+                        
                     />
 
                 </ST.GridItemCenter>

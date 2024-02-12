@@ -3,7 +3,7 @@ DEPLOYMENT PAGE
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Grid, Box, Stack, ButtonBase } from '@mui/material';
+import { Grid, Box, ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DoubleArrow } from '@mui/icons-material';
 
@@ -66,15 +66,15 @@ function Deployment(props) {
 
     // stage data 
 
-    const [stage, setStage] = useState([]);
+    const [stage, setStage] = useState({});
 
     useEffect(() => {
         if ( !location.state ) {
-            setStage([]);
+            setStage({});
             navigate('/heists/');
         }
         else {
-            console.log(location.state.stage);
+            // console.log(location.state.stage);
             setStage(location.state.stage);
             // window.history.replaceState({}, document.title);
         }
@@ -158,24 +158,23 @@ function Deployment(props) {
     const [selectedRoomNo, setSelectedRoomNo] = useState(0);
 
     useEffect(() => {
-        const newRoom = JSON.parse(location.state.stage.ObstaclesR1);
+        const newRoom = location.state.stage.ObstaclesR1;
         setSelectedRoom(newRoom);
         setSelectedRoomNo(1);
     }, []);
 
     const handleTraps = (roomNo) => {
         var newRoom = '';
-        if (roomNo == 1) newRoom = JSON.parse(location.state.stage.ObstaclesR1);
-        if (roomNo == 2) newRoom = JSON.parse(location.state.stage.ObstaclesR2);
-        if (roomNo == 3) newRoom = JSON.parse(location.state.stage.ObstaclesR3);
-        if (roomNo == 4) newRoom = JSON.parse(location.state.stage.ObstaclesR4);
-        if (roomNo == 5) newRoom = JSON.parse(location.state.stage.ObstaclesR5);
+        if (roomNo == 1) newRoom = stage.ObstaclesR1;
+        if (roomNo == 2) newRoom = stage.ObstaclesR2;
+        if (roomNo == 3) newRoom = stage.ObstaclesR3;
+        if (roomNo == 4) newRoom = stage.ObstaclesR4;
+        if (roomNo == 5) newRoom = stage.ObstaclesR5;
         setSelectedRoom(newRoom);
         setSelectedRoomNo(roomNo);
     }
 
     const handleLaunch = () => {
-        const stage = location.state.stage;
         const thiefDeployment = [thiefR1, thiefR2, thiefR3, thiefR4, thiefR5];
 
         navigate(
@@ -267,26 +266,27 @@ function Deployment(props) {
                             justifyContent: 'flex-start',
                         }}>
 
+                            {Object.keys(stage).length != 0 &&
                             <SelectThief
-                                heist={location.state.stage.Heist}
+                                heist={stage.Heist}
                                 roomNumber={1}
-                                roomType={location.state.stage.TypeR1}
-                                traps={location.state.stage.TrapsR1}
-                                level={location.state.stage.LevelR1}
+                                roomType={stage.RoomTypes[0]}
+                                traps={stage.ObstCount[0]}
+                                level={stage.ObstLevels[0]}
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefR1}
                                 selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
-                            />
+                            /> }
 
-                            {!!location.state.stage.TypeR2 && 
+                            {Object.keys(stage).length != 0 && !!stage.RoomTypes[1] && 
                             <SelectThief
-                                heist={location.state.stage.Heist}
+                                heist={stage.Heist}
                                 roomNumber={2}
-                                roomType={location.state.stage.TypeR2}
-                                traps={location.state.stage.TrapsR2}
-                                level={location.state.stage.LevelR2}
+                                roomType={stage.RoomTypes[1]}
+                                traps={stage.ObstCount[1]}
+                                level={stage.ObstLevels[1]}
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefR2}
                                 selectedRoom={selectedRoomNo}
@@ -294,13 +294,13 @@ function Deployment(props) {
                                 notifySeeTraps={handleTraps}
                             /> }
 
-                            {!!location.state.stage.TypeR3 && 
+                            {Object.keys(stage).length != 0 && !!stage.RoomTypes[2] && 
                             <SelectThief
-                                heist={location.state.stage.Heist}
+                                heist={stage.Heist}
                                 roomNumber={3}
-                                roomType={location.state.stage.TypeR3}
-                                traps={location.state.stage.TrapsR3}
-                                level={location.state.stage.LevelR3}
+                                roomType={stage.RoomTypes[2]}
+                                traps={stage.ObstCount[2]}
+                                level={stage.ObstLevels[2]}
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefR3}
                                 selectedRoom={selectedRoomNo}

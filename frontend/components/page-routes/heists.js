@@ -87,6 +87,7 @@ function Heists(props) {
             url: '/engine/daily-heists',
         }).then(responseData => {
             if (!responseData.message) {
+                // console.log(responseData.tower)
                 setTower(responseData.tower);
                 setTrial(responseData.trial);
                 setRaid(responseData.raid);
@@ -124,11 +125,11 @@ function Heists(props) {
         if (roomCode.includes('agi')) return 'Agility';
         if (roomCode.includes('cun')) return 'Cunning';
         if (roomCode.includes('mig')) return 'Might';
-        if (roomCode.includes('cmb')) return 'Combat';
+        if (roomCode.includes('cmb')) return 'Guards';
         return 'Mixed';
     }
 
-    const getStageBkgd = (heist) => {
+    const getHeistIcon = (heist) => {
         if (heist.includes('trial')) return TrialTexture;
         if (heist.includes('raid')) return RaidTexture;
         if (heist.includes('dungeon')) return DungeonTexture;
@@ -202,7 +203,7 @@ function Heists(props) {
                 <Grid item xs={12}>
                     <Stack spacing={'12px'} sx={{alignItems: 'center'}}>
                     { selectedHeist.length > 0 && selectedHeist.map( (val, idx) => 
-                        <StageContainer key={idx} sx={{ backgroundImage: `url(${getStageBkgd(val.Heist)})` }} >
+                        <StageContainer key={idx} sx={{ backgroundImage: `url(${getHeistIcon(val.Heist)})` }} >
 
                             <ST.FlexVertical sx={{width: '70px', margin: '0px 10px'}}>
                                 <ST.BaseText sx={{fontSize: '200%', marginTop: '-8px'}}>Stage {val.StageNo}</ST.BaseText>
@@ -211,30 +212,30 @@ function Heists(props) {
 
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
                                 <ST.BaseText sx={{textDecoration:'underline'}}>Room I</ST.BaseText>
-                                <ST.BaseText>{getRoomType(val.TypeR1)}</ST.BaseText>
+                                <ST.BaseText>{getRoomType(val.RoomTypes[0])}</ST.BaseText>
                                 <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
-                                    <ST.BaseText>Challenge: {val.TrapsR1} - {val.LevelR1}</ST.BaseText>
+                                    <ST.BaseText>Challenge: {val.ObstCount[0]} - {val.ObstLevels[0]}</ST.BaseText>
                                 </ST.FlexHorizontal>
                             </ST.FlexVertical>
                             <StageSeparator src={ SeparatorSilver } />
 
-                            { !!val.TypeR2 && <>
+                            { !!val.RoomTypes[1] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
                                 <ST.BaseText sx={{textDecoration:'underline'}}>Room II</ST.BaseText>
-                                <ST.BaseText>{getRoomType(val.TypeR2)}</ST.BaseText>
+                                <ST.BaseText>{getRoomType(val.RoomTypes[1])}</ST.BaseText>
                                 <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
-                                    <ST.BaseText>Challenge: {val.TrapsR2} - {val.LevelR2}</ST.BaseText>
+                                    <ST.BaseText>Challenge: {val.ObstCount[1]} - {val.ObstLevels[1]}</ST.BaseText>
                                 </ST.FlexHorizontal>
                             </ST.FlexVertical>
                             <StageSeparator src={ SeparatorSilver } />
                             </>}
 
-                            { !!val.TypeR3 && <>
+                            { !!val.RoomTypes[2] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
                                 <ST.BaseText sx={{textDecoration:'underline'}}>Room III</ST.BaseText>
-                                <ST.BaseText>{getRoomType(val.TypeR3)}</ST.BaseText>
+                                <ST.BaseText>{getRoomType(val.RoomTypes[2])}</ST.BaseText>
                                 <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
-                                    <ST.BaseText>Challenge: {val.TrapsR3} - {val.LevelR3}</ST.BaseText>
+                                    <ST.BaseText>Challenge: {val.ObstCount[2]} - {val.ObstLevels[2]}</ST.BaseText>
                                 </ST.FlexHorizontal>
                             </ST.FlexVertical>
                             <StageSeparator src={ SeparatorSilver } />

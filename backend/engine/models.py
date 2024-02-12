@@ -93,25 +93,20 @@ class ItemUnlocked(JM.Model):
 
 class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    Heist = JM.TextField()          # tower, trial, raid, dungeon, campaign
+    Heist = JM.TextField()              # tower, trial, raid, dungeon, campaign
     StageNo = JM.IntegerField()
     CreateDate = JM.DateField(default=now)
 
-    TypeR1 = JM.TextField()
-    TypeR2 = JM.TextField(null=True)
-    TypeR3 = JM.TextField(null=True)
-    TypeR4 = JM.TextField(null=True)
-    TypeR5 = JM.TextField(null=True)
-    ObstaclesR1 = JM.TextField()
-    ObstaclesR2 = JM.TextField(null=True)
-    ObstaclesR3 = JM.TextField(null=True)
-    ObstaclesR4 = JM.TextField(null=True)
-    ObstaclesR5 = JM.TextField(null=True)
-    CompleteR1 = JM.BooleanField(default=False)
-    CompleteR2 = JM.BooleanField(default=False)
-    CompleteR3 = JM.BooleanField(default=False)
-    CompleteR4 = JM.BooleanField(default=False)
-    CompleteR5 = JM.BooleanField(default=False)
+    RoomTypes = JM.JSONField()          # ['balanced', null, null]
+    CompleteRooms = JM.JSONField()
+    Background = JM.TextField()
+    BackgroundRoomBias = JM.JSONField()
+
+    ObstaclesR1 = JM.JSONField()
+    ObstaclesR2 = JM.JSONField(null=True)
+    ObstaclesR3 = JM.JSONField(null=True)
+    ObstaclesR4 = JM.JSONField(null=True)
+    ObstaclesR5 = JM.JSONField(null=True)
 
     objects = DB.BaseManager()
     def __str__(self): 

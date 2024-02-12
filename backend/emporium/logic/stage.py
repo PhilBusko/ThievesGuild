@@ -110,6 +110,15 @@ def ObstacleSequence(potentialLs, maxObstacles, configType):
     
     return obstacleLs
 
+def StageBackground(lastBackground):
+    potential = [ 'warehouse', 'nobleman', 'temple', 'college', 'armory' ]
+    try:    
+        potential.remove(lastBackground)
+    except:
+        pass
+    chosen = random.choice(potential)
+    return chosen
+
 
 DIFFICULTY = 13
 DAMAGE = 11

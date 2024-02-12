@@ -7,9 +7,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { GlobalProvider } from './global-store'
 import { RoutesConfig } from './routes'
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <React.StrictMode>
+    // <React.StrictMode>
         <GlobalProvider>
             <BrowserRouter>
                 <Routes> 
@@ -20,6 +21,6 @@ root.render(
                 </Routes>
             </BrowserRouter>
         </GlobalProvider>
-    </React.StrictMode>
+    // </React.StrictMode>
 );
 
