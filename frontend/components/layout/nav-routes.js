@@ -10,8 +10,8 @@ import { GlobalContext } from '../app-main/global-store';
 import { RoutesConfig } from '../app-main/routes'
 import * as ST from '../elements/styled-elements'
 
-import menuBanner from '../assets/layout-pieces/nav-menu.png'
-import navTexture from '../assets/layout-pieces/nav-texture.png'
+import menuBanner from '../assets/layout/nav-menu.png'
+import navTexture from '../assets/layout/nav-texture.png'
 
 
 const NavStack = styled(Stack)(({ theme }) => ({

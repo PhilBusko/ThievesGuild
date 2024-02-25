@@ -1,7 +1,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 ENGINE RESOURCE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import random
+import random, datetime
 import pandas as PD
 from django.utils import timezone
 
@@ -23,7 +23,7 @@ def ResetCooldowns(guildMd):
         trunkNow = timezone.now()
         trunkNow = trunkNow.replace(microsecond=0)
 
-        if md.CooldownExpire and trunkNow > md.CooldownExpire:
+        if md.CooldownExpire and trunkNow >= md.CooldownExpire:
             md.Status = 'Ready'
             md.CooldownExpire = None
             md.save()
@@ -46,11 +46,13 @@ def GetThiefList(guildMd):
         thiefDx['iconCode'] = f"class-{thiefDx['Class'].lower()}"
         thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefDx['Level'])
 
-        thiefDx['Cooldown'] = None
+        cooldown = None
         if thiefDx['CooldownExpire']:
             trunkNow = timezone.now()
             trunkNow = trunkNow.replace(microsecond=0)
-            thiefDx['Cooldown'] = thiefDx['CooldownExpire'] - trunkNow      # returns in sec
+            cooldown = thiefDx['CooldownExpire'] - trunkNow
+        
+        thiefDx['Cooldown'] = cooldown
 
         # equipment info
 

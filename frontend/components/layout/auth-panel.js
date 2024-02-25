@@ -8,7 +8,7 @@ import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { GlobalContext } from '../app-main/global-store';
 import * as ST from '../elements/styled-elements';
-import authBanner from '../assets/layout-pieces/nav-auth.png'
+import authBanner from '../assets/layout/nav-auth.png'
 
 
 const AuthGroup = styled(Box)(({ theme }) => ({

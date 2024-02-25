@@ -6,7 +6,7 @@ import { Box, ButtonBase, Button, Popover } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import * as ST from  '../styled-elements';
-import cardTexture from '../../assets/layout-pieces/card-texture.jpg'
+import cardTexture from '../../assets/layout/card-texture.jpg'
 import { Info } from '@mui/icons-material';
 
 

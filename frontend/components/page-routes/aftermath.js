@@ -12,13 +12,17 @@ import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 
-import SeparatorHoriz from '../assets/layout-pieces/separator-horiz.png';
+import * as RC from '../assets/resource';
+import SeparatorHoriz from '../assets/layout/separator-horiz.png';
 import ThiefBurglar from '../assets/stage/thief-burglar.png';
 import ThiefScoundrel from '../assets/stage/thief-scoundrel.png';
 import ThiefRuffian from '../assets/stage/thief-ruffian.png';
 
-import Timer from '../elements/custom/timer';
 
+const ResultImage = styled('img')(({ theme }) => ({
+    width: '60px',
+    // border: '1px solid black',
+}));
 
 const AfterMathTitle = styled(ST.LinkText)(({ theme }) => ({
     fontSize: '400%',
@@ -40,11 +44,9 @@ const Broadcast = styled(Box)(({ theme }) => ({
 
 
 const RoomResults = styled(ST.FlexVertical)(({ theme }) => ({
-    // width: '190px',
-    // height: '120px',
     border: `1px solid silver`,
     borderRadius: '3px',
-    padding: '4px 8px 8px 8px',
+    padding: '8px',
     background: ST.TableBkgd,
 }));
 
@@ -72,7 +74,7 @@ const Separator = styled('img')(({ theme }) => ({
     padding: '8px 0px 2px 8px',
 }));
 
-const DamageBar = styled(LinearProgress)(({ theme }) => ({
+const LinearBar = styled(LinearProgress)(({ theme }) => ({
     width: '110px',
     height: '7px',
     margin: '10px 0px 2px 0px',
@@ -80,13 +82,10 @@ const DamageBar = styled(LinearProgress)(({ theme }) => ({
     // backgroundColor: 'white',
 }));
 
-const ExperienceBar = styled(LinearProgress)(({ theme }) => ({
-    width: '110px',
-    height: '7px',
-    margin: '10px 0px 2px 0px',
-    borderRadius: '4px',
+const MaterialImage = styled('img')(({ theme }) => ({
+    width: '36px',
+    // border: '1px solid black',
 }));
-
 
 
 function Aftermath(props) {
@@ -178,12 +177,20 @@ function Aftermath(props) {
             <ST.GridPage container spacing={'16px'}>
 
                 <Grid item xs={12}>
-                    <ST.FlexHorizontal>
+                    <ST.FlexHorizontal sx={{ }}>
                         { nextStep == 'victory' &&
-                            <AfterMathTitle sx={{color: 'gold'}}>VICTORY</AfterMathTitle>
+                            <ST.FlexHorizontal>
+                                <ResultImage src={RC.VictoryIcon} sx={{marginRight: '30px'}}/>
+                                <AfterMathTitle sx={{color: 'gold'}}>VICTORY</AfterMathTitle>
+                                <ResultImage src={RC.VictoryIcon} sx={{marginLeft: '30px'}}/>
+                            </ST.FlexHorizontal>
                         }
                         { nextStep == 'defeat' &&
-                            <AfterMathTitle sx={{color: 'crimson'}}>DEFEAT</AfterMathTitle>
+                            <ST.FlexHorizontal>
+                                <ResultImage src={RC.DefeatIcon} sx={{marginRight: '30px'}}/>
+                                <AfterMathTitle sx={{color: 'crimson'}}>DEFEAT</AfterMathTitle>
+                                <ResultImage src={RC.DefeatIcon} sx={{marginLeft: '30px'}}/>
+                            </ST.FlexHorizontal>
                         }
                     </ST.FlexHorizontal>
                     <ST.FlexHorizontal>
@@ -203,15 +210,16 @@ function Aftermath(props) {
                 </Grid> }
 
                 <ST.GridItemCenter item xs={12}>
-                    <ST.ContentCard elevation={3} sx={{padding: '16px',}}>
-                        <ST.FlexHorizontal>
+                    <ST.ContentCard elevation={3} sx={{textAlign: 'center'}}>
+
+                        <ST.FlexHorizontal sx={{margin: '0px 0px 16px 0px'}}>
                         { assignments.map((val, idx) => 
 
                             <RoomResults key={idx}>
                                 <ST.FlexHorizontal  sx={{alignItems: 'flex-start',}}>
 
                                     <ST.FlexVertical>
-                                        <ST.AltText>{val.Name}</ST.AltText>
+                                        <ST.AltText sx={{marginTop: '-6px'}}>{val.Name}</ST.AltText>
                                         <ImageSpacer>
                                             <ClassImage src={ getClassImage(val.Class) } />
                                         </ImageSpacer>
@@ -220,7 +228,7 @@ function Aftermath(props) {
                                     <ST.FlexVertical sx={{alignItems: 'flex-start', margin: '23px 0px 0px 8px',}}>
 
                                         <ST.BaseText>Dmg {val.Wounds} / Hlt {val.Health}</ST.BaseText>
-                                        <DamageBar 
+                                        <LinearBar 
                                             variant='determinate' 
                                             value={ val.Wounds < val.Health ?
                                                 (val.Health - val.Wounds) / val.Health * 100 : 100 }
@@ -233,7 +241,7 @@ function Aftermath(props) {
                                         <Separator src={ SeparatorHoriz } />
 
                                         <ST.BaseText>Exp +{val.ExpReward}</ST.BaseText>
-                                        <ExperienceBar 
+                                        <LinearBar 
                                             variant='determinate' 
                                             value={ (val.Experience + val.ExpReward) < val.ExpNextLevel ?
                                                 (val.Experience + val.ExpReward) / val.ExpNextLevel * 100 : 100 }
@@ -255,31 +263,38 @@ function Aftermath(props) {
 
                         )}
                         </ST.FlexHorizontal>
+
+                        <RoomResults sx={{display: 'inline-flex', width: '230px', minHeight: '112px'}}>
+                        { fullRewards.map((val, idx) => 
+
+                            <ST.FlexHorizontal key={idx} sx={{
+                                paddingLeft: '20px', justifyContent: 'flex-start', alignItems: 'center'}}>
+                                <MaterialImage src={ RC.getMaterial(val.type) } />
+                                <ST.BaseHighlight sx={{width: '40px' , margin: '-8px 0px 0px 0px',}}>
+                                    {val.fullAmount}
+                                </ST.BaseHighlight>
+                                { !!val.textOne &&
+                                    <ST.BaseText sx={{marginTop: '-4px',}}>{val.textOne}</ST.BaseText>
+                                }
+                                { !!val.textTwo &&
+                                    <ST.BaseText>, {val.textTwo}</ST.BaseText>
+                                }
+                            </ST.FlexHorizontal>
+
+                        )}
+                        </RoomResults>
+
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
-
-
-
                 <ST.GridItemCenter item xs={12}>
-
                     <ST.FlexVertical>
-
                         <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
                             onClick={() => { navigate('/heists/'); }}>
                             <ST.LinkText>Forward</ST.LinkText>
                         </ST.RegularButton>
-
-                        {/* <Timer 
-                            periodSec={ 4 * 60 * 1000 }
-                            notifyExpire={() => { console.log('expired')  }}
-                        /> */}
-
                     </ST.FlexVertical>
-
                 </ST.GridItemCenter>
-
-
 
             </ST.GridPage >
         </PageLayout>

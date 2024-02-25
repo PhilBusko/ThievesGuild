@@ -11,7 +11,7 @@ import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
-import SeparatorSilver from '../assets/layout-pieces/separator-silver-horiz.png';
+import SeparatorSilver from '../assets/layout/separator-silver-horiz.png';
 
 import StageConfig from '../elements/engine/stage-config';
 

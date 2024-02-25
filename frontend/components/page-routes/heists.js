@@ -10,16 +10,16 @@ import AxiosConfig from '../app-main/axios-config';
 import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
-import * as RC from '../assets/resource-icons';
+import * as RC from '../assets/resource';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import HeistGroup from '../elements/custom/heist-group';
 
-import SeparatorSilver from '../assets/layout-pieces/separator-silver-vert.png';
-import TowerTexture from '../assets/layout-pieces/texture-tower.jpg'
-import TrialTexture from '../assets/layout-pieces/texture-trial.jpg'
-import RaidTexture from '../assets/layout-pieces/texture-raid.jpg'
-import DungeonTexture from '../assets/layout-pieces/texture-dungeon.jpg'
-import CampaignTexture from '../assets/layout-pieces/texture-campaign.jpg'
+import SeparatorSilver from '../assets/layout/separator-silver-vert.png';
+import TowerTexture from '../assets/layout/texture-tower.jpg'
+import TrialTexture from '../assets/layout/texture-trial.jpg'
+import RaidTexture from '../assets/layout/texture-raid.jpg'
+import DungeonTexture from '../assets/layout/texture-dungeon.jpg'
+import CampaignTexture from '../assets/layout/texture-campaign.jpg'
 
 
 const Broadcast = styled(Box)(({ theme }) => ({

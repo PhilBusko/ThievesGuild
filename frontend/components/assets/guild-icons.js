@@ -3,31 +3,31 @@ GUILD ICONS
 **************************************************************************************************/
 import { styled } from '@mui/material/styles';
 
-import weaponAgi from '../assets/guild-icons/weapon-agi.png'
-import weaponCun from '../assets/guild-icons/weapon-cun.png'
-import weaponMig from '../assets/guild-icons/weapon-mig.png'
-import weaponEmpty from '../assets/guild-icons/weapon-empty.png'
+import weaponAgi from '../assets/guild/weapon-agi.png'
+import weaponCun from '../assets/guild/weapon-cun.png'
+import weaponMig from '../assets/guild/weapon-mig.png'
+import weaponEmpty from '../assets/guild/weapon-empty.png'
 
-import armorAgi from '../assets/guild-icons/armor-agi.png'
-import armorCun from '../assets/guild-icons/armor-cun.png'
-import armorMig from '../assets/guild-icons/armor-mig.png'
-import armorEmpty from '../assets/guild-icons/armor-empty.png'
+import armorAgi from '../assets/guild/armor-agi.png'
+import armorCun from '../assets/guild/armor-cun.png'
+import armorMig from '../assets/guild/armor-mig.png'
+import armorEmpty from '../assets/guild/armor-empty.png'
 
-import headSkl from '../assets/guild-icons/head-skl.png'
-import headCmb from '../assets/guild-icons/head-cmb.png'
-import headEmpty from '../assets/guild-icons/head-empty.png'
+import headSkl from '../assets/guild/head-skl.png'
+import headCmb from '../assets/guild/head-cmb.png'
+import headEmpty from '../assets/guild/head-empty.png'
 
-import handsSkl from '../assets/guild-icons/hands-skl.png'
-import handsCmb from '../assets/guild-icons/hands-cmb.png'
-import handsEmpty from '../assets/guild-icons/hands-empty.png'
+import handsSkl from '../assets/guild/hands-skl.png'
+import handsCmb from '../assets/guild/hands-cmb.png'
+import handsEmpty from '../assets/guild/hands-empty.png'
 
-import feetSkl from '../assets/guild-icons/feet-skl.png'
-import feetCmb from '../assets/guild-icons/feet-cmb.png'
-import feetEmpty from '../assets/guild-icons/feet-empty.png'
+import feetSkl from '../assets/guild/feet-skl.png'
+import feetCmb from '../assets/guild/feet-cmb.png'
+import feetEmpty from '../assets/guild/feet-empty.png'
 
-import classBurglar from '../assets/guild-icons/class-burglar.png'
-import classScoundrel from '../assets/guild-icons/class-scoundrel.png'
-import classRuffian from '../assets/guild-icons/class-ruffian.png'
+import classBurglar from '../assets/guild/class-burglar.png'
+import classScoundrel from '../assets/guild/class-scoundrel.png'
+import classRuffian from '../assets/guild/class-ruffian.png'
 
 
 const SmallIcon = styled('img')(({ theme }) => ({

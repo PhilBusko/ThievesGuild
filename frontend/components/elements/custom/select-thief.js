@@ -8,14 +8,14 @@ import { styled } from '@mui/material/styles';
 import * as ST from  '../styled-elements';
 import ThiefStats from './thief-stats';
 
-import * as IC from '../../assets/guild-icons';
-import SeparatorGold from '../../assets/layout-pieces/separator-gold.png';
-import CardTexture from '../../assets/layout-pieces/card-texture.jpg';
-import TowerTexture from '../../assets/layout-pieces/texture-tower.jpg'
-import TrialTexture from '../../assets/layout-pieces/texture-trial.jpg'
-import RaidTexture from '../../assets/layout-pieces/texture-raid.jpg'
-import DungeonTexture from '../../assets/layout-pieces/texture-dungeon.jpg'
-import CampaignTexture from '../../assets/layout-pieces/texture-campaign.jpg'
+import * as GI from '../../assets/guild-icons';
+import SeparatorGold from '../../assets/layout/separator-gold.png';
+import CardTexture from '../../assets/layout/card-texture.jpg';
+import TowerTexture from '../../assets/layout/texture-tower.jpg'
+import TrialTexture from '../../assets/layout/texture-trial.jpg'
+import RaidTexture from '../../assets/layout/texture-raid.jpg'
+import DungeonTexture from '../../assets/layout/texture-dungeon.jpg'
+import CampaignTexture from '../../assets/layout/texture-campaign.jpg'
 
 
 const SelectContainer = styled(ST.FlexVertical)(({ theme }) => ({
@@ -187,7 +187,7 @@ function SelectThief(props) {
                             <ItemContainer>
 
                                 <ST.FlexVertical sx={{padding: '3px',}}>
-                                    <ThiefIcon src={ IC.GetIconAsset(thf.iconCode) } />
+                                    <ThiefIcon src={ GI.GetIconAsset(thf.iconCode) } />
                                 </ST.FlexVertical>
                                 <SeparatorMenu src={ SeparatorGold } />
 

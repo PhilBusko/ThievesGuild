@@ -2,12 +2,13 @@
 VAULT TABLE
 **************************************************************************************************/
 import { useState } from 'react';
-import { Box, } from '@mui/material';
-import { DataGrid,  } from '@mui/x-data-grid';
+import { Box } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
+
 import * as ST from '../styled-elements';
-import * as IC from '../../assets/guild-icons';
-import * as RC from '../../assets/resource-icons';
+import * as GI from '../../assets/guild-icons';
+import * as RC from '../../assets/resource';
 
 
 const StyledTable = styled(DataGrid)(({ theme }) => ({
@@ -92,7 +93,7 @@ function VaultTable(props) {
             width: 40,
             renderCell: (params) => (
                 <Box sx={{position: 'relative', }}>
-                    <InventoryIcon src={ IC.GetIconAsset(params.value) } />
+                    <InventoryIcon src={ GI.GetIconAsset(params.value) } />
                 </Box>),
         },
         {

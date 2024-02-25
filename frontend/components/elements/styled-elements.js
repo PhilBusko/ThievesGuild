@@ -5,7 +5,7 @@ import { Button, ButtonBase} from '@mui/material';
 import { Box, Grid, Card } from '@mui/material';
 import { Typography } from '@mui/material';
 import { createTheme, styled } from '@mui/material/styles';
-import cardTexture from '../assets/layout-pieces/card-texture.jpg'
+import cardTexture from '../assets/layout/card-texture.jpg'
 
 
 // THEME

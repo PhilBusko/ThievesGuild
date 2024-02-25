@@ -4,9 +4,10 @@ THIEF TABLE
 import { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
+
 import * as ST from '../styled-elements';
-import * as IC from '../../assets/guild-icons';
-import * as RC from '../../assets/resource-icons';
+import * as GI from '../../assets/guild-icons';
+import * as RC from '../../assets/resource';
 import Timer from './timer';
 
 
@@ -62,6 +63,7 @@ const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
 }));
 
 
+
 function ThiefTable(props) {
 
     const [sortModel, setSortModel] = useState([
@@ -109,11 +111,11 @@ function ThiefTable(props) {
             field: 'equipment', headerName: 'Requisitions', sortable: false,
             width: 198, 
             renderCell: (params) => (<>
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.weapon.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.armor.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.head.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.hands.iconCode) } />
-                <IC.SmallIcon src={ IC.GetIconAsset(params.row.feet.iconCode) } />
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.weapon.iconCode) } />
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.armor.iconCode) } />
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.head.iconCode) } />
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.hands.iconCode) } />
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.feet.iconCode) } />
             </>),
         },
         {
@@ -127,14 +129,14 @@ function ThiefTable(props) {
                 { ['Wounded', 'Knocked Out'].includes(params.row.Status) && <>
                     <ST.BaseText>Rest&nbsp;</ST.BaseText>
                     <Timer 
-                        periodSec={ .5 * 60 * 1000 }
+                        periodSec={ params.row.Cooldown * 1000 }
                         notifyExpire={props.notifyTimer}
                     />
                 </>}
                 { params.row.Status == 'Training' && <>
                     <ST.BaseText>Train&nbsp;</ST.BaseText>
                     <Timer 
-                        periodSec={ 4 * 60 * 1000 }
+                        periodSec={ params.row.Cooldown * 1000 }
                         notifyExpire={props.notifyTimer}
                     />
                 </>}

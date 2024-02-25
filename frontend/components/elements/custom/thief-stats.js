@@ -5,9 +5,9 @@ import { Stack, LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import * as ST from '../styled-elements';
-import * as RC from '../../assets/resource-icons';
-import SeparatorHoriz from '../../assets/layout-pieces/separator-horiz.png';
-import SeparatorVert from '../../assets/layout-pieces/separator-vert.png';
+import * as RC from '../../assets/resource';
+import SeparatorHoriz from '../../assets/layout/separator-horiz.png';
+import SeparatorVert from '../../assets/layout/separator-vert.png';
 
 
 const TopMain = styled(Stack)(({ theme }) => ({

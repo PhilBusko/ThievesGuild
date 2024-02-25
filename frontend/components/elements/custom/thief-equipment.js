@@ -6,10 +6,10 @@ import { Box, ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import * as ST from '../styled-elements';
-import * as IC from '../../assets/guild-icons';
-import * as RC from '../../assets/resource-icons';
-import SeparatorSilver from '../../assets/layout-pieces/separator-silver-vert.png';
-import CardTexture from '../../assets/layout-pieces/card-texture.jpg';
+import * as GI from '../../assets/guild-icons';
+import * as RC from '../../assets/resource';
+import SeparatorSilver from '../../assets/layout/separator-silver-vert.png';
+import CardTexture from '../../assets/layout/card-texture.jpg';
 
 
 const MainPanel = styled(ST.FlexHorizontal)(({ theme }) => ({
@@ -102,7 +102,7 @@ function ThiefEquipment(props) {
 
             <Box sx={{padding: '0px 6px',}}>
                 <EquipButton type='submit' onClick={ handleMenu } variant='contained'>
-                    <EquipIcon src={ IC.GetIconAsset(props.equipmentInfo.iconCode) } />
+                    <EquipIcon src={ GI.GetIconAsset(props.equipmentInfo.iconCode) } />
                 </EquipButton>
             </Box>
 
