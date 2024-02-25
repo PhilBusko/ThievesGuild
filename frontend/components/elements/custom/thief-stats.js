@@ -64,7 +64,10 @@ function ThiefStats(props) {
 
                 <ST.FlexHorizontal sx={{justifyContent: 'space-between', alignItems: 'center', }}>
                     <ST.BaseText>Exp</ST.BaseText>
-                    <ExperienceBar variant='determinate' value={ 50 } />
+                    <ExperienceBar 
+                        variant='determinate' 
+                        value={ props.infoDx.Experience / props.infoDx.ExpNextLevel * 100  }
+                    />
                 </ST.FlexHorizontal>
             </TopMain>
             <SeparatorTop src={ SeparatorHoriz } />

@@ -1,12 +1,86 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 EMPORIUM STAGE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import random
+import random, math
 import pandas as PD
 
 import app_proj.notebooks as NT
 import emporium.models as EM
 
+
+def RollDamage(aveDamage):
+    variance = math.floor(aveDamage / 2)
+    if variance > 10: variance = 10
+    roll = random.randint(aveDamage - variance, aveDamage + variance)
+    return roll
+
+def RollReward(aveResource):
+    factor = 5
+    if aveResource > 100: factor = 6
+    if aveResource > 500: factor = 7
+    if aveResource > 1000: factor = 8
+    variance = math.floor(aveResource / factor)
+    if variance == 0: variance = 1
+    roll = random.randint(aveResource - variance, aveResource + variance)
+    return roll
+
+def GetTreasureReward(obsLevel):
+    trapObs = EM.Trap.objects.filter(Level=obsLevel, Trait='Agi').order_by('Damage')
+    trapDx = list(trapObs)[0]
+    randomType = random.randint(1, 4)
+    treasureType = ''
+    treasureAmount = 0
+
+    if randomType != 4:
+        treasureType = 'gold'
+        treasureBase = trapDx.Damage
+        treasureAmount = RollReward(treasureBase)
+
+    else:
+        treasureType = 'gems'
+        treasureBase = math.floor(trapDx.Damage / 10)
+        treasureAmount = treasureBase
+
+    return f"{treasureType} {treasureAmount}"
+
+def GetHealAmount(obsLevel):
+    trapObs = EM.Trap.objects.filter(Level=obsLevel, Trait='Agi').order_by('Damage')
+    trapDx = list(trapObs)[0]
+    heal = math.floor(trapDx.Damage / 2)
+    return heal
+
+def GetStageRewards(rewards):
+
+    gold = RollReward(rewards['Gold'])
+    gems = RollReward(rewards['Gems'])
+
+    potential = ['Wood']
+    if rewards['Stone'] > 0: potential.append('Stone')
+    if rewards['Iron'] > 0: potential.append('Iron')
+    resType = random.choice(potential)
+    resAmount = RollReward(rewards[resType])
+
+    resourceDx = {
+        'gold': gold,
+        'gems': gems,
+        resType.lower(): resAmount,
+    }
+
+    return resourceDx
+
+def StageBackground(lastBackground):
+    potential = [ 'warehouse', 'nobleman', 'temple', 'college', 'armory' ]
+    try:    
+        potential.remove(lastBackground)
+    except:
+        pass
+    chosen = random.choice(potential)
+    return chosen
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+OBSTACLES LAYOUT
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 def RandomRoomType(prevType):
     potential = [
@@ -109,15 +183,6 @@ def ObstacleSequence(potentialLs, maxObstacles, configType):
         obstacleLs.insert(0, currentObs)
     
     return obstacleLs
-
-def StageBackground(lastBackground):
-    potential = [ 'warehouse', 'nobleman', 'temple', 'college', 'armory' ]
-    try:    
-        potential.remove(lastBackground)
-    except:
-        pass
-    chosen = random.choice(potential)
-    return chosen
 
 
 DIFFICULTY = 13

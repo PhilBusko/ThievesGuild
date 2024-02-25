@@ -19,6 +19,54 @@ const AppTheme = createTheme({
 });
 
 
+// FONTS
+
+const BaseText = styled(Typography)(({ theme }) => ({
+    fontFamily: 'started by a mouse',
+    fontSize: '170%',
+    lineHeight: 0.9,
+    letterSpacing: 0.6,
+    color: DefaultText,
+}));
+
+const BaseHighlight = styled(BaseText)(({ theme }) => ({
+    fontSize: '210%',
+    fontWeight: 'bold',
+    lineHeight: 1.0,
+}));
+
+const LinkText = styled(Typography)(({ theme }) => ({
+    fontFamily: 'midnight flame',
+    letterSpacing: 0.7,
+}));
+
+const TitleText = styled(Typography)(({ theme }) => ({
+    fontFamily: 'dark gospel',
+    color: DefaultText,
+}));
+
+const AltText = styled(Typography)(({ theme }) => ({
+    fontFamily: 'blackseed',
+    fontSize: '120%',
+    color: DefaultText,
+}));
+
+
+// COLORS
+
+const DefaultText = '#ffffe6';
+const GoldText = 'gold';
+const NearBlack = '#262626';
+
+const HighlightPurple = '#ff1aff';
+const DarkGold = 'goldenrod';
+
+const FadedBlue = '#6666ff';
+const ControlBkgd = '#e4c49b';
+const TableBkgd = '#32325A';
+const MenuBkgd = '#2f4f4f';
+
+
 // SPACING
 
 const GridPage = styled(Grid)(({ theme }) => ({
@@ -65,7 +113,7 @@ const TitleGroup = styled('h1')(({ theme }) => ({
 }));
 
 const ContentCard = styled(Card)(({ theme }) => ({
-    padding: '0px 16px 16px 16px',
+    padding: '16px',
     border: '3px ridge goldenrod',
     overflow: 'visible',
 
@@ -73,6 +121,13 @@ const ContentCard = styled(Card)(({ theme }) => ({
     backgroundSize: 'auto',
     backgroundPosition: 'center center',
     backgroundRepeat: 'repeat',
+}));
+
+const ContentTitle = styled(TitleText)(({ theme }) => ({
+    marginTop: '-6px',
+    fontSize: '140%',
+    fontWeight: 'bold',
+    lineHeight: 1.0,
 }));
 
 const RegularButton = styled(Button)(({ theme }) => ({
@@ -94,66 +149,16 @@ const SmallButton = styled(ButtonBase)(({ theme }) => ({
 }));
 
 
-// FONTS
-
-const BaseText = styled(Typography)(({ theme }) => ({
-    fontFamily: 'started by a mouse', 
-    fontSize: '170%',
-    lineHeight: 0.9,
-    letterSpacing: 0.6,
-    color: DefaultText,
-}));
-
-const BaseHighlight = styled(BaseText)(({ theme }) => ({
-    fontSize: '210%',
-    fontWeight: 'bold',
-    lineHeight: 1.0,
-}));
-
-const LinkText = styled(Typography)(({ theme }) => ({
-    fontFamily: 'midnight flame',
-    letterSpacing: 0.7,
-}));
-
-const TitleText = styled(Typography)(({ theme }) => ({
-    fontFamily: 'dark gospel', 
-}));
-
-
-// COLORS
-
-const DefaultText = '#ffffe6';
-const GoldText = 'gold';
-const NearBlack = '#262626';
-
-const HighlightPurple = '#ff1aff';
-const DarkGold = 'goldenrod';
-
-const FadedBlue = '#6666ff';
-const ControlBkgd = '#e4c49b';
-const TableBkgd = '#32325A';
-const MenuBkgd = '#2f4f4f';
-
-
 // EXPORTS
 
 export {
     AppTheme,
 
-    GridPage, 
-    GridItemCenter,
-    FlexHorizontal,
-    FlexVertical,
-
-    TitleGroup, 
-    ContentCard, 
-    RegularButton,
-    SmallButton, 
-
     BaseText,
     BaseHighlight,
     LinkText, 
     TitleText,
+    AltText,
 
     DefaultText,
     GoldText,
@@ -164,4 +169,15 @@ export {
     DarkGold,
     TableBkgd,
     MenuBkgd,
+
+    GridPage, 
+    GridItemCenter,
+    FlexHorizontal,
+    FlexVertical,
+
+    TitleGroup,
+    ContentCard,
+    ContentTitle,
+    RegularButton,
+    SmallButton, 
 }

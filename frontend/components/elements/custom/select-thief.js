@@ -100,7 +100,6 @@ const SelectorButton = styled(Button)(({ theme }) => ({
 }));
 
 
-
 function SelectThief(props) {
 
     // display room and thief
@@ -122,11 +121,11 @@ function SelectThief(props) {
     }
 
     const getRoomName = (roomNo) => {
-        if (roomNo == 1) return 'Room I';
-        if (roomNo == 2) return 'Room II';
-        if (roomNo == 3) return 'Room III';
-        if (roomNo == 4) return 'Room IV';
-        return 'Room V';
+        if (roomNo == 1) return 'Landing I';
+        if (roomNo == 2) return 'Landing II';
+        if (roomNo == 3) return 'Landing III';
+        if (roomNo == 4) return 'Landing IV';
+        return 'Landing V';
     }
 
     // thief menu
@@ -183,7 +182,7 @@ function SelectThief(props) {
                     { props.thiefChoices.map((thf, id) => (
                         <ThiefMenuItem key={id} 
                             onClick={()=> { handleThiefChoice(thf) }}
-                            disabled={thf.Cooldown != 'Ready'}
+                            disabled={ thf.Status != 'Ready' }
                         >
                             <ItemContainer>
 
@@ -242,7 +241,7 @@ function SelectThief(props) {
                         onClick={()=> { props.notifySeeTraps(props.roomNumber) }}
                         disabled={ props.roomNumber == props.selectedRoom }
                     >
-                        <ST.BaseText sx={{marginTop: '-6px', }}>Scope</ST.BaseText>
+                        <ST.BaseText sx={{marginTop: '-6px', }}>Recon</ST.BaseText>
                     </SelectorButton>
                     <SelectorButton 
                         variant='contained' 

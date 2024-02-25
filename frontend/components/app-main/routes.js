@@ -8,6 +8,7 @@ import Armory from '../page-routes/armory';
 import Heists from '../page-routes/heists';
 import Deployment from '../page-routes/deployment';
 import Playthrough from '../page-routes/playthrough';
+import Aftermath from '../page-routes/aftermath';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -68,6 +69,12 @@ export const RoutesConfig = [
         'title': 'Playthrough',
         'path': '/playthrough/',
         'element': <Playthrough />, 
+        'order': 0,
+    },
+    {
+        'title': 'Aftermath',
+        'path': '/aftermath/',
+        'element': <Aftermath />, 
         'order': 0,
     },
     {

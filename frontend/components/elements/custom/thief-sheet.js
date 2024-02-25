@@ -31,7 +31,7 @@ function ThiefSheet(props) {
     const [filteredFeet, setFilteredFeet] = useState([]);
 
     useEffect(() => {
-        
+
         const weapons = props.inventoryLs.filter((item) => item.Slot=='weapon' &&
                                                 item.Requirement==props.infoDx.Class);
         const armors = props.inventoryLs.filter((item) => item.Slot=='armor' &&

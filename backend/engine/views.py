@@ -9,9 +9,13 @@ from rest_framework.response import Response
 from rest_framework import status
 
 import app_proj.notebooks as NT
+import emporium.logic.stage as ST
+import emporium.logic.guild as GD
+
 import engine.models as GM
 import engine.logic.resource as RS
 import engine.logic.content as CT
+import engine.logic.launcher as LH
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -61,7 +65,7 @@ def CreateGuild(request):
     guilds = GM.Guild.objects.filter(UserFK=userMd)
     guildLs = list(guilds.values())
     guildCheck = [x for x in guildLs if x['Name'] == guild]
-    
+
     # check to create the guild
 
     if len(guildCheck) == 0:
@@ -121,6 +125,7 @@ def GuildDetails(request):
             'message': '* A guild must be chosen in the Account page.',
         })
 
+    RS.ResetCooldowns(guildMd)
     thiefDf = RS.GetThiefList(guildMd)
     assetDf = RS.GetAssetList(guildMd)
 
@@ -245,6 +250,7 @@ def ThiefDetails(request):
             'message': '* A guild must be chosen in the Account page.',
         })
 
+    RS.ResetCooldowns(guildMd)
     thiefDf = RS.GetThiefList(guildMd)
     thiefDf = thiefDf.sort_values(by=['Class', 'Power'], ascending=[True, False])
 
@@ -253,6 +259,174 @@ def ThiefDetails(request):
         'message': None,
     }
     return Response(details)
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def LaunchRoom(request):
+
+    userMd = request.user
+    heist = request.data.get('heist') 
+    stageNo = request.data.get('stageNo')
+    roomNo = request.data.get('roomNo')         # 1 based
+    thiefId = request.data.get('thiefId')
+
+    # launch the room
+
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
+    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
+
+    thiefDx = GM.ThiefInGuild.objects.filter(id=thiefId)
+    thiefDx = thiefDx.values('id', 'Name', 'Class', 'Health', 'Experience')[0]
+
+    obstacleLs = stageMd.ObstaclesR1
+    if roomNo == 2: obstacleLs = stageMd.ObstaclesR2
+    if roomNo == 3: obstacleLs = stageMd.ObstaclesR3
+    if roomNo == 4: obstacleLs = stageMd.ObstaclesR4
+    if roomNo == 5: obstacleLs = stageMd.ObstaclesR5
+
+    results = LH.LaunchRoom(thiefMd, obstacleLs)
+
+    # deduce the overall results
+
+    win = results[-1]['posNext'] == len(obstacleLs)
+    nextRoom = stageMd.RoomTypes[roomNo] 
+
+    nextStep = ''
+    if not win:                 nextStep = 'defeat'
+    if win and not nextRoom:    nextStep = 'victory'
+    if win and nextRoom:        nextStep = 'next-room'
+
+    # total up room rewards
+
+    roomRewards = {}
+    for rs in results:
+        reward = rs['reward']
+        if reward:
+            if 'xp' in reward:      roomRewards['xp'] = roomRewards.get('xp', 0) + int(reward.split(' ')[1])
+            if 'gold' in reward:    roomRewards['gold'] = roomRewards.get('gold', 0) + int(reward.split(' ')[1])
+            if 'gems' in reward:    roomRewards['gems'] = roomRewards.get('gems', 0) + int(reward.split(' ')[1])
+
+    # grant room rewards, win or lose
+    # todo: apply guild bonus
+
+    for key in roomRewards.keys():
+        if key == 'xp':     RS.GrantExperience(thiefMd, roomRewards[key])
+        if key == 'gold':   RS.GrantGold(guildMd, roomRewards[key])
+        if key == 'gems':   RS.GrantGems(guildMd, roomRewards[key])
+
+    status, cooldown = RS.ApplyWounds(thiefMd, results[-1]['woundsTotal'])
+    thiefDx['Status'] = status
+    thiefDx['Cooldown'] = cooldown
+
+    thiefDx['Wounds'] = results[-1]['woundsTotal']
+    thiefDx['ExpReward'] = roomRewards['xp']
+    thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefMd.Level)
+
+    # save room status, on lose the traps are reset
+
+    if win:
+        stageMd.RoomRewards[roomNo -1] = roomRewards
+        stageMd.Assignments[roomNo -1] = thiefDx
+        stageMd.save()
+
+    # stage rewards
+    # on defeat only display the current room's results
+
+    stageRewards = {}
+    roomRewards = [roomRewards]
+
+    if nextStep == 'victory':
+        stageRewards = ST.GetStageRewards(stageMd.BaseRewards)
+        stageMd.StageRewards = stageRewards
+        stageMd.save()
+
+        # grant the rewards
+        # todo: apply guild bonus
+
+        for key in stageRewards.keys():
+            if key == 'gold':   RS.GrantGold(guildMd, stageRewards[key])
+            if key == 'gems':   RS.GrantGems(guildMd, stageRewards[key])
+            if key == 'wood':   RS.GrantWood(guildMd, stageRewards[key])
+            if key == 'stone':  RS.GrantStone(guildMd, stageRewards[key])
+            if key == 'iron':   RS.GrantIron(guildMd, stageRewards[key])
+
+        # display all room results
+
+        stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
+        roomRewards = stageMd.RoomRewards
+
+    # assemble display for frontend
+
+    roomTotal = {}
+    for rm in roomRewards:
+        if not rm: break
+        for key in rm.keys():
+            if key == 'gold':   roomTotal['gold'] = roomTotal.get('gold', 0) + rm['gold']
+            if key == 'gems':   roomTotal['gems'] = roomTotal.get('gems', 0) + rm['gems']
+
+    fullRewards = []
+
+    material = 'gold'
+    if material in stageRewards or material in roomTotal:
+        fullRewards.append({
+            'type': material, 
+            'fullAmount': stageRewards.get(material, 0) + roomTotal.get(material, 0),
+            'textOne': f"{roomTotal[material]} collected" if material in roomTotal else None,
+            'textTwo': None,
+        })
+
+    material = 'gems'
+    if material in stageRewards or material in roomTotal:
+        fullRewards.append({
+            'type': material, 
+            'fullAmount': stageRewards.get(material, 0) + roomTotal.get(material, 0),
+            'textOne': f"{roomTotal[material]} collected" if material in roomTotal else None,
+            'textTwo': None,
+        })
+
+    material = 'wood'
+    if material in stageRewards:
+        fullRewards.append({
+            'type': material, 
+            'fullAmount': stageRewards.get(material, 0),
+            'textOne': None,
+            'textTwo': None,
+        })
+
+    material = 'stone'
+    if material in stageRewards:
+        fullRewards.append({
+            'type': material, 
+            'fullAmount': stageRewards.get(material, 0),
+            'textOne': None,
+            'textTwo': None,
+        })
+
+    material = 'iron'
+    if material in stageRewards:
+        fullRewards.append({
+            'type': material, 
+            'fullAmount': stageRewards.get(material, 0),
+            'textOne': None,
+            'textTwo': None,
+        })
+
+    resultDx = {
+        'roomNo': roomNo,
+        'actions': results,
+        'nextStep': nextStep,
+        'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,
+        'roomRewards': roomRewards,
+        'stageRewards': stageRewards,
+        'fullRewards': fullRewards,
+    }
+
+    return Response(resultDx)
 
 
 

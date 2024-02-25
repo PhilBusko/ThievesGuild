@@ -2,53 +2,21 @@
 ENGINE LAUNCHER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import json, random, math
-import emporium.models as EM
-
-
-def RollDamage(aveDamage):
-    variance = math.floor(aveDamage / 2)
-    if variance > 10: variance = 10
-    roll = random.randint(aveDamage - variance, aveDamage + variance)
-    return roll
-
-def GetTreasureReward(obsLevel):
-    return 'gold 1'
-
-def GetHealAmount(obsLevel):
-    trapObs = EM.Trap.objects.filter(Level=obsLevel, Trait='Agi').order_by('Damage')
-    trapDx = list(trapObs)[0]
-    heal = math.floor(trapDx.Damage / 2)
-    return heal
-
-
-
-def LaunchStage(roomLs, runStage):
-
-    resultsR1 = []
-    resultsR2 = []
-    resultsR3 = []
-    for rm in roomLs:
-        if rm['room'] == 1:
-            resultsR1 = LaunchRoom(rm['thief'], json.loads(runStage.ObstaclesR1))
-        if rm['room'] == 2:
-            resultsR2 = LaunchRoom(rm['thief'], json.loads(runStage.ObstaclesR2))
-        if rm['room'] == 3:
-            resultsR3 = LaunchRoom(rm['thief'], json.loads(runStage.ObstaclesR3))
-
-    return resultsR1, resultsR2, resultsR3
+import emporium.logic.stage as ST
 
 
 def LaunchRoom(thiefMd, obstacleLs):
     obsPos = 0
-    stageRewards = {}
+    woundsRollTotal = 0
     resultLs = []
+    thiefWounds = 0
 
-    while thiefMd.Wounds < thiefMd.Health and obsPos < len(obstacleLs):
+    while thiefWounds < thiefMd.Health and obsPos < len(obstacleLs):
 
         currentObs = obstacleLs[obsPos]
-        currPos = obsPos
+        posCurr = obsPos
         reward = None
-        wounds = None
+        woundsRoll = None
 
         if currentObs['Skill'] != 'Fight':
 
@@ -67,53 +35,54 @@ def LaunchRoom(thiefMd, obstacleLs):
                     if ef == 'pass': obsPos += 1
                     elif ef == 'pass next': obsPos += 2
                     if ef == 'experience': reward = f"xp {currentObs['Experience']}"
-                    elif ef == 'treasure': reward = GetTreasureReward(currentObs['Level'])
+                    elif ef == 'treasure': reward = ST.GetTreasureReward(currentObs['Level'])
                     elif ef == 'healing': 
-                        healAmount = GetHealAmount(currentObs['Level'])
+                        healAmount = ST.GetHealAmount(currentObs['Level'])
                         reward = f"heal {healAmount}"
-                        thiefMd.Wounds -= healAmount
-                if thiefMd.Wounds < 0: thiefMd.Wounds = 0
+                        thiefWounds -= healAmount
+                if thiefWounds < 0: thiefWounds = 0
 
             else:
                 effectLs = currentObs['Failure'].split(', ')
                 for ef in effectLs:
                     if ef == 'wound': 
-                        wounds = RollDamage(currentObs['Damage'])
-                        thiefMd.Wounds += wounds
+                        woundsRoll = ST.RollDamage(currentObs['Damage'])
+                        thiefWounds += woundsRoll
                     if ef == 'pass': 
                         obsPos += 1
-                if thiefMd.Wounds >= thiefMd.Health: obsPos -= 1
+                if thiefWounds >= thiefMd.Health: obsPos -= 1
 
             resultLs.append({
                 'obstacle': currentObs['Name'],
-                'currPos': currPos,
-                'nextPos': obsPos,
-                'rollParams': {'roll': naturalRoll,
-                                'traitBonus': traitBonus,
-                                'skillBonus': skillBonus,
-                                'result': currentResult,
-                                'trait': currentObs['Trait'],
-                                'skill': currentObs['Skill'], 
-                                'difficulty': currentObs['Difficulty'],
+                'posCurr': posCurr,
+                'posNext': obsPos,
+                'rollParams':   {'roll': naturalRoll,
+                                    'traitBonus': traitBonus,
+                                    'skillBonus': skillBonus,
+                                    'result': currentResult,
+                                    'trait': currentObs['Trait'],
+                                    'skill': currentObs['Skill'], 
+                                    'difficulty': currentObs['Difficulty'],
                                 },
                 'reward': reward,
-                'wounds': wounds,
+                'woundsRoll': woundsRoll,
+                'woundsTotal': thiefWounds,
             })
 
         else:
-            thiefWounds = 0
-            enemyWounds = 0
+            woundsCombat = 0
+            woundsEnemy = 0
             rollParamLs = []
 
-            while thiefMd.Wounds < thiefMd.Health and enemyWounds < currentObs['Health']:
+            while thiefWounds < thiefMd.Health and woundsEnemy < currentObs['Health']:
 
                 # player attack
 
                 thiefDamage = None
                 naturalRoll = random.randint(1, 20) 
                 if naturalRoll + thiefMd.Attack >= currentObs['Defense']:
-                    thiefDamage = RollDamage(thiefMd.Damage)
-                    enemyWounds += thiefDamage
+                    thiefDamage = ST.RollDamage(thiefMd.Damage)
+                    woundsEnemy += thiefDamage
 
                 rollParamLs.append({
                     'attacker': 'thief',
@@ -121,18 +90,19 @@ def LaunchRoom(thiefMd, obstacleLs):
                     'attack': thiefMd.Attack,
                     'result': naturalRoll + thiefMd.Attack,
                     'defense': currentObs['Defense'],
-                    'wounds': thiefDamage,
+                    'woundsRoll': thiefDamage,
+                    'woundsTotal': woundsEnemy,
                 })
 
                 # if enemy lives, they attack
 
-                if enemyWounds < currentObs['Health']:
+                if woundsEnemy < currentObs['Health']:
 
                     naturalRoll = random.randint(1, 20)
                     if naturalRoll + currentObs['Attack'] >= thiefMd.Defense:
-                        wounds = RollDamage(currentObs['Damage'])
-                        thiefMd.Wounds += wounds
-                        thiefWounds += wounds
+                        woundsRoll = ST.RollDamage(currentObs['Damage'])
+                        woundsCombat += woundsRoll
+                        thiefWounds += woundsRoll
 
                     rollParamLs.append({
                         'attacker': 'enemy',
@@ -140,12 +110,13 @@ def LaunchRoom(thiefMd, obstacleLs):
                         'attack': currentObs['Attack'],
                         'result': naturalRoll + currentObs['Attack'],
                         'defense': thiefMd.Defense,
-                        'wounds': wounds,
+                        'woundsRoll': woundsRoll,
+                        'woundsTotal': thiefWounds,
                     })
 
             # end combat while loop
 
-            if enemyWounds >= currentObs['Health']:
+            if woundsEnemy >= currentObs['Health']:
                 effectLs = currentObs['Success'].split(', ')
                 for ef in effectLs:
                     if ef == 'pass': obsPos += 1
@@ -153,14 +124,13 @@ def LaunchRoom(thiefMd, obstacleLs):
 
             resultLs.append({
                 'obstacle': currentObs['Name'],
-                'currPos': currPos,
-                'nextPos': obsPos,
+                'posCurr': posCurr,
+                'posNext': obsPos,
                 'rollParams': rollParamLs,
                 'reward': reward,
-                'wounds': thiefWounds,
+                'woundsCombat': woundsCombat,
+                'woundsTotal': thiefWounds,
             })
 
     return resultLs
-
-
 

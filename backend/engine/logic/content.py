@@ -1,7 +1,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 ENGINE CONTENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import random, json
+import random
 import pandas as PD
 import app_proj.notebooks as NT
 
@@ -10,12 +10,17 @@ import emporium.logic.stage as ST
 import engine.models as GM 
 
 
+def BackgroundBias():
+    potential = [0, 0, 0, 1, 2, 3, 4]
+    chosen = random.choice(potential)
+    return chosen
+
 def GetOrCreateTower(guildMd, currDate):
 
     # check for existing daily stages
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='tower', CreateDate=currDate
+        GuildFK=guildMd, Heist='tower', KeepLevel=guildMd.KeepLevel, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -36,15 +41,26 @@ def GetOrCreateTower(guildMd, currDate):
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
+        newStage.KeepLevel = guildMd.KeepLevel
         newStage.Heist = 'tower'
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
         newStage.RoomTypes = []
-        newStage.CompleteRooms = []
-        newStage.BackgroundRoomBias = []
+
+        newStage.BaseRewards = {
+            'Gold': st['Gold'],
+            'Gems': st['Gems'],
+            'Wood': st['Wood'],
+            'Stone': st['Stone'],
+            'Iron': st['Iron'],
+        }
+        newStage.RoomRewards = [None, None, None, None, None]
+        newStage.Assignments = [None, None, None, None, None]
+
         background = ST.StageBackground(lastBackground)
-        newStage.Background = background
         lastBackground = background
+        newStage.Background = background
+        newStage.BackgroundBias = []
 
         # room 1 
 
@@ -52,8 +68,7 @@ def GetOrCreateTower(guildMd, currDate):
         lastType = roomType
         obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
         newStage.RoomTypes.append(roomType)
-        newStage.CompleteRooms.append(False)
-        newStage.BackgroundRoomBias.append(random.randint(0,1))
+        newStage.BackgroundBias.append(BackgroundBias())
         newStage.ObstaclesR1 = obstacles
 
         # room 2
@@ -63,13 +78,11 @@ def GetOrCreateTower(guildMd, currDate):
             lastType = roomType
             obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
             newStage.RoomTypes.append(roomType)
-            newStage.CompleteRooms.append(False)
-            newStage.BackgroundRoomBias.append(random.randint(0,1))
+            newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR2 = obstacles
         else:
             newStage.RoomTypes.append(None)
-            newStage.CompleteRooms.append(None)
-            newStage.BackgroundRoomBias.append(None)
+            newStage.BackgroundBias.append(None)
 
         # room 3 
 
@@ -78,13 +91,11 @@ def GetOrCreateTower(guildMd, currDate):
             lastType = roomType
             obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
             newStage.RoomTypes.append(roomType)
-            newStage.CompleteRooms.append(False)
-            newStage.BackgroundRoomBias.append(random.randint(0,1))
+            newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR3 = obstacles
         else:
             newStage.RoomTypes.append(None)
-            newStage.CompleteRooms.append(None)
-            newStage.BackgroundRoomBias.append(None)
+            newStage.BackgroundBias.append(None)
 
         # room 4
 
@@ -93,13 +104,11 @@ def GetOrCreateTower(guildMd, currDate):
             lastType = roomType
             obstacles = ST.AssembleRoom(roomType, st['LevelR4'], st['ObstaclesR4'])
             newStage.RoomTypes.append(roomType)
-            newStage.CompleteRooms.append(False)
-            newStage.BackgroundRoomBias.append(random.randint(0,1))
+            newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR4 = obstacles
         else:
             newStage.RoomTypes.append(None)
-            newStage.CompleteRooms.append(None)
-            newStage.BackgroundRoomBias.append(None)
+            newStage.BackgroundBias.append(None)
 
         # room 5
 
@@ -108,13 +117,11 @@ def GetOrCreateTower(guildMd, currDate):
             lastType = roomType
             obstacles = ST.AssembleRoom(roomType, st['LevelR5'], st['ObstaclesR5'])
             newStage.RoomTypes.append(roomType)
-            newStage.CompleteRooms.append(False)
-            newStage.BackgroundRoomBias.append(random.randint(0,1))
+            newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR5 = obstacles
         else:
             newStage.RoomTypes.append(None)
-            newStage.CompleteRooms.append(None)
-            newStage.BackgroundRoomBias.append(None)
+            newStage.BackgroundBias.append(None)
 
         newStage.save()
 
@@ -173,7 +180,6 @@ def GetOrCreateTrial(guildMd, currDate):
 
         newStage.save()
 
-
 def GetOrCreateRaid(guildMd, currDate):
     pass
 
@@ -209,14 +215,12 @@ def AttachDisplayData(stageLs):
 
         trapLevels = []
         numberObstacles = []
-        complete = True
         roomCount = 0
 
         obstLs = st['ObstaclesR1']
         st['ObstaclesR1'] = AttachObstacleDisplay(obstLs)
         trapLevels.append(obstLs[0]['Level'])
         numberObstacles.append(len(obstLs))
-        if st['CompleteRooms'][0] == False: complete = False
         roomCount += 1
 
         try:
@@ -224,7 +228,6 @@ def AttachDisplayData(stageLs):
             st['ObstaclesR2'] = AttachObstacleDisplay(obstLs)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
-            if st['CompleteRooms'][1] == False: complete = False
             roomCount += 1
         except:
             trapLevels.append(None)
@@ -235,7 +238,6 @@ def AttachDisplayData(stageLs):
             st['ObstaclesR3'] = AttachObstacleDisplay(obstLs)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
-            if st['CompleteRooms'][2] == False: complete = False
             roomCount += 1
         except:
             trapLevels.append(None)
@@ -246,7 +248,6 @@ def AttachDisplayData(stageLs):
             st['ObstaclesR4'] = AttachObstacleDisplay(obstLs)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
-            if st['CompleteRooms'][3] == False: complete = False
             roomCount += 1
         except:
             trapLevels.append(None)
@@ -257,7 +258,6 @@ def AttachDisplayData(stageLs):
             st['ObstaclesR5'] = AttachObstacleDisplay(obstLs)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
-            if st['CompleteRooms'][4] == False: complete = False
             roomCount += 1
         except:
             trapLevels.append(None)
@@ -265,7 +265,7 @@ def AttachDisplayData(stageLs):
 
         st['ObstLevels'] = trapLevels
         st['ObstCount'] = numberObstacles
-        st['StageComplete'] = complete
+        st['StageComplete'] = True if st['StageRewards'] else False
         st['NumberRooms'] = roomCount
 
     return stageLs

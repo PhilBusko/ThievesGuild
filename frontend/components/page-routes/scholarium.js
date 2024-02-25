@@ -43,7 +43,7 @@ function Scholarium(props) {
 
                 <ST.GridItemCenter item xs={12} lg={6}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Getting Started</ST.BaseHighlight>
+                        <ST.ContentTitle sx={{ marginBottom: '8px', }}>Getting Started</ST.ContentTitle>
                         <ST.BaseText>
                             Welcome to Thieves' Guild, a mobile auto-battle game.
                             This project is a prototype and has minimal graphics and user interface.
@@ -56,7 +56,7 @@ function Scholarium(props) {
 
                 <ST.GridItemCenter item xs={12} lg={6}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Contents</ST.BaseHighlight>
+                        <ST.ContentTitle sx={{ marginBottom: '8px', }}>Contents</ST.ContentTitle>
                         <ST.BaseText>
                             Thief Characters<br></br>
                             Heists<br></br>

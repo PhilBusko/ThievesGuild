@@ -32,7 +32,7 @@ import classRuffian from '../assets/guild-icons/class-ruffian.png'
 
 const SmallIcon = styled('img')(({ theme }) => ({
     margin: '0px 10px 0px 0px',
-    width: '30px',
+    width: '28px',
     //':hover': { width: '38px', margin: '0px 5px 0px -5px' },
 }));
 

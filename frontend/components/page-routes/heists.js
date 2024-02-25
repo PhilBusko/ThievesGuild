@@ -211,7 +211,7 @@ function Heists(props) {
                             <StageSeparator src={ SeparatorSilver } />
 
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{textDecoration:'underline'}}>Room I</ST.BaseText>
+                                <ST.BaseText sx={{textDecoration:'underline'}}>Landing I</ST.BaseText>
                                 <ST.BaseText>{getRoomType(val.RoomTypes[0])}</ST.BaseText>
                                 <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
                                     <ST.BaseText>Challenge: {val.ObstCount[0]} - {val.ObstLevels[0]}</ST.BaseText>
@@ -221,7 +221,7 @@ function Heists(props) {
 
                             { !!val.RoomTypes[1] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{textDecoration:'underline'}}>Room II</ST.BaseText>
+                                <ST.BaseText sx={{textDecoration:'underline'}}>Landing II</ST.BaseText>
                                 <ST.BaseText>{getRoomType(val.RoomTypes[1])}</ST.BaseText>
                                 <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
                                     <ST.BaseText>Challenge: {val.ObstCount[1]} - {val.ObstLevels[1]}</ST.BaseText>
@@ -232,7 +232,7 @@ function Heists(props) {
 
                             { !!val.RoomTypes[2] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{textDecoration:'underline'}}>Room III</ST.BaseText>
+                                <ST.BaseText sx={{textDecoration:'underline'}}>Landing III</ST.BaseText>
                                 <ST.BaseText>{getRoomType(val.RoomTypes[2])}</ST.BaseText>
                                 <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
                                     <ST.BaseText>Challenge: {val.ObstCount[2]} - {val.ObstLevels[2]}</ST.BaseText>
@@ -242,8 +242,11 @@ function Heists(props) {
                             </>}
 
                             <ST.FlexVertical sx={{width: '90px', margin: '0px 10px'}}>
-                                <ST.RegularButton variant='contained' 
-                                    onClick={() => {handleStart(val.id)}}>
+                                <ST.RegularButton 
+                                    variant='contained' 
+                                    onClick={() => {handleStart(val.id)}}
+                                    disabled={ val.StageComplete }
+                                >
                                     <ST.LinkText>Burgle</ST.LinkText>
                                 </ST.RegularButton>
                             </ST.FlexVertical>

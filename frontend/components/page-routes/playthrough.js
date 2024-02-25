@@ -55,42 +55,84 @@ function Playthrough(props) {
     // playthrough data 
 
     const [stage, setStage] = useState({});
-    const [thiefDeployment, setThiefDeployment] = useState([]);
+    const [deployment, setDeployment] = useState([]);
     const [roomNo, setRoomNo] = useState(0);
 
     useEffect(() => {
         if ( !location.state ) {
-            setStage({});
-            setThiefDeployment([]);
             navigate('/heists/');
         }
         else {
-            console.log(location.state.stage);
-            // console.log(location.state.thiefDeployment);  
+            // console.log(location.state.stage);
+            // console.log(location.state.deployment);  
 
-            setStage(location.state.stage);
-            setThiefDeployment(location.state.thiefDeployment);
-
-            setRoomNo(1);
+            const newStage = location.state.stage;
+            const newDeployment = location.state.deployment;
             // window.history.replaceState({}, document.title);
+
+            setStage(newStage);
+            setDeployment(newDeployment);
+
+            var nextRoom = 1;
+            if (newStage.RoomRewards[3])        nextRoom = 5;
+            else if (newStage.RoomRewards[2])   nextRoom = 4;
+            else if (newStage.RoomRewards[1])   nextRoom = 3;
+            else if (newStage.RoomRewards[0])   nextRoom = 2;
+            setRoomNo(nextRoom);
         }
     }, []);
 
 
-
-
     // stage canvas engine
+
+    const [obstacles, setObstacles] = useState([]);
 
     useEffect(() => {
 
-        var obstacles = '';
-        if (roomNo == 1) obstacles = stage.ObstaclesR1;
-        if (roomNo == 2) obstacles = stage.ObstaclesR2;
+        // console.log('roomNo', roomNo);
 
-        
+        if (roomNo == 0) return;
+
+
+        const heist = stage.Heist;
+        const stageNo = stage.StageNo;
+        const thiefAssigned = location.state.deployment[0];
+
+        AxiosConfig({
+            method: 'POST',     
+            url: '/engine/launch-room',
+            data: { 'heist': heist, 'stageNo': stageNo, 'roomNo': roomNo, 'thiefId': thiefAssigned.id },
+        }).then(responseData => {
+
+            console.log(responseData);
+
+            if (['victory', 'defeat'].includes(responseData.nextStep)) {
+                setTimeout(() => {
+                    navigate('/aftermath/', 
+                        {state: {
+                            nextStep: responseData.nextStep,
+                            heist: heist,
+                            stageNo: stageNo,
+                            assignments: responseData.assignments, 
+                            fullRewards: responseData.fullRewards,
+                        }}
+                    );
+                }, 2000);
+            }
+
+            else {
+
+                if (roomNo == 1) setObstacles(stage.ObstaclesR1);
+                if (roomNo == 2) setObstacles(stage.ObstaclesR2);
+                if (roomNo == 3) setObstacles(stage.ObstaclesR3);
+
+            }
+
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        });
 
     }, [roomNo]);
-
 
 
     // display helpers
@@ -112,6 +154,7 @@ function Playthrough(props) {
         return 'Mixed';
     }
 
+
     // render
 
     return (
@@ -124,6 +167,11 @@ function Playthrough(props) {
                             { getTitle(stage.Heist) } - { ` Stage ${ stage.StageNo }` }
                         </ST.TitleText>
                     </ST.TitleGroup>
+                    { errorLs.length > 0 &&
+                        <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
+                            <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                        </ST.FlexHorizontal>
+                    }
                 </Grid>
 
                 { message && <Grid item xs={12}>
@@ -135,60 +183,79 @@ function Playthrough(props) {
                 </Grid> }
 
 
+
                 <ST.GridItemCenter item xs={12} lg={2}>
                     <ST.ContentCard elevation={3} sx={{width: '120px'}}>
 
                         { Object.keys(stage).length != 0 && !!stage.RoomTypes[0] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                <ST.BaseHighlight sx={{}}>Room I</ST.BaseHighlight>
+                                <ST.BaseHighlight sx={{}}>Landing I</ST.BaseHighlight>
                                 <ST.BaseText>
                                     {getRoomType(stage.RoomTypes[0])}: {stage.ObstCount[0]} - {stage.ObstLevels[0]}
                                 </ST.BaseText>
-                                <ST.BaseText>{ thiefDeployment[0].Name }</ST.BaseText>
-                                <ST.BaseText> In Play </ST.BaseText>
+                                <ST.BaseText>{ deployment[0].Name }</ST.BaseText>
+                                { roomNo == 1 &&
+                                    <ST.BaseText sx={{color: 'lime',}}> In Play </ST.BaseText>
+                                }
+                                { roomNo > 1 &&
+                                    <ST.BaseText> Complete </ST.BaseText>
+                                }
                             </ST.FlexVertical>
                             { stage.NumberRooms > 1 && <RoomSeparator src={ SeparatorSilver }/> }
                         </>}
 
                         { Object.keys(stage).length != 0 && !!stage.RoomTypes[1] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Room II</ST.BaseHighlight>
+                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Landing II</ST.BaseHighlight>
                                 <ST.BaseText>
                                     {getRoomType(stage.RoomTypes[1])}: {stage.ObstCount[1]} - {stage.ObstLevels[1]}
                                 </ST.BaseText>
-                                <ST.BaseText>{ thiefDeployment[1].Name }</ST.BaseText>
-                                <ST.BaseText> In Play </ST.BaseText>
+                                <ST.BaseText>{ deployment[1].Name }</ST.BaseText>
+                                { roomNo < 2 &&
+                                    <ST.BaseText> Unexplored </ST.BaseText>
+                                }
+                                { roomNo == 2 &&
+                                    <ST.BaseText sx={{color: 'lime',}}> In Play </ST.BaseText>
+                                }
+                                { roomNo > 2 &&
+                                    <ST.BaseText> Complete </ST.BaseText>
+                                }
                             </ST.FlexVertical>
                             { stage.NumberRooms > 2 && <RoomSeparator src={ SeparatorSilver }/> }
                         </>}
 
                         { Object.keys(stage).length != 0 && !!stage.RoomTypes[2] && <>
                             <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Room III</ST.BaseHighlight>
+                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Landing III</ST.BaseHighlight>
                                 <ST.BaseText>
                                     {getRoomType(stage.RoomTypes[2])}: {stage.ObstCount[2]} - {stage.ObstLevels[2]}
                                 </ST.BaseText>
-                                <ST.BaseText>{ thiefDeployment[2].Name }</ST.BaseText>
-                                <ST.BaseText> In Play </ST.BaseText>
+                                <ST.BaseText>{ deployment[2].Name }</ST.BaseText>
+                                { roomNo < 3 &&
+                                    <ST.BaseText> Unexplored </ST.BaseText>
+                                }
+                                { roomNo == 3 &&
+                                    <ST.BaseText sx={{color: 'lime',}}> In Play </ST.BaseText>
+                                }
+                                { roomNo > 3 &&
+                                    <ST.BaseText> Complete </ST.BaseText>
+                                }
                             </ST.FlexVertical>
                             { stage.NumberRooms > 3 && <RoomSeparator src={ SeparatorSilver }/> }
                         </>}
-
-                        { errorLs.length > 0 &&
-                            <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
-                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                            </ST.FlexHorizontal>
-                        }
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
 
+
                 <ST.GridItemCenter item xs={12} lg={10}>
 
                     <StageConfig
-                        windowSize={{width: 920, height: 400}}
-                        
+                        windowSize={ {width: 920, height: 400} }
+                        backgroundType={ stage.Background }
+                        backgroundBias={ !!stage.BackgroundRoomBias ? stage.BackgroundRoomBias[roomNo -1] : 0}
+                        obstacleLs={ obstacles }
                     />
 
                 </ST.GridItemCenter>

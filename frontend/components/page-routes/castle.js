@@ -68,7 +68,7 @@ function Castle(props) {
 
                 <ST.GridItemCenter item xs={12} lg={4}>
                     <ST.ContentCard elevation={3}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Base page</ST.BaseHighlight>
+                        <ST.ContentTitle sx={{ marginBottom: '8px', }}>Base Page</ST.ContentTitle>
                         <Stack spacing='8px' sx={{ width: '280px' }}>
 
 

@@ -21,9 +21,10 @@ const Broadcast = styled(Box)(({ theme }) => ({
     }, 
 }));
 
+
 function Barracks(props) {
 
-    
+
     // keep track of current page for nav menu
 
     const { pageStore } = useContext(GlobalContext);
@@ -53,7 +54,7 @@ function Barracks(props) {
             url: '/engine/guild-details',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.thiefLs)
+                console.log(responseData.thiefLs)
                 setThiefLs(responseData.thiefLs);
                 setVaultLs(responseData.assetLs);
             }
@@ -154,13 +155,14 @@ function Barracks(props) {
                     </ST.FlexHorizontal>
                 </Grid> }
 
-                <ST.GridItemCenter item xs={12} md={8} sx={{background: ''}}>
+                <ST.GridItemCenter item xs={12} lg={8} sx={{background: ''}}>
                     <ST.ContentCard elevation={3}> 
                         <Stack spacing={'8px'}>
-                            <ST.BaseHighlight>Rogue Ranks</ST.BaseHighlight>
-                            <ThiefTable 
+                            <ST.ContentTitle>Rogue Ranks</ST.ContentTitle>
+                            <ThiefTable
                                 dataLs={thiefLs}
                                 notifySelect={handleThiefSelected}
+                                notifyTimer={() => { getGuildDetails(); }}
                             />
                             { errorLs.length > 0 &&
                                 <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
@@ -169,11 +171,11 @@ function Barracks(props) {
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
-                <ST.GridItemCenter item xs={12} md={4} sx={{background: ''}}>
+                <ST.GridItemCenter item xs={12} lg={4} sx={{background: ''}}>
 
                     <ST.FlexVertical sx={{ justifyContent: 'flex-start' }}>
                         <ST.ContentCard elevation={3} sx={{ }}> 
-                            <ST.BaseHighlight sx={{ marginBottom: '8px', }}>Troop Locker</ST.BaseHighlight>
+                            <ST.ContentTitle sx={{ marginBottom: '8px', }}>Troop Locker</ST.ContentTitle>
 
                             <ThiefSheet 
                                 infoDx={selectedThief}

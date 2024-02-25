@@ -179,7 +179,7 @@ function Deployment(props) {
 
         navigate(
             '/playthrough/', 
-            {state: {stage: stage, thiefDeployment: thiefDeployment}}
+            {state: {stage: stage, deployment: thiefDeployment}}
         );
     }
 
@@ -221,7 +221,9 @@ function Deployment(props) {
 
                 <Grid item xs={12}>
                     <ST.TitleGroup>
-                        <ST.TitleText>{ getTitle(location.state.stage.Heist) }</ST.TitleText>
+                        <ST.TitleText>
+                            { getTitle(stage.Heist) } - { ` Stage ${ stage.StageNo }` }
+                        </ST.TitleText>
                     </ST.TitleGroup>
                 </Grid>
 
@@ -233,20 +235,13 @@ function Deployment(props) {
                     </ST.FlexHorizontal>
                 </Grid> }
 
-                <ST.GridItemCenter item xs={12} lg={2}>
-                    <ST.ContentCard elevation={3} sx={{width: '140px'}}> 
-                        <ST.BaseHighlight sx={{ marginBottom: '8px', }}>
-                            Stage { location.state.stage.StageNo }
-                        </ST.BaseHighlight>
-                        { errorLs.length > 0 &&
-                            <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
-                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                            </ST.FlexHorizontal>
-                        }
-                    </ST.ContentCard>
-                </ST.GridItemCenter>
+                { errorLs.length > 0 &&
+                    <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
+                        <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                    </ST.FlexHorizontal>
+                }
 
-                <ST.GridItemCenter item xs={12} lg={8} >
+                <ST.GridItemCenter item xs={12} >
                     <ST.ContentCard elevation={3} sx={{padding: '16px 8px 16px 16px',}}> 
 
                         <ST.FlexHorizontal sx={{justifyContent: 'flex-start', display: 'none' }}>

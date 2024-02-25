@@ -13,15 +13,26 @@ import emporium.models as EM
 class Guild(JM.Model):
     UserFK = JM.ForeignKey(MM.User, on_delete=JM.CASCADE)
     Name = JM.TextField()
-
-    KeepLevel = JM.IntegerField(default=1)
-    TotalPower = JM.IntegerField(default=0)
-    VaultGold = JM.IntegerField(default=0)
-    VaultGems = JM.IntegerField(default=0)
-
-    Selected = JM.BooleanField(default=False)
     LastPlayed = JM.DateField(default=now)
     CreateDate = JM.DateField(default=now)
+    Selected = JM.BooleanField(default=False)
+
+    KeepLevel = JM.IntegerField(default=1)
+    CampaignWorld = JM.IntegerField(default=1)
+    TotalPower = JM.IntegerField(default=0)
+
+    StorageGold = JM.IntegerField(default=0)
+    StorageGems = JM.IntegerField(default=0)
+    StorageWood = JM.IntegerField(default=0)
+    StorageStone = JM.IntegerField(default=0)
+    StorageIron = JM.IntegerField(default=0)
+
+    VaultGold = JM.IntegerField(default=0)
+    VaultGems = JM.IntegerField(default=0)
+    VaultWood = JM.IntegerField(default=0)
+    VaultStone = JM.IntegerField(default=0)
+    VaultIron = JM.IntegerField(default=0)
+
     objects = DB.BaseManager()
     class Meta: unique_together = ('UserFK', 'Name')
 
@@ -56,9 +67,9 @@ class ThiefInGuild(JM.Model):
     Perceive = JM.IntegerField(null=True)
     Traverse = JM.IntegerField(null=True)
 
-    Position = JM.TextField(default='Available')
-    Wounds = JM.IntegerField(null=True)
-    Cooldown = JM.TextField(default='Ready')   # ready/on deck, training, wounded/recovering
+    Status = JM.TextField(default='Ready')      # Ready > 50% (Fatigued), Wounded > 99%, Knocked Out 100%, Training
+    CooldownExpire = JM.DateTimeField(null=True)
+    # Position = JM.TextField(default='Available')
 
     objects = DB.BaseManager()
     def __str__(self): return f"{self.Class} {self.Power} {self.Level}"
@@ -94,13 +105,18 @@ class ItemUnlocked(JM.Model):
 class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Heist = JM.TextField()              # tower, trial, raid, dungeon, campaign
+    KeepLevel = JM.IntegerField()       # the currently generated level
     StageNo = JM.IntegerField()
     CreateDate = JM.DateField(default=now)
 
     RoomTypes = JM.JSONField()          # ['balanced', null, null]
-    CompleteRooms = JM.JSONField()
     Background = JM.TextField()
-    BackgroundRoomBias = JM.JSONField()
+    BackgroundBias = JM.JSONField()
+
+    BaseRewards = JM.JSONField()
+    RoomRewards = JM.JSONField()            # flag for room complete
+    Assignments = JM.JSONField()
+    StageRewards = JM.JSONField(null=True)  # flag for stage complete
 
     ObstaclesR1 = JM.JSONField()
     ObstaclesR2 = JM.JSONField(null=True)
