@@ -34,6 +34,7 @@ function GlobalProvider(props) {
             console.log('onload: no refresh token');
             const newUser = {'name': '', 'status': 'guest', 'guild': '***'}
             setUserDx(newUser);
+            TK.wipeTokens(); // wipe any old access token
             return;
         }
 

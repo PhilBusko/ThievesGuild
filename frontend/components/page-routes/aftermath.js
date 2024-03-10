@@ -119,9 +119,7 @@ function Aftermath(props) {
             navigate('/heists/');
         }
         else {
-            console.log(location.state.nextStep);
-            console.log(location.state.assignments);
-            console.log(location.state.fullRewards);  
+            console.log(location.state);  
 
             setNextStep(location.state.nextStep);
 
@@ -270,7 +268,7 @@ function Aftermath(props) {
                             <ST.FlexHorizontal key={idx} sx={{
                                 paddingLeft: '20px', justifyContent: 'flex-start', alignItems: 'center'}}>
                                 <MaterialImage src={ RC.getMaterial(val.type) } />
-                                <ST.BaseHighlight sx={{width: '40px' , margin: '-8px 0px 0px 0px',}}>
+                                <ST.BaseHighlight sx={{width: '50px' , margin: '-8px 0px 0px 0px',}}>
                                     {val.fullAmount}
                                 </ST.BaseHighlight>
                                 { !!val.textOne &&
@@ -282,6 +280,9 @@ function Aftermath(props) {
                             </ST.FlexHorizontal>
 
                         )}
+                        { fullRewards.length == 0 && 
+                            <ST.BaseText>No Stage Rewards</ST.BaseText>
+                        }
                         </RoomResults>
 
                     </ST.ContentCard>

@@ -86,17 +86,19 @@ function Playthrough(props) {
     // stage canvas engine
 
     const [obstacles, setObstacles] = useState([]);
+    const [lastResults, setLastResults] = useState({});
 
     useEffect(() => {
 
-        // console.log('roomNo', roomNo);
+        // skip before component is initialized
 
         if (roomNo == 0) return;
 
+        // server call for room results
 
         const heist = stage.Heist;
         const stageNo = stage.StageNo;
-        const thiefAssigned = location.state.deployment[0];
+        let thiefAssigned = deployment[roomNo -1];
 
         AxiosConfig({
             method: 'POST',     
@@ -105,34 +107,58 @@ function Playthrough(props) {
         }).then(responseData => {
 
             console.log(responseData);
+            setLastResults(responseData);
 
-            if (['victory', 'defeat'].includes(responseData.nextStep)) {
-                setTimeout(() => {
-                    navigate('/aftermath/', 
-                        {state: {
-                            nextStep: responseData.nextStep,
-                            heist: heist,
-                            stageNo: stageNo,
-                            assignments: responseData.assignments, 
-                            fullRewards: responseData.fullRewards,
-                        }}
-                    );
-                }, 2000);
-            }
+            // display animations
 
-            else {
+            if (roomNo == 1) setObstacles(stage.ObstaclesR1);
+            if (roomNo == 2) setObstacles(stage.ObstaclesR2);
+            if (roomNo == 3) setObstacles(stage.ObstaclesR3);
 
-                if (roomNo == 1) setObstacles(stage.ObstaclesR1);
-                if (roomNo == 2) setObstacles(stage.ObstaclesR2);
-                if (roomNo == 3) setObstacles(stage.ObstaclesR3);
 
-            }
+
+
+            // go to next phase
+
+            setTimeout(() => {
+
+                if (['victory', 'defeat'].includes(responseData.nextStep)) {
+                    console.log(responseData.nextStep, responseData.roomNo)
+                    //     navigate('/aftermath/', 
+                    //         {state: {
+                    //             nextStep: responseData.nextStep,
+                    //             heist: heist,
+                    //             stageNo: stageNo,
+                    //             assignments: responseData.assignments, 
+                    //             fullRewards: responseData.fullRewards,
+                    //         }}
+                    //     );
+                }
+
+                else {
+                    console.log('next room', roomNo +1)
+
+                    setRoomNo(roomNo +1);
+                }
+            }, 2000);
 
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
 
     }, [roomNo]);
+
+    const advancePhase = () => {
+        navigate('/aftermath/', 
+            {state: {
+                nextStep: lastResults.nextStep,
+                heist: stage.Heist,
+                stageNo: stage.StageNo,
+                assignments: lastResults.assignments, 
+                fullRewards: lastResults.fullRewards,
+            }}
+        );
+    }
 
 
     // display helpers
@@ -181,8 +207,6 @@ function Playthrough(props) {
                         </Broadcast>
                     </ST.FlexHorizontal>
                 </Grid> }
-
-
 
                 <ST.GridItemCenter item xs={12} lg={2}>
                     <ST.ContentCard elevation={3} sx={{width: '120px'}}>
@@ -248,7 +272,6 @@ function Playthrough(props) {
                 </ST.GridItemCenter>
 
 
-
                 <ST.GridItemCenter item xs={12} lg={10}>
 
                     <StageConfig
@@ -259,6 +282,19 @@ function Playthrough(props) {
                     />
 
                 </ST.GridItemCenter>
+
+
+                <ST.GridItemCenter item xs={12}>
+                    <ST.FlexVertical>
+                        <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
+                            onClick={ advancePhase }
+                            disabled={ lastResults.nextStep == 'next-room' }
+                        >
+                            <ST.LinkText>Forward</ST.LinkText>
+                        </ST.RegularButton>
+                    </ST.FlexVertical>
+                </ST.GridItemCenter>
+
 
             </ST.GridPage >
         </PageLayout>

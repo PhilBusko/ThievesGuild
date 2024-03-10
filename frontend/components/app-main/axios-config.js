@@ -7,8 +7,10 @@ import * as TK  from '../app-main/token-storage'
 
 const onRequest = (config) => {
     const token = TK.retrieveAccessToken();
-    if (token)
+    if (token) {
+        // console.log('axios request found access token');
         config.headers['Authorization'] = `Bearer ${token}`;
+    }
     return config;
 };
 
