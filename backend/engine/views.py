@@ -215,7 +215,7 @@ def DailyHeists(request):
     tower = CT.GetOrCreateTower(guildMd, currDate)
     tower = CT.AttachDisplayData(tower)
 
-    trial = CT.GetOrCreateTower(guildMd, currDate)[1:3]
+    trial = CT.GetOrCreateTrial(guildMd, currDate)
     trial = CT.AttachDisplayData(trial)
 
     raid = [CT.GetOrCreateTower(guildMd, currDate)[4]]

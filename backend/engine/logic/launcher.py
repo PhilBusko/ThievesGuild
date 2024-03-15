@@ -174,7 +174,7 @@ def RunResults(guildMd, thiefMd, roomNo, stageMd, obstacleLs, results):
     thiefDx['Cooldown'] = cooldown
 
     thiefDx['Wounds'] = results[-1]['woundsTotal']
-    thiefDx['ExpReward'] = roomRewards['xp']
+    thiefDx['ExpReward'] = roomRewards['xp'] if 'xp' in roomRewards else 0
     thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefMd.Level)
 
     # save room status, on lose the traps are reset

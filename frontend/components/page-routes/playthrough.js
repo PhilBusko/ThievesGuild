@@ -85,8 +85,9 @@ function Playthrough(props) {
 
     // stage canvas engine
 
-    const [obstacles, setObstacles] = useState([]);
     const [lastResults, setLastResults] = useState({});
+    const [obstacles, setObstacles] = useState([]);
+    const [actions, setActions] = useState([]);
 
     useEffect(() => {
 
@@ -115,15 +116,15 @@ function Playthrough(props) {
             if (roomNo == 2) setObstacles(stage.ObstaclesR2);
             if (roomNo == 3) setObstacles(stage.ObstaclesR3);
 
+            setActions(responseData.actions);
 
 
-
-            // go to next phase
+            // go to next room
 
             setTimeout(() => {
 
                 if (['victory', 'defeat'].includes(responseData.nextStep)) {
-                    console.log(responseData.nextStep, responseData.roomNo)
+                    // console.log(responseData.nextStep, responseData.roomNo)
                     //     navigate('/aftermath/', 
                     //         {state: {
                     //             nextStep: responseData.nextStep,
@@ -279,6 +280,8 @@ function Playthrough(props) {
                         backgroundType={ stage.Background }
                         backgroundBias={ !!stage.BackgroundRoomBias ? stage.BackgroundRoomBias[roomNo -1] : 0}
                         obstacleLs={ obstacles }
+                        actionLs={ actions }
+                        thiefAssigned={ deployment[roomNo -1] }
                     />
 
                 </ST.GridItemCenter>
