@@ -131,7 +131,7 @@ def GetDisplayInfo(itemDx):
     return iconCode, bonusLs
 
 def GetExpeditionCount(guildMd):
-    return 5
+    return 3
 
 
 def ApplyWounds(thiefMd, wounds):

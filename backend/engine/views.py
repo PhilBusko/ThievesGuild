@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 import app_proj.notebooks as NT
+import emporium.models as EM 
 import emporium.logic.stage as ST
 import emporium.logic.guild as GD
 
@@ -332,9 +333,9 @@ def ExpeditionUpdate(request):
 
     for ep in expeditionLs:
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
-        if endTime <= trunkNow : #and not ep.Results:
+        if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 13) #runResults)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 11) #runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 
@@ -367,9 +368,6 @@ def ExpeditionLaunch(request):
 
     return Response({'success': True})
 
-
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ExpeditionClaim(request):
@@ -384,11 +382,6 @@ def ExpeditionClaim(request):
     selectReward = expToClaim.Results['reward'] if selected == 'first' else expToClaim.Results['reward2']
     replace = CT.GetReplacement(guildMd, selectReward)
 
-    print(selectReward)
-    print(replace)
-
-
-
     # apply rewards to guild
 
     if not replace and selectReward['category'] == 'blueprint':
@@ -398,18 +391,28 @@ def ExpeditionClaim(request):
                 'GuildFK': guildMd,
                 'ThiefFK': EM.UnlockableThief.objects.GetOrNone(ResourceId=selectReward['resourceId']),
             }
-            newModel = EM.UnlockableThief(**entryDx)
+            newModel = GM.ThiefUnlocked(**newBlueprint)
             newModel.save()
 
         else:
-            pass
+            newBlueprint = {
+                'GuildFK': guildMd,
+                'ItemFK': EM.UnlockableItem.objects.GetOrNone(ResourceId=selectReward['resourceId']),
+            }
+            newModel = GM.ItemUnlocked(**newBlueprint)
+            newModel.save()
 
     elif not replace and selectReward['category'] == 'material':
-        pass
+        amount = selectReward['value'].split(' ')[0]
+        if selectReward['resourceId'] == 'gold':        RS.GrantGold(guildMd, amount)
+        if selectReward['resourceId'] == 'gems':        RS.GrantGems(guildMd, amount)
+        if selectReward['resourceId'] == 'wood':        RS.GrantWood(guildMd, amount)
+        if selectReward['resourceId'] == 'stone':       RS.GrantStone(guildMd, amount)
+        if selectReward['resourceId'] == 'iron':        RS.GrantIron(guildMd, amount)
 
     elif replace:
         amount = int(replace.split(' ')[-2])
-        RS.GrantGems(amount)
+        RS.GrantGems(guildMd, amount)
 
 
     # apply results to thief
@@ -431,7 +434,6 @@ def ExpeditionClaim(request):
     expToClaim.save()
 
     return Response({'success': True})
-
 
 
 
