@@ -42,16 +42,16 @@ function Armory(props) {
     const [errorLs, setErrorLs] = useState([]);
 
 
-    // inventory
+    // vault data
 
     const [vaultLs, setVaultLs] = useState([]);
 
-    useEffect(() => {
+    const getVaultDetails = () => {
         AxiosConfig({
-            url: '/engine/guild-details',
+            url: '/engine/vault-details',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.assetLs);
+                console.log(responseData.thiefLs)
                 setVaultLs(responseData.assetLs);
             }
             else {
@@ -63,9 +63,13 @@ function Armory(props) {
             else
                 setErrorLs(errorLs);
         });
+    }
+
+    useEffect(() => {
+        setErrorLs([]);
+        getVaultDetails();
     }, []);
 
-    
 
     const handleSellItem = (sellId) => {
         console.log(sellId);

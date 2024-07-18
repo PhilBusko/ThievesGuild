@@ -6,11 +6,11 @@ import app_proj.database as DB
 
 
 class UnlockableThief(JM.Model):
+    ResourceId = JM.TextField()
     Class = JM.TextField()
     Stars = JM.IntegerField()
-    UnlockKeep = JM.IntegerField()
+    UnlockThrone = JM.IntegerField()
     StoreCost = JM.IntegerField(null=True)
-    UnlockCost = JM.IntegerField(null=True)
     StartTrait = JM.TextField()
     RandomTraits = JM.TextField()
 
@@ -18,13 +18,13 @@ class UnlockableThief(JM.Model):
     class Meta: unique_together = ('Class', 'Stars')
 
 class UnlockableItem(JM.Model):
+    ResourceId = JM.TextField()
     Name = JM.TextField()
     Level = JM.IntegerField()
     MagicLv = JM.IntegerField()
     TotalLv = JM.IntegerField()
     Slot = JM.TextField()
     StoreCost = JM.IntegerField(null=True)
-    UnlockCost = JM.IntegerField(null=True)
     Requirement = JM.TextField(null=True)
     Trait = JM.TextField(null=True)
     Combat = JM.TextField(null=True)
@@ -43,7 +43,7 @@ class ThiefLevel(JM.Model):
     KnockedOutPeriod = JM.TextField()
     objects = DB.BaseManager()
 
-class KeepUpgrades(JM.Model):
+class ThroneUpgrades(JM.Model):
     Level = JM.IntegerField(unique=True)
     Wood = JM.IntegerField()
     Stone = JM.IntegerField()
@@ -108,6 +108,7 @@ EMPORIUM STAGE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 class Trap(JM.Model):
+    World = JM.IntegerField()
     Level = JM.IntegerField()
     Name = JM.TextField()
     Trait = JM.TextField()
@@ -121,6 +122,7 @@ class Trap(JM.Model):
     class Meta: unique_together = ('Level', 'Name')
 
 class Enemy(JM.Model):
+    World = JM.IntegerField()
     Level = JM.IntegerField()
     Name = JM.TextField()
     Trait = JM.TextField()
@@ -136,7 +138,7 @@ class Enemy(JM.Model):
     class Meta: unique_together = ('Level', 'Name')
 
 class GothicTower(JM.Model):
-    Keep = JM.IntegerField()
+    Throne = JM.IntegerField()
     StageNo = JM.IntegerField()
     ObstaclesR1 = JM.IntegerField(null=True)
     LevelR1 = JM.IntegerField(null=True)
@@ -154,10 +156,10 @@ class GothicTower(JM.Model):
     Stone = JM.IntegerField(null=True)
     Iron = JM.IntegerField(null=True)
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Keep', 'StageNo')
+    class Meta: unique_together = ('Throne', 'StageNo')
 
 class LeagueTrial(JM.Model):
-    Keep = JM.IntegerField()
+    Throne = JM.IntegerField()
     StageNo = JM.IntegerField()
     ObstaclesR1 = JM.IntegerField(null=True)
     LevelR1 = JM.IntegerField(null=True)
@@ -175,7 +177,7 @@ class LeagueTrial(JM.Model):
     Stone = JM.IntegerField(null=True)
     Iron = JM.IntegerField(null=True)
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Keep', 'StageNo')
+    class Meta: unique_together = ('Throne', 'StageNo')
 
 class Campaign(JM.Model):
     World = JM.IntegerField()
@@ -201,4 +203,21 @@ class Campaign(JM.Model):
 class TrialDay(JM.Model):
     WeekDay = JM.TextField()
     StageType = JM.TextField()
+
+class ExpeditionLevel(JM.Model):
+    Throne = JM.IntegerField()
+    Level = JM.IntegerField()
+    Duration = JM.TextField()
+    objects = DB.BaseManager()
+
+class ExpeditionType(JM.Model):
+    Type = JM.TextField()
+    MainTrait = JM.TextField()
+    SecondaryOne = JM.TextField()
+    SecondaryTwo = JM.TextField()
+    SecondaryThree = JM.TextField()
+    SkillOne = JM.TextField()
+    SkillTwo = JM.TextField()
+    SkillThree = JM.TextField()
+    objects = DB.BaseManager()
 

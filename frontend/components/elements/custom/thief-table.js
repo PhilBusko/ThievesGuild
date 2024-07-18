@@ -63,7 +63,6 @@ const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
 }));
 
 
-
 function ThiefTable(props) {
 
     const [sortModel, setSortModel] = useState([
@@ -79,14 +78,17 @@ function ThiefTable(props) {
     var colDefs = [
         {
             field: 'Name', headerName: 'Name', sortable: false,
-            width: 70, 
+            width: 90, 
             renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         },
         {
             field: 'Class', headerName: 'Class', 
             sortable: true, sortingOrder: ['asc', 'desc'],
-            width: 80, 
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
+            width: 120, 
+            renderCell: (params) => (<>
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.GuildIcon) } />
+                <ST.BaseText> { params.value } </ST.BaseText>
+            </>),
         },
         {
             field: 'Power', headerName: 'Power', 
@@ -109,7 +111,7 @@ function ThiefTable(props) {
         },
         {
             field: 'equipment', headerName: 'Requisitions', sortable: false,
-            width: 198, 
+            width: 220, 
             renderCell: (params) => (<>
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.weapon.iconCode) } />
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.armor.iconCode) } />
@@ -121,7 +123,7 @@ function ThiefTable(props) {
         {
             field: 'Status', headerName: 'Status', 
             sortable: true, sortingOrder: ['asc', 'desc'],
-            width: 80, headerAlign: 'center', align: 'center',
+            width: 130, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<>
                 { params.row.Status == 'Ready' && 
                     <ST.BaseText> { params.value } </ST.BaseText>
@@ -130,24 +132,37 @@ function ThiefTable(props) {
                     <ST.BaseText>Rest&nbsp;</ST.BaseText>
                     <Timer 
                         periodSec={ params.row.Cooldown * 1000 }
-                        notifyExpire={props.notifyTimer}
+                        notifyExpire={ props.notifyTimer }
                     />
                 </>}
-                { params.row.Status == 'Training' && <>
-                    <ST.BaseText>Train&nbsp;</ST.BaseText>
+                { params.row.Status == 'Exploring' && params.row.Cooldown > 0 && <>
+                    <ST.BaseText>Exploring&nbsp;</ST.BaseText>
                     <Timer 
                         periodSec={ params.row.Cooldown * 1000 }
-                        notifyExpire={props.notifyTimer}
+                        notifyExpire={ props.notifyTimer }
                     />
+                </>}
+                { params.row.Status == 'Exploring' && params.row.Cooldown <= 0 && <>
+                    <ST.BaseText>Exploring (Done)</ST.BaseText>
+                </>}
+                { params.row.Status == 'Training' && params.row.Cooldown > 0 && <>
+                    <ST.BaseText>Training&nbsp;</ST.BaseText>
+                    <Timer 
+                        periodSec={ params.row.Cooldown * 1000 }
+                        notifyExpire={ props.notifyTimer }
+                    />
+                </>}
+                { params.row.Status == 'Training' && params.row.Cooldown <= 0 && <>
+                    <ST.BaseText>Training (Done)</ST.BaseText>
                 </>}
             </>),
         },
-        {
-            field: 'Position', headerName: 'Staffing', 
-            sortable: true, sortingOrder: ['asc', 'desc'],
-            width: 80, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
-        },
+        // {
+        //     field: 'Position', headerName: 'Staffing', 
+        //     sortable: true, sortingOrder: ['asc', 'desc'],
+        //     width: 80, headerAlign: 'center', align: 'center',
+        //     renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
+        // },
     ];
 
 
@@ -158,7 +173,7 @@ function ThiefTable(props) {
             <StyledTable
                 rows={props.dataLs}
                 columns={colDefs}
-                sx={{ width: '680px' }}
+                sx={{ width: '730px' }}
                 rowHeight={58}
                 autoHeight={true}
                 density='compact'            

@@ -17,10 +17,11 @@ class Guild(JM.Model):
     CreateDate = JM.DateField(default=now)
     Selected = JM.BooleanField(default=False)
 
-    KeepLevel = JM.IntegerField(default=1)
+    ThroneLevel = JM.IntegerField(default=1)
     CampaignWorld = JM.IntegerField(default=1)
     TotalPower = JM.IntegerField(default=0)
 
+    MaxThieves = JM.IntegerField(default=6)
     StorageGold = JM.IntegerField(default=0)
     StorageGems = JM.IntegerField(default=0)
     StorageWood = JM.IntegerField(default=0)
@@ -104,10 +105,10 @@ class ItemUnlocked(JM.Model):
 
 class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    Heist = JM.TextField()              # tower, trial, raid, dungeon, campaign
-    KeepLevel = JM.IntegerField()       # the currently generated level
-    StageNo = JM.IntegerField()
     CreateDate = JM.DateField(default=now)
+    Heist = JM.TextField()              # tower, trial, raid, dungeon, campaign
+    ThroneLevel = JM.IntegerField()     # the currently generated level
+    StageNo = JM.IntegerField()
 
     RoomTypes = JM.JSONField()          # ['balanced', null, null]
     Background = JM.TextField()
@@ -126,8 +127,22 @@ class GuildStage(JM.Model):
 
     objects = DB.BaseManager()
     def __str__(self): 
-        msg = f"GuildTower {str(self.StageNo).zfill(2)} {len(json.loads(self.ObstaclesR1))} "
+        msg = f"GuildStage {str(self.StageNo).zfill(2)} {len(json.loads(self.ObstaclesR1))} "
         msg += f"{len(json.loads(self.ObstaclesR2)) if self.ObstaclesR2 else 0} "
         msg += f"{len(json.loads(self.ObstaclesR3)) if self.ObstaclesR3 else 0} "
         return msg
+
+class GuildExpedition(JM.Model):
+    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    CreateDate = JM.DateField(default=now)
+    Level = JM.IntegerField()
+    BaseType = JM.TextField()
+    FullType = JM.TextField()
+    Duration = JM.TextField()
+
+    StartDate = JM.DateTimeField(null=True)
+    ThiefFK = JM.ForeignKey(ThiefInGuild, on_delete=JM.CASCADE, null=True)
+    Results = JM.JSONField(null=True)
+    Claimed = JM.BooleanField(default=False)
+    objects = DB.BaseManager()
 

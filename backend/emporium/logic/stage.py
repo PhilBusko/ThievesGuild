@@ -77,11 +77,6 @@ def StageBackground(lastBackground):
     chosen = random.choice(potential)
     return chosen
 
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-OBSTACLES LAYOUT
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 def RandomRoomType(prevType):
     potential = [
         'balanced', 'balanced', 'balanced', 'balanced',
@@ -185,6 +180,9 @@ def ObstacleSequence(potentialLs, maxObstacles, configType):
     return obstacleLs
 
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+RESEARCH STAGE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DIFFICULTY = 13
 DAMAGE = 11
 
@@ -294,4 +292,16 @@ def GetDevMight():
         'Experience': 8, 'Difficulty': DIFFICULTY+4, 'Damage': DAMAGE, },
     ]
     return obstacleLs
+
+
+def GetExpedition(level, expType):
+
+    expedi = EM.ExpeditionType.objects.filter(Type=expType)
+
+    expediDx = expedi[0].__dict__
+    expediDx.pop('id')
+    expediDx.pop('_state')
+
+    expediDx['level'] = level
+    return expediDx
 

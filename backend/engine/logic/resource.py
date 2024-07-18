@@ -13,20 +13,20 @@ import engine.models as GM
 POWER_FACTOR = 50
 
 
-def ResetCooldowns(guildMd):
+def ResetInjuryCooldowns(guildMd):
 
     thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
     thiefLs = []
 
     for md in thiefMds:
 
-        trunkNow = timezone.now()
-        trunkNow = trunkNow.replace(microsecond=0)
+        trunkNow = timezone.now().replace(microsecond=0)
 
-        if md.CooldownExpire and trunkNow >= md.CooldownExpire:
-            md.Status = 'Ready'
-            md.CooldownExpire = None
-            md.save()
+        if md.CooldownExpire and md.Status in ['Wounded', 'Knocked Out']:
+            if trunkNow >= md.CooldownExpire:
+                md.Status = 'Ready'
+                md.CooldownExpire = None
+                md.save()
 
 def GetThiefList(guildMd):
 
@@ -43,15 +43,15 @@ def GetThiefList(guildMd):
         dmgMin = thiefDx['Damage'] - int(thiefDx['Damage'] /2)
         dmgMax = thiefDx['Damage'] + int(thiefDx['Damage'] /2)
         thiefDx['DisplayDamage'] = f"{dmgMin}-{dmgMax}"
-        thiefDx['iconCode'] = f"class-{thiefDx['Class'].lower()}"
+        thiefDx['GuildIcon'] = f"class-{thiefDx['Class'].lower()}-s{thiefDx['Stars']}"
+        thiefDx['StageIcon'] = f"thief-{thiefDx['Class'].lower()}"
         thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefDx['Level'])
 
         cooldown = None
         if thiefDx['CooldownExpire']:
-            trunkNow = timezone.now()
-            trunkNow = trunkNow.replace(microsecond=0)
+            trunkNow = timezone.now().replace(microsecond=0)
             cooldown = thiefDx['CooldownExpire'] - trunkNow
-        
+
         thiefDx['Cooldown'] = cooldown
 
         # equipment info
@@ -113,7 +113,7 @@ def GetDisplayInfo(itemDx):
 
     if itemDx['Slot'] in ['weapon', 'armor']: stat = itemDx['Trait'][:3]
     else:     stat = 'skl' if itemDx['Skill'] else 'cmb'
-    iconCode = f"{itemDx['Slot']}-{stat}"
+    iconCode = f"{itemDx['Slot']}-{stat}-m{itemDx['TotalLv'] - itemDx['Level']}"
 
     bonusLs = []
     if itemDx['Trait']:
@@ -130,6 +130,9 @@ def GetDisplayInfo(itemDx):
 
     return iconCode, bonusLs
 
+def GetExpeditionCount(guildMd):
+    return 5
+
 
 def ApplyWounds(thiefMd, wounds):
 
@@ -139,20 +142,20 @@ def ApplyWounds(thiefMd, wounds):
 
     if ratio >= .500 and ratio <= .999:
         status = 'Wounded'
-        cooldown = EM.ThiefLevel.objects.filter(Level=thiefMd.Level)[0].WoundPeriod
+        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).WoundPeriod
 
     elif ratio >= 1.000:
         status = 'Knocked Out'
-        cooldown = EM.ThiefLevel.objects.filter(Level=thiefMd.Level)[0].KnockedOutPeriod
+        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).KnockedOutPeriod
 
     if cooldown:
 
         trunkNow = timezone.now()
         trunkNow = trunkNow.replace(microsecond=0)
-        expireDt = PD.Timedelta(cooldown).to_pytimedelta()
+        expireTm = PD.Timedelta(cooldown).to_pytimedelta()
 
         thiefMd.Status = status
-        thiefMd.CooldownExpire = trunkNow + expireDt
+        thiefMd.CooldownExpire = trunkNow + expireTm
         thiefMd.save()
 
     return status, cooldown
@@ -173,9 +176,9 @@ def GrantGold(guildMd, amount):
     guildMd.save()
 
 def GrantGems(guildMd, amount):
-    maxAmount = guildMd.StorageGems
+    # maxAmount = guildMd.StorageGems
     newAmount = guildMd.VaultGems + amount
-    if newAmount > maxAmount: newAmount = maxAmount
+    # if newAmount > maxAmount: newAmount = maxAmount
     guildMd.VaultGems = newAmount
     guildMd.save()
 
@@ -278,7 +281,7 @@ def SetThiefTotals(thiefMd):
                     GetItemCombat(head, 'att') + GetItemCombat(hands, 'att') + GetItemCombat(feet, 'att'))
     thiefMd.Damage = (6 + thiefMd.Cunning + GetItemCombat(weapon, 'dmg') + GetItemCombat(armor, 'dmg') +
                     GetItemCombat(head, 'dmg') + GetItemCombat(hands, 'dmg') + GetItemCombat(feet, 'dmg'))
-    thiefMd.Defense = (10 + thiefMd.Might + GetItemCombat(weapon, 'def') + GetItemCombat(armor, 'def') +
+    thiefMd.Defense = (11 + thiefMd.Might + GetItemCombat(weapon, 'def') + GetItemCombat(armor, 'def') +
                     GetItemCombat(head, 'def') + GetItemCombat(hands, 'def') + GetItemCombat(feet, 'def'))
 
     # set skills 

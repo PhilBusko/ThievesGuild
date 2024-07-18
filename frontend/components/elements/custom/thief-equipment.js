@@ -60,7 +60,7 @@ const SeparatorStats = styled('img')(({ theme }) => ({
 const EquipButton = styled(ButtonBase)(({ theme }) => ({
     minWidth: 'initial',
     margin: '0px 0px 0px 4px',
-    backgroundColor: ST.FadedBlue,
+    // backgroundColor: ST.FadedBlue,
     '& .MuiTypography-root': { 
         color: 'white',
         letterSpacing: 1.5,   

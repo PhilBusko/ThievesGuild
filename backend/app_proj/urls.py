@@ -26,12 +26,16 @@ engine_url = [
     re_path(r'^select-guild', NV.SelectGuild),
     re_path(r'^delete-guild', NV.DeleteGuild),
 
-    re_path(r'^guild-details',  NV.GuildDetails),
+    re_path(r'^thief-details',  NV.ThiefDetails),
+    re_path(r'^vault-details',  NV.VaultDetails),
     re_path(r'^change-equip',   NV.ChangeEquip),
 
     re_path(r'^daily-heists',   NV.DailyHeists),
-    re_path(r'^thief-details',  NV.ThiefDetails),
     re_path(r'^launch-room',    NV.LaunchRoom),
+
+    re_path(r'^expedition-update',  NV.ExpeditionUpdate),
+    re_path(r'^expedition-launch',  NV.ExpeditionLaunch),
+    re_path(r'^expedition-claim',   NV.ExpeditionClaim),
 ]
 
 

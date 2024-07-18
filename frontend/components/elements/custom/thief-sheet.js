@@ -5,8 +5,13 @@ import { useState, useEffect } from 'react';
 import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import * as ST from '../styled-elements';
+import * as GI from '../../assets/guild-icons';
 import ThiefStats from './thief-stats';
 import ThiefEquipment from './thief-equipment';
+
+import ThiefBurglar from '../../assets/stage/thief-burglar.png';
+import ThiefScoundrel from '../../assets/stage/thief-scoundrel.png';
+import ThiefRuffian from '../../assets/stage/thief-ruffian.png';
 
 
 const SheetControl = styled(Box)(({ theme }) => ({
@@ -20,6 +25,26 @@ const SheetControl = styled(Box)(({ theme }) => ({
 const EquipmentPanel = styled(Stack)(({ theme }) => ({
     borderTop: `2px solid ${ST.GoldText}`,
 }));
+
+const ThiefContainer = styled(Box)(({ theme }) => ({
+    width: '136px', 
+    height: '190px', 
+    margin: '0px 16px 0px 8px',
+    border: '1px solid tan', 
+    background: 'darkslategrey',
+}));
+
+const ThiefSprite = styled('img')(({ theme }) => ({
+    width: '160px',
+    margin: '15px 0px 0px -20px',
+}));
+
+const GetThiefIcon = (code) => {
+    if (code == 'thief-burglar')    return ThiefBurglar;
+    if (code == 'thief-scoundrel')  return ThiefScoundrel;
+    if (code == 'thief-ruffian')    return ThiefRuffian;
+    return '';
+}
 
 
 function ThiefSheet(props) {
@@ -50,53 +75,56 @@ function ThiefSheet(props) {
 
     return (<>
         {Object.keys(props.infoDx).length > 0 && <>
-            <SheetControl>
-                <ST.FlexHorizontal>
+            <ST.FlexHorizontal sx={{width: '675px', justifyContent: 'space-around', alignItems: 'flex-start'}}>
+                <SheetControl>
+                    <ST.FlexHorizontal>
 
-                    <ST.FlexVertical sx={{ width: '45%', background: 'sand'}}>
-                        <Box sx={{ width: '100px', height: '200px', border: '1px solid tan', background: 'darkslategrey' }}></Box>
-                    </ST.FlexVertical>
+                        <ST.FlexVertical sx={{ width: '45%', background: 'sand'}}>
+                            <ThiefContainer>
+                                <ThiefSprite src={ GetThiefIcon(props.infoDx.StageIcon) } />
+                            </ThiefContainer>
+                        </ST.FlexVertical>
 
-                    <ThiefStats infoDx={ props.infoDx } />
+                        <ThiefStats infoDx={ props.infoDx } />
 
-                </ST.FlexHorizontal>
-            </SheetControl>
-            <Box sx={{height: '16px'}}></Box>
+                    </ST.FlexHorizontal>
+                </SheetControl>
 
-            <SheetControl>
-                <EquipmentPanel spacing='0px'>
-                    <ThiefEquipment
-                        equipmentInfo={props.infoDx.weapon}
-                        inventoryDisplay={filteredWeapons}
-                        thiefName={props.infoDx.Name}
-                        notifyEquip={props.notifyEquip}
-                    />
-                    <ThiefEquipment 
-                        equipmentInfo={props.infoDx.armor}
-                        inventoryDisplay={filteredArmor}
-                        thiefName={props.infoDx.Name}
-                        notifyEquip={props.notifyEquip}
-                    />
-                    <ThiefEquipment 
-                        equipmentInfo={props.infoDx.head}
-                        inventoryDisplay={filteredHead}
-                        thiefName={props.infoDx.Name}
-                        notifyEquip={props.notifyEquip}
-                    />
-                    <ThiefEquipment 
-                        equipmentInfo={props.infoDx.hands}
-                        inventoryDisplay={filteredHands}
-                        thiefName={props.infoDx.Name}
-                        notifyEquip={props.notifyEquip}
-                    />
-                    <ThiefEquipment 
-                        equipmentInfo={props.infoDx.feet}
-                        inventoryDisplay={filteredFeet}
-                        thiefName={props.infoDx.Name}
-                        notifyEquip={props.notifyEquip}
-                    />
-                </EquipmentPanel>
-            </SheetControl>
+                <SheetControl>
+                    <EquipmentPanel spacing='0px'>
+                        <ThiefEquipment
+                            equipmentInfo={props.infoDx.weapon}
+                            inventoryDisplay={filteredWeapons}
+                            thiefName={props.infoDx.Name}
+                            notifyEquip={props.notifyEquip}
+                        />
+                        <ThiefEquipment 
+                            equipmentInfo={props.infoDx.armor}
+                            inventoryDisplay={filteredArmor}
+                            thiefName={props.infoDx.Name}
+                            notifyEquip={props.notifyEquip}
+                        />
+                        <ThiefEquipment 
+                            equipmentInfo={props.infoDx.head}
+                            inventoryDisplay={filteredHead}
+                            thiefName={props.infoDx.Name}
+                            notifyEquip={props.notifyEquip}
+                        />
+                        <ThiefEquipment 
+                            equipmentInfo={props.infoDx.hands}
+                            inventoryDisplay={filteredHands}
+                            thiefName={props.infoDx.Name}
+                            notifyEquip={props.notifyEquip}
+                        />
+                        <ThiefEquipment 
+                            equipmentInfo={props.infoDx.feet}
+                            inventoryDisplay={filteredFeet}
+                            thiefName={props.infoDx.Name}
+                            notifyEquip={props.notifyEquip}
+                        />
+                    </EquipmentPanel>
+                </SheetControl>
+            </ST.FlexHorizontal>
         </>}
         {Object.keys(props.infoDx).length == 0 && <>
             <SheetControl>

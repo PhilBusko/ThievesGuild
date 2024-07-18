@@ -16,7 +16,6 @@ import SeparatorSilver from '../assets/layout/separator-silver-horiz.png';
 import StageConfig from '../elements/engine/stage-config';
 
 
-
 const Broadcast = styled(Box)(({ theme }) => ({
     '& .MuiTypography-root': {
         fontSize: '220%',
@@ -31,7 +30,6 @@ const RoomSeparator = styled('img')(({ theme }) => ({
 }));
 
 
-
 function Playthrough(props) {
 
 
@@ -39,7 +37,6 @@ function Playthrough(props) {
 
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
-    const location = useLocation();
     const navigate = useNavigate();  
 
     const { pageStore } = useContext(GlobalContext);
@@ -57,6 +54,7 @@ function Playthrough(props) {
     const [stage, setStage] = useState({});
     const [deployment, setDeployment] = useState([]);
     const [roomNo, setRoomNo] = useState(0);
+    const location = useLocation();
 
     useEffect(() => {
         if ( !location.state ) {
@@ -121,27 +119,18 @@ function Playthrough(props) {
 
             // go to next room
 
-            setTimeout(() => {
+            // setTimeout(() => {
 
-                if (['victory', 'defeat'].includes(responseData.nextStep)) {
-                    // console.log(responseData.nextStep, responseData.roomNo)
-                    //     navigate('/aftermath/', 
-                    //         {state: {
-                    //             nextStep: responseData.nextStep,
-                    //             heist: heist,
-                    //             stageNo: stageNo,
-                    //             assignments: responseData.assignments, 
-                    //             fullRewards: responseData.fullRewards,
-                    //         }}
-                    //     );
-                }
+            //     if (['victory', 'defeat'].includes(responseData.nextStep)) {
+            //         advancePhase();
+            //     }
 
-                else {
-                    console.log('next room', roomNo +1)
+            //     else {
+            //         console.log('next room', roomNo +1)
 
-                    setRoomNo(roomNo +1);
-                }
-            }, 2000);
+            //         setRoomNo(roomNo +1);
+            //     }
+            // }, 2000);
 
         }).catch(errorLs => {
             setErrorLs(errorLs);

@@ -26,7 +26,7 @@ const NavStack = styled(Stack)(({ theme }) => ({
 }));
 
 const RegularItem = styled(Box)(({ theme }) => ({
-    minWidth: '80px', 
+    width: '120px', 
     border: `2px solid ${ST.HighlightPurple}`,
     borderRadius: '2px',
 
@@ -50,7 +50,7 @@ const RegularText = styled(ST.LinkText)(({ theme }) => ({
 }));
 
 const SelectedItem = styled(Box)(({ theme }) => ({
-    minWidth: '80px', 
+    width: '120px', 
     border: `2px solid ${ST.FadedBlue}`,
     borderRadius: '2px',
 

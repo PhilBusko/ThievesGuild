@@ -37,7 +37,7 @@ const BaseHighlight = styled(BaseText)(({ theme }) => ({
 
 const LinkText = styled(Typography)(({ theme }) => ({
     fontFamily: 'midnight flame',
-    letterSpacing: 0.7,
+    letterSpacing: 1.1,
 }));
 
 const TitleText = styled(Typography)(({ theme }) => ({

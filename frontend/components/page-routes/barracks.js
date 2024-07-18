@@ -44,18 +44,36 @@ function Barracks(props) {
     const [errorLs, setErrorLs] = useState([]);
 
 
-    // thieves and inventory
+    // thieves and vault
 
     const [thiefLs, setThiefLs] = useState([]);
     const [vaultLs, setVaultLs] = useState([]);
 
-    const getGuildDetails = () => {
+    const getThiefDetails = () => {
         AxiosConfig({
-            url: '/engine/guild-details',
+            url: '/engine/thief-details',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.thiefLs)
+                console.log(responseData.thiefLs)
                 setThiefLs(responseData.thiefLs);
+            }
+            else {
+                setMessage(responseData.message)
+            }
+        }).catch(errorLs => {
+            if (errorLs[0].includes('401'))
+                setMessage("* You must be logged in to view your guild's information.")
+            else
+                setErrorLs(errorLs);
+        });
+    }
+
+    const getVaultDetails = () => {
+        AxiosConfig({
+            url: '/engine/vault-details',
+        }).then(responseData => {
+            if (!responseData.message) {
+                console.log(responseData.assetLs)
                 setVaultLs(responseData.assetLs);
             }
             else {
@@ -71,7 +89,8 @@ function Barracks(props) {
 
     useEffect(() => {
         setErrorLs([]);
-        setTimeout(getGuildDetails, 100);
+        getThiefDetails();
+        setTimeout(getVaultDetails, 100);
     }, []);
 
 
@@ -141,12 +160,6 @@ function Barracks(props) {
         <PageLayout>
             <ST.GridPage container spacing={'16px'}>
 
-                <Grid item xs={12}>
-                    <ST.TitleGroup>
-                        <ST.TitleText>Barracks</ST.TitleText>
-                    </ST.TitleGroup>
-                </Grid>
-
                 { message && <Grid item xs={12}>
                     <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
                         <Broadcast>
@@ -155,14 +168,14 @@ function Barracks(props) {
                     </ST.FlexHorizontal>
                 </Grid> }
 
-                <ST.GridItemCenter item xs={12} lg={8} sx={{background: ''}}>
+                <ST.GridItemCenter item xs={12} sx={{background: ''}}>
                     <ST.ContentCard elevation={3}> 
                         <Stack spacing={'8px'}>
                             <ST.ContentTitle>Rogue Ranks</ST.ContentTitle>
                             <ThiefTable
                                 dataLs={thiefLs}
                                 notifySelect={handleThiefSelected}
-                                notifyTimer={() => { getGuildDetails(); }}
+                                notifyTimer={() => { getThiefDetails(); }}
                             />
                             { errorLs.length > 0 &&
                                 <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
@@ -171,7 +184,7 @@ function Barracks(props) {
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
-                <ST.GridItemCenter item xs={12} lg={4} sx={{background: ''}}>
+                <ST.GridItemCenter item xs={12} sx={{background: ''}}>
 
                     <ST.FlexVertical sx={{ justifyContent: 'flex-start' }}>
                         <ST.ContentCard elevation={3} sx={{ }}> 

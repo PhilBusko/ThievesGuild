@@ -12,7 +12,7 @@ import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
-import SelectThief from '../elements/custom/select-thief';
+import SelectorHeist from '../elements/custom/selector-heist';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -101,7 +101,7 @@ function Deployment(props) {
             url: '/engine/thief-details',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.thiefLs);
+                console.log(responseData.thiefLs);
                 setThiefLs(responseData.thiefLs);
             }
             else {
@@ -204,8 +204,8 @@ function Deployment(props) {
         if (obst.Type == 'Passage')   topColor = 'seagreen'; 
         if (obst.Type == 'Favor')   topColor = 'seagreen'; 
 
-        if (obst.Trait == 'Agi')   bottomColor = '#785208'; 
-        if (obst.Trait == 'Cun')   bottomColor = '#9c3316'; 
+        if (obst.Trait == 'Agi')   bottomColor = '#786b08'; 
+        if (obst.Trait == 'Cun')   bottomColor = 'purple'; 
         if (obst.Trait == 'Mig')   bottomColor = '#2f4883'; 
 
         const bkgd = `linear-gradient(${topColor} 0%, ${bottomColor} 50%)`;
@@ -262,7 +262,7 @@ function Deployment(props) {
                         }}>
 
                             {Object.keys(stage).length != 0 &&
-                            <SelectThief
+                            <SelectorHeist
                                 heist={stage.Heist}
                                 roomNumber={1}
                                 roomType={stage.RoomTypes[0]}
@@ -276,7 +276,7 @@ function Deployment(props) {
                             /> }
 
                             {Object.keys(stage).length != 0 && !!stage.RoomTypes[1] && 
-                            <SelectThief
+                            <SelectorHeist
                                 heist={stage.Heist}
                                 roomNumber={2}
                                 roomType={stage.RoomTypes[1]}
@@ -290,7 +290,7 @@ function Deployment(props) {
                             /> }
 
                             {Object.keys(stage).length != 0 && !!stage.RoomTypes[2] && 
-                            <SelectThief
+                            <SelectorHeist
                                 heist={stage.Heist}
                                 roomNumber={3}
                                 roomType={stage.RoomTypes[2]}

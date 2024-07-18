@@ -9,6 +9,7 @@ import Heists from '../page-routes/heists';
 import Deployment from '../page-routes/deployment';
 import Playthrough from '../page-routes/playthrough';
 import Aftermath from '../page-routes/aftermath';
+import Expedition from '../page-routes/expeditions';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -53,10 +54,16 @@ export const RoutesConfig = [
         'order': 5,
     },
     {
+        'title': 'Expeditions',
+        'path': '/expeditions/',
+        'element': <Expedition />, 
+        'order': 6,
+    },
+    {
         'title': 'Market',
         'path': '/market/',
         'element': <Scholarium />, 
-        'order': 6,
+        'order': 7,
     },
 
     {

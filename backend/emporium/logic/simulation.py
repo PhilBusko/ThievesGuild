@@ -1,7 +1,8 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-SIMULATION 
+SIMULATION HELPER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random, math
+import emporium.models as EM
 
 
 def AttachWargear(baseThief):
@@ -240,4 +241,81 @@ def RunPassTest(thiefConfig, obstacleLs):
         })
 
     return debugLs
+
+
+def TestExpedition(thiefConfig, expDx):
+
+    passed = 0
+    trapMd = EM.Trap.objects.filter(Level=expDx['level']).order_by('Difficulty')[0]
+    diffTarget = trapMd.Difficulty
+    # print('diff target:', diffTarget)
+
+    # main trait
+
+    bonus = thiefConfig[expDx['MainTrait'].title()]
+
+    for rg in range(1, 10):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    # secondary traits
+
+    bonus = thiefConfig[expDx['SecondaryOne'].title()]
+    for rg in range(1, 4):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    bonus = thiefConfig[expDx['SecondaryTwo'].title()]
+    for rg in range(1, 4):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    bonus = thiefConfig[expDx['SecondaryThree'].title()]
+    for rg in range(1, 4):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    # skills
+    # compare with simulation.AttachWargear and resource.SetThiefTotals
+
+    if 'att' in expDx['SkillOne']:
+        bonus = thiefConfig['Att'] - thiefConfig['Agi']
+        bonus += thiefConfig['Dmg'] - thiefConfig['Cun'] - 6
+        bonus += thiefConfig['Def'] - thiefConfig['Mig'] - 11
+    else:
+        bonus = 0
+        if 'sab' in expDx['SkillOne']: bonus += thiefConfig['Sab']
+        if 'per' in expDx['SkillOne']: bonus += thiefConfig['Per']
+        if 'tra' in expDx['SkillOne']: bonus += thiefConfig['Tra']
+    for rg in range(1, 4):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    if 'att' in expDx['SkillTwo']:
+        bonus = thiefConfig['Att'] - thiefConfig['Agi']
+        bonus += thiefConfig['Dmg'] - thiefConfig['Cun'] - 6
+        bonus += thiefConfig['Def'] - thiefConfig['Mig'] - 11
+    else:
+        bonus = 0
+        if 'sab' in expDx['SkillTwo']: bonus += thiefConfig['Sab']
+        if 'per' in expDx['SkillTwo']: bonus += thiefConfig['Per']
+        if 'tra' in expDx['SkillTwo']: bonus += thiefConfig['Tra']
+    for rg in range(1, 4):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    if 'att' in expDx['SkillThree']:
+        bonus = thiefConfig['Att'] - thiefConfig['Agi']
+        bonus += thiefConfig['Dmg'] - thiefConfig['Cun'] - 6
+        bonus += thiefConfig['Def'] - thiefConfig['Mig'] - 11
+    else:
+        bonus = 0
+        if 'sab' in expDx['SkillThree']: bonus += thiefConfig['Sab']
+        if 'per' in expDx['SkillThree']: bonus += thiefConfig['Per']
+        if 'tra' in expDx['SkillThree']: bonus += thiefConfig['Tra']
+    for rg in range(1, 4):
+        roll = random.randint(1, 20)
+        if roll + bonus >= diffTarget: passed += 1
+
+    return passed
 

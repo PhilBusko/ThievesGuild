@@ -2,11 +2,8 @@
 CANVAS ENGINE
 **************************************************************************************************/
 import { useState, useEffect, useRef } from 'react';
-import { Grid, Box, Stack, ButtonBase } from '@mui/material';
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import * as ST from '../styled-elements';
-
-import useInterval from './use-interval';
 
 
 const EngineContainer = styled(Box)(({ theme }) => ({
@@ -42,47 +39,14 @@ const ClickOverlay = styled(Box)(({ theme }) => ({
 }));
 
 
-
 function CanvasEngine(props) {
 
     const canvasRef = useRef(null);
-
-
-
-
-    const [animFrame, setAnimFrame] = useState(0);
-
-    // const intervalRef = useInterval(() => {
-    //     if (animFrame < 10) {
-    //         setAnimFrame(animFrame + 1);
-    //     } 
-    //     else {
-    //         clearInterval(intervalRef.current);
-    //     }
-    // }, 1000);
-
-    // useEffect(() => {
-
-    //     const context = canvasRef.current.getContext('2d');
-    //     context.clearRect(0, 0, context.canvas.width, context.canvas.width);
-    //     const newXPos = 100 + animFrame * 10;
-
-    //     var thiefImg = new Image();
-    //     thiefImg.src = ThiefBurglar;
-    //     thiefImg.onload = () => {
-    //         context.drawImage(thiefImg, newXPos, 180, 170, 170);
-    //     }
-        
-    // }, [animFrame]);
-
-
 
     useEffect(() => {
         // console.log(props.backgroundInfo)
     }, [props.backgroundInfo]);
 
-
-    
     useEffect(() => {
         // console.log(props.spriteInfo)
 
@@ -97,8 +61,6 @@ function CanvasEngine(props) {
 
         const context = canvasRef.current.getContext('2d');
 
-        // draw sprites
-
         props.spriteInfo.forEach(spr => {
             var spriteImg = new Image();
             spriteImg.src = spr.image;
@@ -107,45 +69,44 @@ function CanvasEngine(props) {
             };
         });
 
-        // draw bounds
+        // draw walk line, dev only
 
-        context.strokeStyle = 'white';
-        context.lineWidth = 4;
-        const obstacleSpace = 350;
-        for (let s = 1; s < 16; s++) {
-            context.beginPath();
-            context.moveTo(obstacleSpace *s, 150);
-            context.lineTo(obstacleSpace *s, 350);
-            context.stroke();    
-        }
+        context.strokeStyle = 'aqua';
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(0, 345);
+        context.lineTo(5000, 345);
+        context.stroke();
     }
-
-
 
     return (
         <EngineContainer sx={{
-            width:  props.backgroundInfo.height <= props.windowSize.height ?
+            width:  props.playSize.height <= props.windowSize.height ?
                 props.windowSize.width+3 : props.windowSize.width +20,
-            height: props.backgroundInfo.width <= props.windowSize.width ?
+            height: props.playSize.width <= props.windowSize.width ?
                 props.windowSize.height+3 : props.windowSize.height +20, 
         }}>
             <BackgroundLayer sx={{
-                width: props.backgroundInfo.width,
-                height: props.backgroundInfo.height,
+                width: props.playSize.width,
+                height: props.playSize.height,
                 backgroundImage: `url(${props.backgroundInfo.image})`,
                 backgroundPosition: `-${props.backgroundInfo.bias}px, 0px`,
             }}/>
 
             <CanvasLayer 
                 ref={ canvasRef }
-                width={ props.backgroundInfo.width }
-                height={ props.backgroundInfo.height }
+                width={ props.playSize.width }
+                height={ props.playSize.height }
             />
 
             <ClickOverlay sx={{
-                width: props.backgroundInfo.width,
-                height: props.backgroundInfo.height,
-            }}/>
+                width: props.playSize.width,
+                height: props.playSize.height,
+            }}>
+                { props.overlayInfo.map((ovr, id) => (
+                    ovr
+                ))}
+            </ClickOverlay>
 
         </EngineContainer>
     );
@@ -153,6 +114,7 @@ function CanvasEngine(props) {
 
 CanvasEngine.defaultProps = {
     windowSize: {width: 400, height: 300,},
+    playSize: {width: 800, height: 300,},
     backgroundInfo: {},
     spriteInfo: [],
     overlayInfo: [],

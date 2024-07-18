@@ -111,9 +111,10 @@ def DeleteGuild(request):
 
     return Response(f"Charter {guild} has been abolished.")
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def GuildDetails(request):
+def ThiefDetails(request):
 
     userMd = request.user
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
@@ -121,16 +122,35 @@ def GuildDetails(request):
     if not guildMd:
         return Response({
             'thiefLs': None,
+            'message': '* A guild must be chosen in the Account page.',
+        })
+
+    RS.ResetInjuryCooldowns(guildMd)
+    thiefDf = RS.GetThiefList(guildMd)
+    thiefDf = thiefDf.sort_values(by=['Class', 'Power'], ascending=[True, False])
+
+    details = {
+        'thiefLs': NT.DataframeToDicts(thiefDf),
+        'message': None,
+    }
+    return Response(details)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def VaultDetails(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({
             'assetLs': None,
             'message': '* A guild must be chosen in the Account page.',
         })
 
-    RS.ResetCooldowns(guildMd)
-    thiefDf = RS.GetThiefList(guildMd)
     assetDf = RS.GetAssetList(guildMd)
 
     details = {
-        'thiefLs': NT.DataframeToDicts(thiefDf),
         'assetLs': NT.DataframeToDicts(assetDf),
         'message': None,
     }
@@ -237,29 +257,6 @@ def DailyHeists(request):
     }
     return Response(responseDx)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def ThiefDetails(request):
-
-    userMd = request.user
-    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
-
-    if not guildMd:
-        return Response({
-            'thiefLs': None,
-            'message': '* A guild must be chosen in the Account page.',
-        })
-
-    RS.ResetCooldowns(guildMd)
-    thiefDf = RS.GetThiefList(guildMd)
-    thiefDf = thiefDf.sort_values(by=['Class', 'Power'], ascending=[True, False])
-
-    details = {
-        'thiefLs': NT.DataframeToDicts(thiefDf),
-        'message': None,
-    }
-    return Response(details)
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def LaunchRoom(request):
@@ -281,6 +278,7 @@ def LaunchRoom(request):
     if roomNo == 5: obstacleLs = stageMd.ObstaclesR5
 
     results = LH.RunObstacles(thiefMd, obstacleLs)
+    results = LH.AttachCombatDisplay(results)
 
     thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, roomNo, stageMd, obstacleLs, results)
 
@@ -296,6 +294,144 @@ def LaunchRoom(request):
         'fullRewards': fullRewards,
     }
     return Response(resultDx)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ExpeditionUpdate(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    trunkNow = timezone.now().replace(microsecond=0)
+    currDate = f"{trunkNow.year}-{str(trunkNow.month).zfill(2)}-{str(trunkNow.day).zfill(2)}"
+
+    # remove any closed expeditions: expired or claimed from previous day
+
+    expireLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, ThiefFK__isnull=True)
+    for ep in expireLs: ep.delete()
+
+    claimLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, Claimed=True)
+    for ep in claimLs: ep.delete()
+
+    # count the current expeditions and launch to fill any defecit
+
+    dailyExp = RS.GetExpeditionCount(guildMd)
+    existLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd)
+    toGo = dailyExp - len(existLs)
+
+    for ep in range(0, toGo):
+        CT.CreateExpedition(guildMd, currDate)
+
+    # check if any expeditions have ended
+    # if they have, the results are created but not claimed
+
+    RS.ResetInjuryCooldowns(guildMd)
+
+    expeditionLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, StartDate__isnull=False)
+
+    for ep in expeditionLs:
+        endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
+        if endTime <= trunkNow : #and not ep.Results:
+            runResults = LH.RunExpedition(ep)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 13) #runResults)
+            ep.Results = winResults                 # applied when user claims
+            ep.save()
+
+    # return the current expeditions
+    # check for reward replacements here
+
+    expeditionLs = CT.GetExpeditions(guildMd, trunkNow) 
+    return Response({'expeditions': expeditionLs})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ExpeditionLaunch(request):
+
+    expeditionId = request.data.get('expeditionId')
+    thiefId = request.data.get('thiefId')
+
+    expToStart = GM.GuildExpedition.objects.GetOrNone(id=expeditionId)
+    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
+
+    trunkNow = timezone.now().replace(microsecond=0)
+    expireTm = PD.Timedelta(expToStart.Duration).to_pytimedelta()
+
+    expToStart.StartDate = trunkNow
+    expToStart.ThiefFK = thiefMd
+    expToStart.save()
+
+    thiefMd.Status = 'Exploring'
+    thiefMd.CooldownExpire = trunkNow + expireTm
+    thiefMd.save()
+
+    return Response({'success': True})
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ExpeditionClaim(request):
+
+    expeditionId = request.data.get('expeditionId')
+    selected = request.data.get('resultSelected')
+
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=request.user, Selected=True)
+    expToClaim = GM.GuildExpedition.objects.GetOrNone(id=expeditionId)
+    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=expToClaim.ThiefFK_id)
+
+    selectReward = expToClaim.Results['reward'] if selected == 'first' else expToClaim.Results['reward2']
+    replace = CT.GetReplacement(guildMd, selectReward)
+
+    print(selectReward)
+    print(replace)
+
+
+
+    # apply rewards to guild
+
+    if not replace and selectReward['category'] == 'blueprint':
+
+        if 'thief' in selectReward['resourceId']:
+            newBlueprint = {
+                'GuildFK': guildMd,
+                'ThiefFK': EM.UnlockableThief.objects.GetOrNone(ResourceId=selectReward['resourceId']),
+            }
+            newModel = EM.UnlockableThief(**entryDx)
+            newModel.save()
+
+        else:
+            pass
+
+    elif not replace and selectReward['category'] == 'material':
+        pass
+
+    elif replace:
+        amount = int(replace.split(' ')[-2])
+        RS.GrantGems(amount)
+
+
+    # apply results to thief
+
+    RS.GrantExperience(thiefMd, expToClaim.Results['xp'])
+
+    if selectReward['category'] != 'injury':
+        thiefMd.Status = 'Ready'
+        thiefMd.CooldownExpire = None
+        thiefMd.save()
+
+    else:
+        RS.ApplyWounds(thiefMd, thiefMd.Health)
+
+    # mark the expedition as claimed
+    # it will be wiped on the next day when the user updates the expeditions
+
+    expToClaim.Claimed = True
+    expToClaim.save()
+
+    return Response({'success': True})
+
 
 
 

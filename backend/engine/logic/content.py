@@ -6,6 +6,7 @@ import pandas as PD
 import app_proj.notebooks as NT
 
 import emporium.models as EM 
+import emporium.logic.guild as GD
 import emporium.logic.stage as ST
 import engine.models as GM 
 
@@ -20,7 +21,7 @@ def GetOrCreateTower(guildMd, currDate):
     # check for existing daily stages
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='tower', KeepLevel=guildMd.KeepLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='tower', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -33,7 +34,7 @@ def GetOrCreateTower(guildMd, currDate):
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').delete()
 
-    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
     lastType = ''
     lastBackground = ''
 
@@ -41,7 +42,7 @@ def GetOrCreateTower(guildMd, currDate):
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
-        newStage.KeepLevel = guildMd.KeepLevel
+        newStage.ThroneLevel = guildMd.ThroneLevel
         newStage.Heist = 'tower'
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
@@ -136,12 +137,13 @@ def GetOrCreateTower(guildMd, currDate):
 
 
 
+
 def GetOrCreateTrial(guildMd, currDate):
     
     # check for existing daily stages
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='trial', KeepLevel=guildMd.KeepLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='trial', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -154,7 +156,7 @@ def GetOrCreateTrial(guildMd, currDate):
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').delete()
 
-    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
     lastType = ''
     lastBackground = ''
 
@@ -162,7 +164,7 @@ def GetOrCreateTrial(guildMd, currDate):
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
-        newStage.KeepLevel = guildMd.KeepLevel
+        newStage.ThroneLevel = guildMd.ThroneLevel
         newStage.Heist = 'trial'
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
@@ -260,7 +262,7 @@ def GetOrCreateRaid(guildMd, currDate):
     # check for existing daily stages
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='raid', KeepLevel=guildMd.KeepLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='raid', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -273,7 +275,7 @@ def GetOrCreateRaid(guildMd, currDate):
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='raid').delete()
 
-    rawStages = list(EM.GothicTower.objects.filter(Keep=guildMd.KeepLevel).values())
+    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
     lastType = ''
     lastBackground = ''
 
@@ -281,7 +283,7 @@ def GetOrCreateRaid(guildMd, currDate):
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
-        newStage.KeepLevel = guildMd.KeepLevel
+        newStage.ThroneLevel = guildMd.ThroneLevel
         newStage.Heist = 'raid'
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
@@ -382,7 +384,6 @@ def GetOrCreateCampaign(guildMd, currDate):
 
 
 
-
 def AttachObstacleDisplay(obstacleLs):
 
     for ob in obstacleLs:
@@ -461,4 +462,123 @@ def AttachDisplayData(stageLs):
         st['NumberRooms'] = roomCount
 
     return stageLs
+
+
+def CreateExpedition(guildMd, currDate):
+
+    # get all the combinations
+
+    levelLs = EM.ExpeditionLevel.objects.filter(Throne=guildMd.ThroneLevel)
+    typeLs = EM.ExpeditionType.objects.all()
+
+    allTypes = []
+    for lv in levelLs:
+        for tp in typeLs:
+            allTypes.append(f"{lv.Level}-{tp.Type}")
+
+    # remove the existing ones
+
+    existMd = GM.GuildExpedition.objects.filter(GuildFK=guildMd)
+
+    if existMd:
+        for ep in existMd:
+            allTypes.remove(ep.FullType)
+
+    # create a random expedition from the remaining
+
+    fullType = random.choice(allTypes)
+
+    newExp = GM.GuildExpedition()
+    newExp.GuildFK = guildMd
+    newExp.CreateDate = currDate
+    newExp.Level = fullType.split('-')[0]
+    newExp.BaseType = fullType.split('-')[1]
+    newExp.FullType = fullType
+    newExp.Duration = '1 min'
+    newExp.save()
+
+def GetExpeditions(guildMd, trunkNow):
+
+    expeditionLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd).values()
+
+    for ep in expeditionLs:
+
+        # set the thief display data
+
+        if not ep['ThiefFK_id']:
+            ep['ThiefDx'] = None
+            ep['Cooldown'] = None
+
+        else:
+            thiefDx = GM.ThiefInGuild.objects.GetOrNone(id=ep['ThiefFK_id']).__dict__
+            entriesRemove = ['_state', 'GuildFK_id', 'BasePower', 'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd',
+                'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd', ]
+            for k in entriesRemove:
+                thiefDx.pop(k)
+
+            dmgMin = thiefDx['Damage'] - int(thiefDx['Damage'] /2)
+            dmgMax = thiefDx['Damage'] + int(thiefDx['Damage'] /2)
+            thiefDx['DisplayDamage'] = f"{dmgMin}-{dmgMax}"
+            thiefDx['IconCode'] = f"class-{thiefDx['Class'].lower()}-s{thiefDx['Stars']}"
+            thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefDx['Level'])
+
+            cooldown = None
+            if thiefDx['CooldownExpire']:
+                cooldown = thiefDx['CooldownExpire'] - trunkNow
+
+            ep['ThiefDx'] = thiefDx
+            ep['Cooldown'] = cooldown
+
+        ep.pop('ThiefFK_id')
+
+        # mark any replacements if the expedition is finished
+
+        if ep['Results']:
+            replace = GetReplacement(guildMd, ep['Results']['reward'])
+            ep['Results']['reward']['replace'] = replace
+
+            if 'reward2' in ep['Results']:
+                replace = GetReplacement(guildMd, ep['Results']['reward2'])
+                ep['Results']['reward2']['replace'] = replace
+
+    return expeditionLs
+
+def GetReplacement(guildMd, rewardDx):
+
+    replace = None
+    FACTOR = 2
+
+    stageMd = EM.GothicTower.objects.GetOrNone(Throne=guildMd.ThroneLevel, StageNo=1)
+    gemsLevel = stageMd.Gems
+
+    # check blueprints
+
+    if rewardDx['category'] == 'blueprint' and 'thief' in rewardDx['resourceId']:
+        blueprintTrial = GM.ThiefUnlocked.objects.GetOrNone(GuildFK=guildMd, ThiefFK__ResourceId=rewardDx['resourceId'])
+        if blueprintTrial:
+            replace = f"already unlocked, convert to {gemsLevel * FACTOR} gems"
+
+    if rewardDx['category'] == 'blueprint' and 'thief' not in rewardDx['resourceId']:
+        blueprintTrial = GM.ItemUnlocked.objects.GetOrNone(GuildFK=guildMd, ItemFK__ResourceId=rewardDx['resourceId'])
+        if blueprintTrial:
+            replace = f"already unlocked, convert to {gemsLevel * FACTOR} gems"
+
+    # check materials
+
+    if rewardDx['category'] == 'material':
+        amount = int(rewardDx['value'].split(' ')[0])
+
+        if rewardDx['resourceId'] == 'gold' and guildMd.VaultGold + amount > guildMd.StorageGold:
+            replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
+
+        if rewardDx['resourceId'] == 'wood' and guildMd.VaultWood + amount > guildMd.StorageWood:
+            replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
+
+        if rewardDx['resourceId'] == 'stone' and guildMd.VaultStone + amount > guildMd.StorageStone:
+            replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
+
+        if rewardDx['resourceId'] == 'iron' and guildMd.VaultIron + amount > guildMd.StorageIron:
+            replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
+
+    return replace
 
