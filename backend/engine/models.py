@@ -135,6 +135,7 @@ class GuildStage(JM.Model):
 class GuildExpedition(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     CreateDate = JM.DateField(default=now)
+    SlotNo = JM.IntegerField()
     Level = JM.IntegerField()
     BaseType = JM.TextField()
     FullType = JM.TextField()

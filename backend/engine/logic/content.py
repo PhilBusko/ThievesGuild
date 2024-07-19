@@ -464,7 +464,7 @@ def AttachDisplayData(stageLs):
     return stageLs
 
 
-def CreateExpedition(guildMd, currDate):
+def CreateExpedition(guildMd, currDate, slotNo):
 
     # get all the combinations
 
@@ -491,6 +491,7 @@ def CreateExpedition(guildMd, currDate):
     newExp = GM.GuildExpedition()
     newExp.GuildFK = guildMd
     newExp.CreateDate = currDate
+    newExp.SlotNo = slotNo
     newExp.Level = fullType.split('-')[0]
     newExp.BaseType = fullType.split('-')[1]
     newExp.FullType = fullType
@@ -541,6 +542,7 @@ def GetExpeditions(guildMd, trunkNow):
                 replace = GetReplacement(guildMd, ep['Results']['reward2'])
                 ep['Results']['reward2']['replace'] = replace
 
+    expeditionLs = sorted(expeditionLs, key=lambda d: d['SlotNo'])
     return expeditionLs
 
 def GetReplacement(guildMd, rewardDx):

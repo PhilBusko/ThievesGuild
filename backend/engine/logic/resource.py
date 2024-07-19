@@ -295,13 +295,24 @@ def SetThiefTotals(thiefMd):
 
     thiefMd.save()
 
-def SetGuildPower(guildMd):
+def SetGuildTotals(guildMd):
 
     thiefOb = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
     power = 0
     for th in thiefOb:
         power += th.Power
 
+    throneMd = EM.ThroneUpgrades.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    
+    maxGold = throneMd.GoldStorage
+    maxWood = throneMd.WoodStorage
+    maxStone = throneMd.StoneStorage
+    maxIron = throneMd.IronStorage
+
+    guildMd.StorageGold = maxGold
+    guildMd.StorageWood = maxWood
+    guildMd.StorageStone = maxStone
+    guildMd.StorageIron = maxIron
     guildMd.TotalPower = power
     guildMd.save()
 
@@ -330,7 +341,7 @@ def CreateNewGuild(user, guildName):
     thiefOb = GM.ThiefInGuild.objects.filter(GuildFK=newGuild)
     for th in thiefOb:
         SetThiefTotals(th)
-    SetGuildPower(newGuild)
+    SetGuildTotals(newGuild)
 
     return newGuild
 

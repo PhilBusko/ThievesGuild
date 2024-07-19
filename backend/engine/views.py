@@ -196,7 +196,7 @@ def ChangeEquip(request):
         if prevClaimant: RS.SetThiefTotals(prevClaimant)
 
     RS.SetThiefTotals(thiefMd)
-    RS.SetGuildPower(guildMd)
+    RS.SetGuildTotals(guildMd)
 
     # refresh the frontend
 
@@ -315,14 +315,18 @@ def ExpeditionUpdate(request):
     claimLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, Claimed=True)
     for ep in claimLs: ep.delete()
 
-    # count the current expeditions and launch to fill any defecit
 
-    dailyExp = RS.GetExpeditionCount(guildMd)
-    existLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd)
-    toGo = dailyExp - len(existLs)
 
-    for ep in range(0, toGo):
-        CT.CreateExpedition(guildMd, currDate)
+
+    # store the expeditions in slots to keep the order on the frontend
+
+    dailySlots = RS.GetExpeditionCount(guildMd)
+    for sl in range(1, dailySlots +1):
+        exists = GM.GuildExpedition.objects.GetOrNone(GuildFK=guildMd, SlotNo=sl)
+        if not exists:
+            CT.CreateExpedition(guildMd, currDate, sl)
+
+
 
     # check if any expeditions have ended
     # if they have, the results are created but not claimed
@@ -335,11 +339,12 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 11) #runResults)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 
     # return the current expeditions
+    # will include all previous edits of this function
     # check for reward replacements here
 
     expeditionLs = CT.GetExpeditions(guildMd, trunkNow) 
@@ -403,7 +408,7 @@ def ExpeditionClaim(request):
             newModel.save()
 
     elif not replace and selectReward['category'] == 'material':
-        amount = selectReward['value'].split(' ')[0]
+        amount = int(selectReward['value'].split(' ')[0])
         if selectReward['resourceId'] == 'gold':        RS.GrantGold(guildMd, amount)
         if selectReward['resourceId'] == 'gems':        RS.GrantGems(guildMd, amount)
         if selectReward['resourceId'] == 'wood':        RS.GrantWood(guildMd, amount)
@@ -413,7 +418,6 @@ def ExpeditionClaim(request):
     elif replace:
         amount = int(replace.split(' ')[-2])
         RS.GrantGems(guildMd, amount)
-
 
     # apply results to thief
 
@@ -434,8 +438,6 @@ def ExpeditionClaim(request):
     expToClaim.save()
 
     return Response({'success': True})
-
-
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
