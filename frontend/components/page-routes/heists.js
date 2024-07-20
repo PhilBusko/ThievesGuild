@@ -17,7 +17,6 @@ import HeistGroup from '../elements/custom/heist-group';
 import SeparatorSilver from '../assets/layout/separator-silver-vert.png';
 import TowerTexture from '../assets/layout/texture-tower.jpg'
 import TrialTexture from '../assets/layout/texture-trial.jpg'
-import RaidTexture from '../assets/layout/texture-raid.jpg'
 import DungeonTexture from '../assets/layout/texture-dungeon.jpg'
 import CampaignTexture from '../assets/layout/texture-campaign.jpg'
 
@@ -77,7 +76,6 @@ function Heists(props) {
 
     const [tower, setTower] = useState([]);
     const [trial, setTrial] = useState([]);
-    const [raid, setRaid] = useState([]);
     const [dungeon, setDungeon] = useState([]);
     const [campaign, setCampaign] = useState([]);
 
@@ -90,7 +88,6 @@ function Heists(props) {
                 // console.log(responseData.tower)
                 setTower(responseData.tower);
                 setTrial(responseData.trial);
-                setRaid(responseData.raid);
                 setDungeon(responseData.dungeon);
                 setCampaign(responseData.campaign);
             }
@@ -116,7 +113,6 @@ function Heists(props) {
     const handleHeist = (heistName) => {
         if (heistName == 'Gothic Tower') setSelectedHeist(tower);
         if (heistName == 'League Trials') setSelectedHeist(trial);
-        if (heistName == 'Burglary Raid') setSelectedHeist(raid);
         if (heistName == 'Dungeon') setSelectedHeist(dungeon);
         if (heistName == 'Campaign') setSelectedHeist(campaign);
     }
@@ -131,7 +127,6 @@ function Heists(props) {
 
     const getHeistIcon = (heist) => {
         if (heist.includes('trial')) return TrialTexture;
-        if (heist.includes('raid')) return RaidTexture;
         if (heist.includes('dungeon')) return DungeonTexture;
         if (heist.includes('campaign')) return CampaignTexture;
         return TowerTexture;
@@ -164,26 +159,19 @@ function Heists(props) {
                             infoTx={['Refreshes daily', 'Rewards are 2x']}
                             notifyHeist={ handleHeist }
                         />
-                        <HeistGroup
-                            buttonImage={RC.RaidHeist}
-                            title={ 'Burglary Raid' }
-                            infoTx={["Attack another guild master's headquarters", 
-                                'Rewards are 3x', 'Available at Keep 3', ]}
+                        { dungeon.length > 0 && <HeistGroup
+                            buttonImage={RC.DungeonHeist}
+                            title={ 'Dungeon' }
+                            infoTx={['Rare event', 'Rewards are 3x']}
                             notifyHeist={ handleHeist }
-                        />
+                        /> }
                         <HeistGroup
                             buttonImage={RC.CampaignHeist}
                             title={ 'Campaign' }
                             infoTx={['One-time stages', 
-                                'Allows to advance the Throne Room', 'Rewards are 5x']}
+                                'Allows to advance the Throne Room', 'Rewards are 4x']}
                             notifyHeist={ handleHeist }
                         />
-                        { dungeon.length > 0 && <HeistGroup
-                            buttonImage={RC.DungeonHeist}
-                            title={ 'Dungeon' }
-                            infoTx={['Rare event', 'Rewards are 4x']}
-                            notifyHeist={ handleHeist }
-                        /> }
                     </HeistContainer>
                 </Grid>
 

@@ -179,6 +179,27 @@ class LeagueTrial(JM.Model):
     objects = DB.BaseManager()
     class Meta: unique_together = ('Throne', 'StageNo')
 
+class Dungeon(JM.Model):
+    Throne = JM.IntegerField()
+    StageNo = JM.IntegerField()
+    ObstaclesR1 = JM.IntegerField(null=True)
+    LevelR1 = JM.IntegerField(null=True)
+    ObstaclesR2 = JM.IntegerField(null=True)
+    LevelR2 = JM.IntegerField(null=True)
+    ObstaclesR3 = JM.IntegerField(null=True)
+    LevelR3 = JM.IntegerField(null=True)
+    ObstaclesR4 = JM.IntegerField(null=True)
+    LevelR4 = JM.IntegerField(null=True)
+    ObstaclesR5 = JM.IntegerField(null=True)
+    LevelR5 = JM.IntegerField(null=True)
+    Gold = JM.IntegerField(null=True)
+    Gems = JM.IntegerField(null=True)
+    Wood = JM.IntegerField(null=True)
+    Stone = JM.IntegerField(null=True)
+    Iron = JM.IntegerField(null=True)
+    objects = DB.BaseManager()
+    class Meta: unique_together = ('Throne', 'StageNo')
+
 class Campaign(JM.Model):
     World = JM.IntegerField()
     StageNo = JM.IntegerField()
@@ -203,6 +224,7 @@ class Campaign(JM.Model):
 class TrialDay(JM.Model):
     WeekDay = JM.TextField()
     StageType = JM.TextField()
+    objects = DB.BaseManager()
 
 class ExpeditionLevel(JM.Model):
     Throne = JM.IntegerField()

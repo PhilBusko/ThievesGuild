@@ -3,6 +3,7 @@ ENGINE CONTENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random
 import pandas as PD
+from django.utils import timezone
 import app_proj.notebooks as NT
 
 import emporium.models as EM 
@@ -16,25 +17,8 @@ def BackgroundBias():
     chosen = random.choice(potential)
     return chosen
 
-def GetOrCreateTower(guildMd, currDate):
+def CreateStageRooms(guildMd, heistType, currDate, rawStages):
 
-    # check for existing daily stages
-
-    checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='tower', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
-        ).values()
-
-    if checkStages:
-        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
-        stageLs = NT.DataframeToDicts(stageDf)
-        return stageLs
-
-    # create when update needed
-
-    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').delete()
-
-    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
     lastType = ''
     lastBackground = ''
 
@@ -43,7 +27,7 @@ def GetOrCreateTower(guildMd, currDate):
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
         newStage.ThroneLevel = guildMd.ThroneLevel
-        newStage.Heist = 'tower'
+        newStage.Heist = heistType
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
         newStage.RoomTypes = []
@@ -126,6 +110,26 @@ def GetOrCreateTower(guildMd, currDate):
 
         newStage.save()
 
+def GetOrCreateTower(guildMd, currDate):
+
+    # check for existing daily stages
+
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='tower', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create during daily update
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').delete()
+    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
+    CreateStageRooms(guildMd, 'tower', currDate, rawStages)
+
     # dev can create duplicate stages
 
     newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').values()
@@ -135,11 +139,8 @@ def GetOrCreateTower(guildMd, currDate):
 
     return stageLs
 
-
-
-
 def GetOrCreateTrial(guildMd, currDate):
-    
+
     # check for existing daily stages
 
     checkStages = GM.GuildStage.objects.filter(
@@ -152,14 +153,24 @@ def GetOrCreateTrial(guildMd, currDate):
         stageLs = NT.DataframeToDicts(stageDf)
         return stageLs
 
-    # create when update needed
+    # get room type based on day of week
+
+    trunkNow = timezone.now().replace(microsecond=0)
+    dayOfWeek = 'monday'
+    if trunkNow.weekday() == 1:   dayOfWeek = 'tuesday'
+    if trunkNow.weekday() == 2:   dayOfWeek = 'wednesday'
+    if trunkNow.weekday() == 3:   dayOfWeek = 'thursday'
+    if trunkNow.weekday() == 4:   dayOfWeek = 'friday'
+    if trunkNow.weekday() == 5:   dayOfWeek = 'saturday'
+    if trunkNow.weekday() == 6:   dayOfWeek = 'sunday'
+
+    trialDay = EM.TrialDay.objects.GetOrNone(WeekDay=dayOfWeek)
+    dailyType = f"biased {trialDay.StageType}"
+
+    # create stages for daily update
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').delete()
-
-    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
-    lastType = ''
-    lastBackground = ''
-
+    rawStages = list(EM.LeagueTrial.objects.filter(Throne=guildMd.ThroneLevel).values())
     for st in rawStages:
 
         newStage = GM.GuildStage()
@@ -180,15 +191,13 @@ def GetOrCreateTrial(guildMd, currDate):
         newStage.RoomRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]
 
-        background = ST.StageBackground(lastBackground)
-        lastBackground = background
+        background = ST.StageBackground('')
         newStage.Background = background
         newStage.BackgroundBias = []
 
         # room 1 
 
-        roomType = ST.RandomRoomType(lastType)
-        lastType = roomType
+        roomType = dailyType
         obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
         newStage.RoomTypes.append(roomType)
         newStage.BackgroundBias.append(BackgroundBias())
@@ -197,8 +206,7 @@ def GetOrCreateTrial(guildMd, currDate):
         # room 2
 
         if st['LevelR2']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
+            roomType = dailyType
             obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
@@ -210,8 +218,7 @@ def GetOrCreateTrial(guildMd, currDate):
         # room 3 
 
         if st['LevelR3']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
+            roomType = dailyType
             obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
@@ -223,8 +230,7 @@ def GetOrCreateTrial(guildMd, currDate):
         # room 4
 
         if st['LevelR4']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
+            roomType = dailyType
             obstacles = ST.AssembleRoom(roomType, st['LevelR4'], st['ObstaclesR4'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
@@ -236,8 +242,7 @@ def GetOrCreateTrial(guildMd, currDate):
         # room 5
 
         if st['LevelR5']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
+            roomType = dailyType
             obstacles = ST.AssembleRoom(roomType, st['LevelR5'], st['ObstaclesR5'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
@@ -257,68 +262,69 @@ def GetOrCreateTrial(guildMd, currDate):
 
     return stageLs
 
-def GetOrCreateRaid(guildMd, currDate):
+def GetOrCreateDungeon(guildMd, currDate):
 
     # check for existing daily stages
 
-    checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='raid', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
-        ).values()
+    if str(guildMd.DungeonCheck) == currDate:
+        stage = GM.GuildStage.objects.filter(
+            GuildFK=guildMd, Heist='dungeon', ThroneLevel=guildMd.ThroneLevel, CreateDate=currDate
+            ).values()
 
-    if checkStages:
-        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
+        stageDf = PD.DataFrame(stage).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
         stageLs = NT.DataframeToDicts(stageDf)
         return stageLs
 
-    # create when update needed
+    # create during the daily update
 
-    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='raid').delete()
+    guildMd.DungeonCheck = currDate
+    guildMd.save()
 
-    rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
-    lastType = ''
-    lastBackground = ''
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').delete()
+    result = random.randint(1, 20)
 
-    for st in rawStages:
+    if result > 1:
+        rawStage = EM.Dungeon.objects.filter(Throne=guildMd.ThroneLevel).values()[0]
+
+        previousTypes = []
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
         newStage.ThroneLevel = guildMd.ThroneLevel
-        newStage.Heist = 'raid'
-        newStage.StageNo = st['StageNo']
+        newStage.Heist = 'dungeon'
+        newStage.StageNo = 1
         newStage.CreateDate = currDate
         newStage.RoomTypes = []
 
         newStage.BaseRewards = {
-            'Gold': st['Gold'],
-            'Gems': st['Gems'],
-            'Wood': st['Wood'],
-            'Stone': st['Stone'],
-            'Iron': st['Iron'],
+            'Gold': rawStage['Gold'],
+            'Gems': rawStage['Gems'],
+            'Wood': rawStage['Wood'],
+            'Stone': rawStage['Stone'],
+            'Iron': rawStage['Iron'],
         }
         newStage.RoomRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]
 
-        background = ST.StageBackground(lastBackground)
-        lastBackground = background
+        background = ST.StageBackground(None)
         newStage.Background = background
         newStage.BackgroundBias = []
 
         # room 1 
 
-        roomType = ST.RandomRoomType(lastType)
-        lastType = roomType
-        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
+        roomType = ST.RandomBiasedType(previousTypes)
+        previousTypes.append(roomType)
+        obstacles = ST.AssembleRoom(roomType, rawStage['LevelR1'], rawStage['ObstaclesR1'])
         newStage.RoomTypes.append(roomType)
         newStage.BackgroundBias.append(BackgroundBias())
         newStage.ObstaclesR1 = obstacles
 
         # room 2
 
-        if st['LevelR2']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
+        if rawStage['LevelR2']:
+            roomType = ST.RandomBiasedType(previousTypes)
+            previousTypes.append(roomType)
+            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR2'], rawStage['ObstaclesR2'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR2 = obstacles
@@ -328,10 +334,10 @@ def GetOrCreateRaid(guildMd, currDate):
 
         # room 3 
 
-        if st['LevelR3']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
+        if rawStage['LevelR3']:
+            roomType = ST.RandomBiasedType(previousTypes)
+            previousTypes.append(roomType)
+            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR3'], rawStage['ObstaclesR3'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR3 = obstacles
@@ -341,10 +347,10 @@ def GetOrCreateRaid(guildMd, currDate):
 
         # room 4
 
-        if st['LevelR4']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR4'], st['ObstaclesR4'])
+        if rawStage['LevelR4']:
+            roomType = ST.RandomBiasedType(previousTypes)
+            previousTypes.append(roomType)
+            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR4'], rawStage['ObstaclesR4'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR4 = obstacles
@@ -354,10 +360,10 @@ def GetOrCreateRaid(guildMd, currDate):
 
         # room 5
 
-        if st['LevelR5']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR5'], st['ObstaclesR5'])
+        if rawStage['LevelR5']:
+            roomType = ST.RandomBiasedType(previousTypes)
+            previousTypes.append(roomType)
+            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR5'], rawStage['ObstaclesR5'])
             newStage.RoomTypes.append(roomType)
             newStage.BackgroundBias.append(BackgroundBias())
             newStage.ObstaclesR5 = obstacles
@@ -367,22 +373,42 @@ def GetOrCreateRaid(guildMd, currDate):
 
         newStage.save()
 
+    # return the dungeon, if present today
+
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').values()
+    if len(newStages) > 0:
+        stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    return []
+
+def GetOrCreateCampaign(guildMd, currDate):
+
+    # check for existing campaign level stages
+
+    checkStages = GM.GuildStage.objects.filter(
+        GuildFK=guildMd, Heist='campaign', ThroneLevel=guildMd.CampaignWorld
+        ).values()
+
+    if checkStages:
+        stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
+        stageLs = NT.DataframeToDicts(stageDf)
+        return stageLs
+
+    # create during daily update
+
+    GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').delete()
+    rawStages = list(EM.Campaign.objects.filter(World=guildMd.CampaignWorld).values())
+    CreateStageRooms(guildMd, 'campaign', currDate, rawStages)
+
     # dev can create duplicate stages
 
-    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='raid').values()
+    newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').values()
     stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
     stageLs = NT.DataframeToDicts(stageDf)
 
     return stageLs
-
-def GetOrCreateDungeon(guildMd, currDate):
-    pass
-
-def GetOrCreateCampaign(guildMd, currDate):
-    pass
-
-
 
 def AttachObstacleDisplay(obstacleLs):
 

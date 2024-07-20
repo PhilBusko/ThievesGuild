@@ -29,10 +29,11 @@ class Guild(JM.Model):
     StorageIron = JM.IntegerField(default=0)
 
     VaultGold = JM.IntegerField(default=0)
-    VaultGems = JM.IntegerField(default=0)
+    VaultGems = JM.IntegerField(default=10)
     VaultWood = JM.IntegerField(default=0)
     VaultStone = JM.IntegerField(default=0)
     VaultIron = JM.IntegerField(default=0)
+    DungeonCheck = JM.DateField(null=True)
 
     objects = DB.BaseManager()
     class Meta: unique_together = ('UserFK', 'Name')

@@ -88,6 +88,16 @@ def RandomRoomType(prevType):
 
     return chosen
 
+def RandomBiasedType(previous=[]):
+    potential = ['biased agi', 'biased cun', 'biased mig', 'biased cmb']
+    prevFix = previous if len(previous) < len(potential) else []
+
+    chosen = random.choice(potential)
+    while chosen in prevFix:
+        chosen = random.choice(potential)
+
+    return chosen
+
 def AssembleRoom(stageType, stageLevel, maxObstacles):
 
     if stageType == 'balanced':

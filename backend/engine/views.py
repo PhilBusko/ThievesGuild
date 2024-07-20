@@ -223,15 +223,10 @@ def DailyHeists(request):
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
     if not guildMd:
-        return Response({
-            'thiefLs': None,
-            'assetLs': None,
-            'message': '* A guild must be chosen in the Account page.',
-        })
+        return Response({'message': '* A guild must be chosen in the Account page.'})
 
     currDt = timezone.now()
     currDate = f"{currDt.year}-{str(currDt.month).zfill(2)}-{str(currDt.day).zfill(2)}"
-    currWeekDay = currDt.weekday()   # 0 monday, 1 tuesday, .. 6 sunday
 
     tower = CT.GetOrCreateTower(guildMd, currDate)
     tower = CT.AttachDisplayData(tower)
@@ -239,19 +234,15 @@ def DailyHeists(request):
     trial = CT.GetOrCreateTrial(guildMd, currDate)
     trial = CT.AttachDisplayData(trial)
 
-    raid = [CT.GetOrCreateTower(guildMd, currDate)[4]]
-    raid = CT.AttachDisplayData(raid)
-
-    dungeon = []
+    dungeon = CT.GetOrCreateDungeon(guildMd, currDate)
     dungeon = CT.AttachDisplayData(dungeon)
 
-    campaign = CT.GetOrCreateTower(guildMd, currDate)[2:] + CT.GetOrCreateTower(guildMd, currDate)[6:10]
+    campaign = CT.GetOrCreateCampaign(guildMd, currDate)
     campaign = CT.AttachDisplayData(campaign)
 
     responseDx = {
         'tower': tower,
         'trial': trial,
-        'raid': raid,
         'dungeon': dungeon,
         'campaign': campaign,
         'message': None,
@@ -315,9 +306,6 @@ def ExpeditionUpdate(request):
     claimLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, Claimed=True)
     for ep in claimLs: ep.delete()
 
-
-
-
     # store the expeditions in slots to keep the order on the frontend
 
     dailySlots = RS.GetExpeditionCount(guildMd)
@@ -325,8 +313,6 @@ def ExpeditionUpdate(request):
         exists = GM.GuildExpedition.objects.GetOrNone(GuildFK=guildMd, SlotNo=sl)
         if not exists:
             CT.CreateExpedition(guildMd, currDate, sl)
-
-
 
     # check if any expeditions have ended
     # if they have, the results are created but not claimed
