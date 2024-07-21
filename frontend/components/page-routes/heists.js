@@ -85,7 +85,7 @@ function Heists(props) {
             url: '/engine/daily-heists',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.tower)
+                console.log(responseData)
                 setTower(responseData.tower);
                 setTrial(responseData.trial);
                 setDungeon(responseData.dungeon);
@@ -233,9 +233,11 @@ function Heists(props) {
                                 <ST.RegularButton 
                                     variant='contained' 
                                     onClick={() => {handleStart(val.id)}}
-                                    disabled={ val.StageComplete }
+                                    disabled={ val.Status != 'open' }
                                 >
-                                    <ST.LinkText>Burgle</ST.LinkText>
+                                    <ST.LinkText>
+                                        { val.Status != 'complete' ? 'Burgle' : 'Vacant' }
+                                    </ST.LinkText>
                                 </ST.RegularButton>
                             </ST.FlexVertical>
 

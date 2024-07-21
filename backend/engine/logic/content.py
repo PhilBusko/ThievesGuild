@@ -283,7 +283,7 @@ def GetOrCreateDungeon(guildMd, currDate):
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').delete()
     result = random.randint(1, 20)
 
-    if result > 1:
+    if result > 10:
         rawStage = EM.Dungeon.objects.filter(Throne=guildMd.ThroneLevel).values()[0]
 
         previousTypes = []
@@ -430,6 +430,8 @@ def AttachObstacleDisplay(obstacleLs):
 
 def AttachDisplayData(stageLs):
 
+    foundOpen = False       # status: complete, open, blocked
+
     for st in stageLs:
 
         trapLevels = []
@@ -482,9 +484,17 @@ def AttachDisplayData(stageLs):
             trapLevels.append(None)
             numberObstacles.append(None)
 
+        # get the status
+
+        status = 'blocked'
+        if not st['StageRewards'] and not foundOpen:
+            status = 'open'
+            foundOpen = True
+        if st['StageRewards']: status = 'complete'
+
         st['ObstLevels'] = trapLevels
         st['ObstCount'] = numberObstacles
-        st['StageComplete'] = True if st['StageRewards'] else False
+        st['Status'] = status
         st['NumberRooms'] = roomCount
 
     return stageLs

@@ -53,7 +53,7 @@ const RoomResults = styled(ST.FlexVertical)(({ theme }) => ({
 const ImageSpacer = styled(Box)(({ theme }) => ({
     position: 'relative',
     left: '0px',
-    width: '110px',
+    width: '130px',
     height: '150px',
     border: `1px solid ${ST.FadedBlue}`,
     borderRadius: '4px',

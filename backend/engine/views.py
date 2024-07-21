@@ -144,10 +144,7 @@ def VaultDetails(request):
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
     if not guildMd:
-        return Response({
-            'assetLs': None,
-            'message': '* A guild must be chosen in the Account page.',
-        })
+        return Response({'message': '* A guild must be chosen in the Account page.'})
 
     assetDf = RS.GetAssetList(guildMd)
 
