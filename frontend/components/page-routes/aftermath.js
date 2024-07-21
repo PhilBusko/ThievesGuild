@@ -225,7 +225,7 @@ function Aftermath(props) {
 
                                     <ST.FlexVertical sx={{alignItems: 'flex-start', margin: '23px 0px 0px 8px',}}>
 
-                                        <ST.BaseText>Dmg {val.Wounds} / Hlt {val.Health}</ST.BaseText>
+                                        <ST.BaseText>Health {val.Health - val.Wounds} / {val.Health}</ST.BaseText>
                                         <LinearBar 
                                             variant='determinate' 
                                             value={ val.Wounds < val.Health ?

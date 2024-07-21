@@ -87,8 +87,8 @@ function GuildTable(props) {
             renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         },
         {
-            field: 'KeepLevel', headerName: 'Keep', sortable: false,
-            width: 60, headerAlign: 'center', align: 'center',
+            field: 'ThroneLevel', headerName: 'Throne', sortable: false,
+            width: 70, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         },
         {
@@ -119,7 +119,7 @@ function GuildTable(props) {
             <StyledTable
                 rows={props.dataLs}
                 columns={colDefs}
-                sx={{ width: '460px' }}
+                sx={{ width: '470px' }}
                 pageSize={6}
                 autoHeight={true}
                 density='compact'            

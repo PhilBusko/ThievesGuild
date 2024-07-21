@@ -114,7 +114,8 @@ function ThiefEquipment(props) {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             >
                 <Stack spacing='8px'>
-                    { props.inventoryDisplay.map((inv, id) => (
+
+                    { !props.equipDisabled && props.inventoryDisplay.map((inv, id) => (
                         <GothMenuItem 
                             onClick={()=> { handleEquip(inv); }} key={id}
                             disabled={inv.equippedThief == props.thiefName}
@@ -153,14 +154,25 @@ function ThiefEquipment(props) {
                         </GothMenuItem>
                     ))}
 
-                    <GothMenuItem 
-                        onClick={()=> { handleEquip('unequip'); }}
-                        disabled={props.equipmentInfo.id == -1}
-                    >
-                        <MenuWrapper sx={{ padding: '0px 0px 10px 0px', margin: '0px 0px -1px 0px',  }}>
-                            <ST.BaseText >Unequip</ST.BaseText>
-                        </MenuWrapper>
-                    </GothMenuItem>
+                    { !props.equipDisabled && 
+                        <GothMenuItem 
+                            onClick={()=> { handleEquip('unequip'); }}
+                            disabled={props.equipmentInfo.id == -1}
+                        >
+                            <MenuWrapper sx={{ padding: '0px 0px 10px 0px', margin: '0px 0px -1px 0px',  }}>
+                                <ST.BaseText >Unequip</ST.BaseText>
+                            </MenuWrapper>
+                        </GothMenuItem>
+                    }
+
+                    { props.equipDisabled && 
+                        <GothMenuItem onClick={ null }>
+                            <MenuWrapper sx={{ padding: '0px 0px 10px 0px', margin: '0px 0px -1px 0px',  }}>
+                                <ST.BaseText >Requisitions unavailable during expedition.</ST.BaseText>
+                            </MenuWrapper>
+                        </GothMenuItem>
+                    }
+
                 </Stack>
             </GothMenu>
 
@@ -196,6 +208,7 @@ ThiefEquipment.defaultProps = {
     equipmentInfo: {},
     inventoryDisplay: [],
     thiefName: '',
+    equipDisabled: false,
     notifyEquip: () => {},
 };
 

@@ -100,16 +100,17 @@ def RandomBiasedType(previous=[]):
 
 def AssembleRoom(stageType, stageLevel, maxObstacles):
 
-    if stageType == 'balanced':
-        potentialLs = ProductionTable(stageLevel,4,2,2,2)
-        obstacleLs = ObstacleSequence(potentialLs, maxObstacles, 'balanced')
+    # generate the room randomly
+    # then check if it passes certain requirements
 
-    else:
-        if 'agi' in stageType: potentialLs = ProductionTable(stageLevel,2,3,1,1)
-        if 'cun' in stageType: potentialLs = ProductionTable(stageLevel,2,1,3,1)
-        if 'mig' in stageType: potentialLs = ProductionTable(stageLevel,2,1,1,3)
-        if 'cmb' in stageType: potentialLs = ProductionTable(stageLevel,4,1,1,1)
-        obstacleLs = ObstacleSequence(potentialLs, maxObstacles, 'biased')
+    potentialLs = ProductionTable(stageLevel,1,1,1,1)
+
+    obstacleLs = ObstacleSequence(potentialLs, maxObstacles)
+    permitted = CheckPermitted(obstacleLs, stageType, maxObstacles)
+
+    while not permitted:
+        obstacleLs = ObstacleSequence(potentialLs, maxObstacles)
+        permitted = CheckPermitted(obstacleLs, stageType, maxObstacles)
 
     return obstacleLs
 
@@ -141,9 +142,8 @@ def ProductionTable(level, combat, agility, cunning, might):
     obsLs = NT.DataframeToDicts(obsDf)
     return obsLs
 
-def ObstacleSequence(potentialLs, maxObstacles, configType):
+def ObstacleSequence(potentialLs, maxObstacles):
     # create the obstacle sequence back to front
-    # configType = balanced | biased
 
     obstacleLs = []
 
@@ -163,21 +163,12 @@ def ObstacleSequence(potentialLs, maxObstacles, configType):
         if len(obstacleLs) > 0:
             forwardObs = obstacleLs[0]
 
-            # balanced config: don't let adjacent objects have the same trait
-            if configType == 'balanced' and forwardObs['Trait'] == currentObs['Trait']:
-                continue
-
-            # biased config: don't let any obstacle be adjacent to itself
-            if configType == 'biased' and forwardObs['Name'] == currentObs['Name']:
+            # don't let an obstacle be adjacent to another obstacle of the same type
+            if forwardObs['Trait'] == currentObs['Trait']:
                 continue
 
             # don't let 2 pass next be adjacent
             if 'pass next' in forwardObs['Success'] and 'pass next' in currentObs['Success']:
-                continue
-
-            # don't let 2 treasures be adjacent
-            if (any(c in forwardObs['Success'] for c in ['treasure', 'healing']) and 
-                any(c in currentObs['Success'] for c in ['treasure', 'healing']) ):
                 continue
 
             # don't let a pass next appear before a treasure
@@ -188,6 +179,57 @@ def ObstacleSequence(potentialLs, maxObstacles, configType):
         obstacleLs.insert(0, currentObs)
     
     return obstacleLs
+
+def CheckPermitted(obstacleLs, stageType, maxObstacles):
+
+    # get the minimum obstacle types required based on parameters
+
+    if stageType == 'balanced' and maxObstacles <= 9:
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 2}
+    elif stageType == 'balanced':
+        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 3}
+        
+    if stageType == 'biased agi' and maxObstacles <= 9:
+        minDx = {'Agi': 3, 'Cun': 0, 'Mig': 0, 'All': 2}
+    elif stageType == 'biased agi':
+        minDx = {'Agi': 4, 'Cun': 1, 'Mig': 1, 'All': 3}
+        
+    if stageType == 'biased cun' and maxObstacles <= 9:
+        minDx = {'Agi': 0, 'Cun': 3, 'Mig': 0, 'All': 2}
+    elif stageType == 'biased cun':
+        minDx = {'Agi': 1, 'Cun': 4, 'Mig': 1, 'All': 3}
+        
+    if stageType == 'biased mig' and maxObstacles <= 9:
+        minDx = {'Agi': 0, 'Cun': 0, 'Mig': 3, 'All': 2}
+    elif stageType == 'biased mig':
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 4, 'All': 3}
+
+    if stageType == 'biased cmb' and maxObstacles <= 9:
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 3}
+    elif stageType == 'biased cmb':
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 4}
+
+    # compare the current run with the min and max
+
+    countDx = {'Agi': 0, 'Cun': 0, 'Mig': 0, 'All': 0}
+    for ob in obstacleLs:
+        countDx[ob['Trait']] += 1
+    
+    permited = True
+
+    if countDx['Agi'] < minDx['Agi'] or countDx['Agi'] > minDx['Agi'] +2:
+        permited = False
+
+    if countDx['Cun'] < minDx['Cun'] or countDx['Cun'] > minDx['Cun'] +2:
+        permited = False
+
+    if countDx['Mig'] < minDx['Mig'] or countDx['Mig'] > minDx['Mig'] +2:
+        permited = False
+
+    if countDx['All'] < minDx['All'] or countDx['All'] > minDx['All'] +2:
+        permited = False
+
+    return permited
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -126,7 +126,7 @@ function UserAccount(props) {
                     <ST.ContentCard elevation={3}> 
                         <Stack spacing='8px' alignItems='start'>
 
-                            <ST.FlexHorizontal sx={{ justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                            <ST.FlexHorizontal sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <ST.ContentTitle>Lordly Guilds</ST.ContentTitle>
 
                                 <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}

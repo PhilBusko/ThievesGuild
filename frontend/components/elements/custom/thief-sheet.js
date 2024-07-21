@@ -96,30 +96,35 @@ function ThiefSheet(props) {
                             equipmentInfo={props.infoDx.weapon}
                             inventoryDisplay={filteredWeapons}
                             thiefName={props.infoDx.Name}
+                            equipDisabled={ props.infoDx.Status == 'Exploring' }
                             notifyEquip={props.notifyEquip}
                         />
                         <ThiefEquipment 
                             equipmentInfo={props.infoDx.armor}
                             inventoryDisplay={filteredArmor}
                             thiefName={props.infoDx.Name}
+                            equipDisabled={ props.infoDx.Status == 'Exploring' }
                             notifyEquip={props.notifyEquip}
                         />
                         <ThiefEquipment 
                             equipmentInfo={props.infoDx.head}
                             inventoryDisplay={filteredHead}
                             thiefName={props.infoDx.Name}
+                            equipDisabled={ props.infoDx.Status == 'Exploring' }
                             notifyEquip={props.notifyEquip}
                         />
                         <ThiefEquipment 
                             equipmentInfo={props.infoDx.hands}
                             inventoryDisplay={filteredHands}
                             thiefName={props.infoDx.Name}
+                            equipDisabled={ props.infoDx.Status == 'Exploring' }
                             notifyEquip={props.notifyEquip}
                         />
                         <ThiefEquipment 
                             equipmentInfo={props.infoDx.feet}
                             inventoryDisplay={filteredFeet}
                             thiefName={props.infoDx.Name}
+                            equipDisabled={ props.infoDx.Status == 'Exploring' }
                             notifyEquip={props.notifyEquip}
                         />
                     </EquipmentPanel>
