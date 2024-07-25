@@ -54,7 +54,7 @@ function Barracks(props) {
             url: '/engine/thief-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData.thiefLs)
+                // console.log(responseData.thiefLs)
                 setThiefLs(responseData.thiefLs);
             }
             else {
@@ -73,7 +73,7 @@ function Barracks(props) {
             url: '/engine/vault-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData.assetLs)
+                // console.log(responseData.assetLs)
                 setVaultLs(responseData.assetLs);
             }
             else {

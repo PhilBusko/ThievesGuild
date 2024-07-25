@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ButtonBase } from '@mui/material';
 import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
+
 import { GlobalContext } from '../app-main/global-store';
 import * as ST from '../elements/styled-elements';
 import authBanner from '../assets/layout/nav-auth.png'
@@ -46,12 +47,13 @@ const SelectedGuild = styled(ST.TitleText)(({ theme }) => ({
 }));
 
 const AuthButton = styled(ButtonBase)(({ theme }) => ({
-    width: '56px',
+    width: '58px',
     border: '1px solid white',
     borderRadius: '4px', 
     '& .MuiTypography-root': {
-        fontSize: '120%',
+        fontSize: '115%',
         color: 'white',
+        textWrap: 'nowrap',
         '&:hover': { fontWeight: 'bold' },
     },
     '&:hover': { border: '2px solid white' },
@@ -71,6 +73,7 @@ const AuthButtonBottom = styled(AuthButton)(({ theme }) => ({
 function AuthPanel(props) {
 
     const { userStore } = useContext(GlobalContext);
+    const { guildStore } = useContext(GlobalContext);
     let navigate = useNavigate();  
 
     return (<>
@@ -92,9 +95,11 @@ function AuthPanel(props) {
                 <UserName>
                     { userStore[0]['name'] }
                 </UserName>
-                <SelectedGuild>
-                    { `Guild ${userStore[0]['guild']}` }
-                </SelectedGuild>
+                { !!guildStore[0] && 
+                    <SelectedGuild>
+                        { `Guild ${guildStore[0]['Name']}` }
+                    </SelectedGuild>
+                }
                 <AuthButtonTop onClick={() => { navigate('/account/'); }}>
                     <ST.LinkText>Account</ST.LinkText>
                 </AuthButtonTop>

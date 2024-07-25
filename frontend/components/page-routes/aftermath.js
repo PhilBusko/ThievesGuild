@@ -231,7 +231,7 @@ function Aftermath(props) {
                                             value={ val.Wounds < val.Health ?
                                                 (val.Health - val.Wounds) / val.Health * 100 : 100 }
                                             sx={{ '& .MuiLinearProgress-bar' : 
-                                                { backgroundColor: getStatusColor(val.Status),}
+                                                { backgroundColor: getStatusColor(val.Status), }
                                             }}
                                         />
                                         <ST.BaseText>{ getStatusTx(val.Status, val.Cooldown) }

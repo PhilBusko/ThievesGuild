@@ -54,6 +54,23 @@ def UserAccount(request):
     }
     return Response(userDx)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ChosenGuild(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    guildDx = {}
+    if guildMd:
+        guildDx = guildMd.__dict__
+        guildDx.pop('id')
+        guildDx.pop('_state')
+        guildDx.pop('UserFK_id')
+        guildDx.pop('Selected')
+
+    return Response(guildDx)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def CreateGuild(request):
@@ -291,6 +308,9 @@ def ExpeditionUpdate(request):
 
     userMd = request.user
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({'message': '* A guild must be chosen in the Account page.'})
 
     trunkNow = timezone.now().replace(microsecond=0)
     currDate = f"{trunkNow.year}-{str(trunkNow.month).zfill(2)}-{str(trunkNow.day).zfill(2)}"

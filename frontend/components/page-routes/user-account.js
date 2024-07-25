@@ -27,6 +27,25 @@ function UserAccount(props) {
         pageStore[1](newUrl);
     });
 
+    // update the guild, needed after guild deletion
+
+    const { guildStore } = useContext(GlobalContext);
+
+    useEffect(() => {
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            if (Object.keys(responseData).length === 0) {
+                guildStore[1](null);
+            }
+            else {
+                guildStore[1](responseData);
+            }
+        }).catch(errorLs => {
+            console.log('GuildUpdate error', errorLs);
+        });
+    }, []);
+
     // load user data
 
     const { userStore } = useContext(GlobalContext);
@@ -38,23 +57,12 @@ function UserAccount(props) {
         AxiosConfig({
             url: '/engine/user-account',
         }).then(responseData => {
-
-            // update the global user
-            const selectedGuild = responseData['Selected Guild']
-            const newUser = {
-                'name': responseData.Name,
-                'status': responseData.Admin == 'Yes' ? 'admin' : 'user',
-                'guild': selectedGuild ? selectedGuild : '###',
-            }
-            userStore[1](newUser);
-
-            // update the local data
             const newInfo = {
                 'Name': responseData.Name,
                 'Unique Id': responseData['Unique Id'],
                 'Email': responseData.Email,
                 'Date Joined': responseData['Date Joined'],
-            }
+            };
             setUserInfo(newInfo);
             setGuildLs(responseData['Guilds']);
         }).catch(errorLs => {
@@ -92,7 +100,7 @@ function UserAccount(props) {
             'status': userStore[0].status,
             'guild': '###',
         }
-        userStore[1](newUser);
+        // userStore[1](newUser);
 
         AxiosConfig({
             method: 'POST',
@@ -104,7 +112,7 @@ function UserAccount(props) {
                 'status': userStore[0].status,
                 'guild': guildName,
             }
-            userStore[1](newUser);
+            // userStore[1](newUser);
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });

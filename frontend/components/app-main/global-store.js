@@ -13,18 +13,39 @@ function GlobalProvider(props) {
     // global state
 
     const [userDx, setUserDx] = useState(
-        {'name': '', 'status': 'initial', 'guild': 'initial'});    // status: initial, guest, user, admin
+        {'name': '', 'status': 'initial'});    // status: initial, guest, user, admin
+    const [guildDx, setGuildDx] = useState(null);   
     const [navOpen, setNavOpen] = useState(true);
     const [currentPage, setCurrentPage] = useState('initial');
     const store = {
         userStore: [userDx, setUserDx],
+        guildStore: [guildDx, setGuildDx],
         navStore: [navOpen, setNavOpen],
         pageStore: [currentPage, setCurrentPage],
     }
 
+    // guild update
+
+    const GuildUpdate = () => {
+        console.log('global guild update')
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            // console.log(responseData)
+            if (Object.keys(responseData).length === 0) {
+                setGuildDx(null);
+            }
+            else {
+                setGuildDx(responseData);
+            }
+        }).catch(errorLs => {
+            console.log('GuildUpdate error', errorLs);
+        });
+    }
+
     // onload for the app 
 
-    const tryLogin = () => {
+    const TryLogin = () => {
 
         // log in the user if a refresh token is found 
 
@@ -32,9 +53,9 @@ function GlobalProvider(props) {
 
         if (!refreshToken) {
             console.log('onload: no refresh token');
-            const newUser = {'name': '', 'status': 'guest', 'guild': '***'}
+            const newUser = {'name': '', 'status': 'guest'}
             setUserDx(newUser);
-            TK.wipeTokens(); // wipe any old access token
+            TK.wipeTokens();
             return;
         }
 
@@ -45,16 +66,13 @@ function GlobalProvider(props) {
             data: { 'refresh': refreshToken },
         }).then(responseData => {
             //console.log(userDx)
-            if (userDx['status'] == 'initial') {
-                const newUser = {
-                    'name': responseData.user,
-                    'status': responseData.admin ? 'admin' : 'user',
-                    'guild': '***',
-                }
-                setUserDx(newUser);
+            const newUser = {
+                'name': responseData.user,
+                'status': responseData.admin ? 'admin' : 'user',
             }
+            setUserDx(newUser);
+            GuildUpdate();
             TK.storeAccessToken(responseData.access);
-            //console.log('end login from refresh')
         }).catch(errorLs => {
             TK.wipeTokens();
             const newUser = {'name': '', 'status': 'guest'}
@@ -64,7 +82,7 @@ function GlobalProvider(props) {
     }
 
     useEffect(() => {
-        tryLogin();
+        TryLogin();
     }, [])
 
     // render
@@ -76,4 +94,7 @@ function GlobalProvider(props) {
     );
 }
 
-export { GlobalContext, GlobalProvider }
+export { 
+    GlobalContext,      // access to store for calling components
+    GlobalProvider,     // included in index file
+}
