@@ -65,26 +65,27 @@ function Castle(props) {
 
                 <Grid item xs={12}>
                     <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
-
                         <ST.TitleGroup>
                             <ST.TitleText>Castle</ST.TitleText>
                         </ST.TitleGroup>
-
                         <MaterialsBar />
-
                     </ST.FlexHorizontal>
+
                     { errorLs.length > 0 &&
                         <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
                     }
+                    { message && 
+                        <Grid item xs={12}>
+                            <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
+                                <Broadcast>
+                                    <ST.BaseText>{ message }</ST.BaseText>
+                                </Broadcast>
+                            </ST.FlexHorizontal>
+                        </Grid> 
+                    }
                 </Grid>
 
-                { message && <Grid item xs={12}>
-                    <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
-                        <Broadcast>
-                            <ST.BaseText>{ message }</ST.BaseText>
-                        </Broadcast>
-                    </ST.FlexHorizontal>
-                </Grid> }
+
 
 
 

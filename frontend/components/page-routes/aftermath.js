@@ -10,6 +10,7 @@ import AxiosConfig from '../app-main/axios-config';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
+import MaterialsBar from '../elements/custom/materials-bar';
 
 import * as RC from '../assets/resource';
 import SeparatorHoriz from '../assets/layout/separator-horiz.png';
@@ -88,6 +89,7 @@ const MaterialImage = styled('img')(({ theme }) => ({
 
 
 function Aftermath(props) {
+
 
     // globals
 
@@ -184,6 +186,9 @@ function Aftermath(props) {
                     <ST.FlexHorizontal>
                         <SubTitle >{ heistTx }</SubTitle>
                     </ST.FlexHorizontal>
+
+                    <MaterialsBar />
+
                     { errorLs.length > 0 &&
                         <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
                     }

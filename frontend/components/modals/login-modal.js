@@ -83,7 +83,26 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 function LogInModal(props) {
 
     const { userStore } = useContext(GlobalContext);
-    let navigate = useNavigate();  
+    const { guildStore } = useContext(GlobalContext);
+    let navigate = useNavigate();
+
+    const guildUpdate = () => {
+        // console.log('global guild update')
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            // console.log(responseData)
+            if (Object.keys(responseData).length === 0) {
+                guildStore[1](null);
+            }
+            else {
+                guildStore[1](responseData);
+            }
+        }).catch(errorLs => {
+            console.log('GuildUpdate error', errorLs);
+        });
+    }
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [formResult, setFormResult] = useState('');
@@ -121,8 +140,11 @@ function LogInModal(props) {
                 'status': responseData.admin ? 'admin' : 'user',
             }
             userStore[1](newUser);
+            guildUpdate();
+
             TK.storeAccessToken(responseData.access);
             TK.storeRefreshToken(responseData.refresh);
+
             props.setOpen(false);
             navigate('/account/');
         }).catch(errorLs => {

@@ -10,6 +10,7 @@ import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import VaultTable from '../elements/custom/vault-table';
+import MaterialsBar from '../elements/custom/materials-bar';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -67,18 +68,25 @@ function Armory(props) {
             <ST.GridPage container spacing={'16px'}>
 
                 <Grid item xs={12}>
-                    <ST.TitleGroup>
-                        <ST.TitleText>Armory</ST.TitleText>
-                    </ST.TitleGroup>
+                    <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                        <ST.TitleGroup>
+                            <ST.TitleText>Armory</ST.TitleText>
+                        </ST.TitleGroup>
+                        <MaterialsBar />
+                    </ST.FlexHorizontal>
+
+                    { errorLs.length > 0 &&
+                        <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                    }
+                    { message && <Grid item xs={12}>
+                        <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
+                            <Broadcast>
+                                <ST.BaseText>{ message }</ST.BaseText>
+                            </Broadcast>
+                        </ST.FlexHorizontal>
+                    </Grid> }
                 </Grid>
 
-                { message && <Grid item xs={12}>
-                    <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
-                        <Broadcast>
-                            <ST.BaseText>{ message }</ST.BaseText>
-                        </Broadcast>
-                    </ST.FlexHorizontal>
-                </Grid> }
 
                 <ST.GridItemCenter item xs={12} lg={9}>
                     <ST.ContentCard elevation={3}> 
@@ -89,10 +97,6 @@ function Armory(props) {
                                 dataLs={vaultLs}
                                 notifySell={handleSellItem}
                             />
-
-                            { errorLs.length > 0 &&
-                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                            }
 
                         </Stack>
                     </ST.ContentCard>

@@ -76,6 +76,7 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 function LogOutModal(props) {
 
     const { userStore } = useContext(GlobalContext);
+    const { guildStore } = useContext(GlobalContext);
     let navigate = useNavigate();  
 
     // submit button 
@@ -84,6 +85,7 @@ function LogOutModal(props) {
         event.preventDefault();
 
         userStore[1]({'name': '', 'status': 'guest'})
+        guildStore[1](null);
         TK.wipeTokens();
 
         props.setOpen(false);

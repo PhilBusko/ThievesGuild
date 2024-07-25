@@ -9,6 +9,7 @@ import AxiosConfig from '../app-main/axios-config';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
+import MaterialsBar from '../elements/custom/materials-bar';
 import SelectorExpedition from '../elements/custom/selector-expedition';
 import ExpeditionResults from '../modals/expedition-results';
 
@@ -179,9 +180,13 @@ function Expedition(props) {
             <ST.GridPage container spacing={'16px'}>
 
                 <Grid item xs={12}>
-                    <ST.TitleGroup>
-                        <ST.TitleText>Expeditions</ST.TitleText>
-                    </ST.TitleGroup>
+                    <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                        <ST.TitleGroup>
+                            <ST.TitleText>Expeditions</ST.TitleText>
+                        </ST.TitleGroup>
+                        <MaterialsBar />
+                    </ST.FlexHorizontal>
+
                     { errorLs.length > 0 &&
                         <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
                     }
