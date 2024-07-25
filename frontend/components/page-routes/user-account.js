@@ -31,7 +31,7 @@ function UserAccount(props) {
 
     const { guildStore } = useContext(GlobalContext);
 
-    useEffect(() => {
+    const guildUpdate = () => {
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
@@ -42,13 +42,16 @@ function UserAccount(props) {
                 guildStore[1](responseData);
             }
         }).catch(errorLs => {
-            console.log('GuildUpdate error', errorLs);
+            console.log('guildUpdate error', errorLs);
         });
+    }
+
+    useEffect(() => {
+        guildUpdate();
     }, []);
 
     // load user data
 
-    const { userStore } = useContext(GlobalContext);
     const [userInfo, setUserInfo] = useState({});
     const [guildLs, setGuildLs] = useState({});
     const [errorLs, setErrorLs] = useState([]);
@@ -95,24 +98,13 @@ function UserAccount(props) {
         if (!checked)
             return;
 
-        const newUser = {
-            'name': userStore[0].name,
-            'status': userStore[0].status,
-            'guild': '###',
-        }
-        // userStore[1](newUser);
-
         AxiosConfig({
             method: 'POST',
             url: '/engine/select-guild',
             data: { 'guildName': guildName },
         }).then(responseData => {
-            const newUser = {
-                'name': userStore[0].name,
-                'status': userStore[0].status,
-                'guild': guildName,
-            }
-            // userStore[1](newUser);
+            userConnect();
+            guildUpdate();
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
@@ -128,6 +120,9 @@ function UserAccount(props) {
                     <ST.TitleGroup>
                         <ST.TitleText>Profile Desk</ST.TitleText>
                     </ST.TitleGroup>
+                    { errorLs.length > 0 &&
+                        <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                    }
                 </Grid>
 
                 <ST.GridItemCenter item xs={12} lg={8}>
@@ -145,7 +140,7 @@ function UserAccount(props) {
 
                             <GuildTable
                                 dataLs={ guildLs }
-                                selectedGuild={ userStore[0].guild }
+                                selectedGuild={ guildStore[0] }
                                 notifySelect={ handleGuildSelect }
                                 notifyOpenDelete={ handleOpenDelete }>
                                 Guilds
@@ -162,9 +157,6 @@ function UserAccount(props) {
 
                         <Stack spacing='8px' sx={{ width: '280px' }}>
                             <DisplayDict infoDx={ userInfo } />
-                            { errorLs.length > 0 &&
-                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                            }
                         </Stack>
 
                     </ST.ContentCard>

@@ -77,7 +77,7 @@ function GuildTable(props) {
             width: 70, headerAlign: 'center', align: 'center',
             renderCell: (params) => (
                 <ThiefCheckbox
-                    checked={ props.selectedGuild == params.row.Name }
+                    checked={ !!params.row.Selected }
                     onChange={(event) => { props.notifySelect(params.row.Name, event.target.checked); }}
                 />),
         },
