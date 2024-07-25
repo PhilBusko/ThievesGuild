@@ -16,21 +16,9 @@ import GuildDelete from '../modals/guild-delete';
 
 function UserAccount(props) {
 
-    // keep track of current page for nav menu
-
-    const { pageStore } = useContext(GlobalContext);
-    useEffect(() => {
-        const urlParts = window.location.toString().split('/');
-        let newUrl = '';
-        if (urlParts.length > 3 && urlParts[3])
-            newUrl = `/${urlParts[3]}/`;
-        pageStore[1](newUrl);
-    });
-
     // update the guild, needed after guild deletion
 
     const { guildStore } = useContext(GlobalContext);
-
     const guildUpdate = () => {
         AxiosConfig({
             url: '/engine/chosen-guild',
@@ -45,10 +33,6 @@ function UserAccount(props) {
             console.log('guildUpdate error', errorLs);
         });
     }
-
-    useEffect(() => {
-        guildUpdate();
-    }, []);
 
     // load user data
 
@@ -165,10 +149,10 @@ function UserAccount(props) {
             </ST.GridPage >
 
             <GuildCreate open={createGuildOpen} setOpen={setCreateGuildOpen} 
-                         notifyCreation={() => { userConnect(); }} />
+                         notifyCreation={() => { userConnect(); guildUpdate(); }} />
 
             <GuildDelete open={deleteGuildOpen} setOpen={setDeleteGuildOpen} 
-                         deleteName={deleteName} notifyDelete={() => { userConnect(); }} />
+                         deleteName={deleteName} notifyDelete={() => { userConnect(); guildUpdate(); }} />
 
         </PageLayout>
     );

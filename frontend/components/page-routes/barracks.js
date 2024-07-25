@@ -1,12 +1,11 @@
 /**************************************************************************************************
 BARRACKS
 **************************************************************************************************/
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Grid, Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import AxiosConfig from '../app-main/axios-config';
-import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
@@ -25,21 +24,8 @@ const Broadcast = styled(Box)(({ theme }) => ({
 function Barracks(props) {
 
 
-    // keep track of current page for nav menu
-
-    const { pageStore } = useContext(GlobalContext);
-    useEffect(() => {
-        const urlParts = window.location.toString().split('/');
-        let newUrl = '';
-        if (urlParts.length > 3 && urlParts[3])
-            newUrl = `/${urlParts[3]}/`;
-        pageStore[1](newUrl);
-    });
-
-
     // globals
 
-    const { userStore } = useContext(GlobalContext);
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
 

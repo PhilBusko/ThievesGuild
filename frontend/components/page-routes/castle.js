@@ -22,17 +22,10 @@ const Broadcast = styled(Box)(({ theme }) => ({
 
 function Castle(props) {
 
-    // keep track of current page for nav menu
 
-    const { pageStore } = useContext(GlobalContext);
-    useEffect(() => {
-        const urlParts = window.location.toString().split('/');
-        let newUrl = '';
-        if (urlParts.length > 3 && urlParts[3])
-            newUrl = `/${urlParts[3]}/`;
-        pageStore[1](newUrl);
-    });
 
+
+    
     // update the guild
 
     const { guildStore } = useContext(GlobalContext);

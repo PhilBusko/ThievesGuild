@@ -1,12 +1,13 @@
 /**************************************************************************************************
 PAGE LAYOUT
 **************************************************************************************************/
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { ButtonBase, IconButton } from '@mui/material';
 import { Box, Drawer, AppBar } from '@mui/material';
 import { ArrowBack, ArrowForward, Menu, ChevronLeft } from '@mui/icons-material'; 
 import { styled, ThemeProvider } from '@mui/material/styles';
 
+import { GlobalContext } from '../app-main/global-store';
 import { AppTheme } from '../elements/styled-elements';
 import AuthPanel from './auth-panel';
 import NavRoutes from './nav-routes';
@@ -64,6 +65,8 @@ const ContentOverlay = styled(Box)(({ theme }) => ({
 
 function PageLayout(props) {
 
+    // styles that depend on state
+
     const matchMedia = window.matchMedia('(min-width: 900px)');  // xs and sm
     const startingOpen = (matchMedia.matches ? true : false);
     const [drawerOpen, setOpen] = useState(startingOpen);
@@ -118,10 +121,25 @@ function PageLayout(props) {
         backgroundRepeat: 'no-repeat', 
     }));
 
+    // keep track of current page for nav menu
+
+    const { pageStore } = useContext(GlobalContext);
+    useEffect(() => {
+        const urlParts = window.location.toString().split('/');
+        let newUrl = '';
+        if (urlParts.length > 3 && urlParts[3])
+            newUrl = `/${urlParts[3]}/`;
+        pageStore[1](newUrl);
+    });
+
+    // user authentication modals
+
     const [loginOpen, setLoginOpen] = useState(false);
     const [logoutOpen, setLogoutOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
     const modalSetters = [setLoginOpen, setLogoutOpen, setSignupOpen];
+
+    // render
 
     return (
         <ThemeProvider theme={AppTheme}>

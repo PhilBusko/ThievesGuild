@@ -27,7 +27,7 @@ function GlobalProvider(props) {
     // guild update
 
     const GuildUpdate = () => {
-        console.log('global guild update')
+        // console.log('global guild update')
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
