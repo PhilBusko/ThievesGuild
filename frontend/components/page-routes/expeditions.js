@@ -6,6 +6,7 @@ import { Grid, Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import AxiosConfig from '../app-main/axios-config';
+import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
@@ -33,6 +34,24 @@ function Expedition(props) {
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
 
+    // guild update
+
+    const { guildStore } = useContext(GlobalContext);
+    const guildUpdate = () => {
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            if (Object.keys(responseData).length === 0) {
+                guildStore[1](null);
+            }
+            else {
+                guildStore[1](responseData);
+            }
+        }).catch(errorLs => {
+            console.log('GuildUpdate error', errorLs);
+        });
+    }
+
     // expedition data
 
     const [expeditionLs, setExpeditionLs] = useState([]);
@@ -42,7 +61,7 @@ function Expedition(props) {
             url: '/engine/expedition-update',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData);
+                // console.log(responseData);
                 setExpeditionLs(responseData.expeditions);
             }
             else {
@@ -119,12 +138,8 @@ function Expedition(props) {
             url: '/engine/expedition-launch',
             data: { 'expeditionId': expeditionLs[expNo].id, 'thiefId': thiefDx.id },
         }).then(responseData => {
-            console.log(responseData);
-
+            // console.log(responseData);
             if (!responseData.message) {
-                // reload the page since the backend has updated
-                // console.log('launch success');
-
                 updateExpeditions();
                 updateThieves();
             }
@@ -156,14 +171,11 @@ function Expedition(props) {
             url: '/engine/expedition-claim',
             data: { 'expeditionId': expeditionLs[expNo -1].id, 'resultSelected': fixSel },
         }).then(responseData => {
-            console.log(responseData);
-
+            // console.log(responseData);
             if (!responseData.message) {
-                // reload the page since the backend has updated
-                console.log('claim success');
-
                 updateExpeditions();
                 updateThieves();
+                guildUpdate();
             }
             else {
                 setMessage(responseData.message);

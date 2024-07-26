@@ -1,12 +1,13 @@
 /**************************************************************************************************
 STAGE AFTERMATH
 **************************************************************************************************/
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Grid, Box, Stack, LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import AxiosConfig from '../app-main/axios-config';
+import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
@@ -123,9 +124,32 @@ function Aftermath(props) {
             setAssignments(assign);
 
             setFullRewards(location.state.fullRewards);
-            // window.history.replaceState({}, document.title);
+            window.history.replaceState({}, document.title);
+
+            setTimeout(() => {
+                guildUpdate();
+            }, 2000);
         }
     }, []);
+
+
+    // guild update
+
+    const { guildStore } = useContext(GlobalContext);
+    const guildUpdate = () => {
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            if (Object.keys(responseData).length === 0) {
+                guildStore[1](null);
+            }
+            else {
+                guildStore[1](responseData);
+            }
+        }).catch(errorLs => {
+            console.log('GuildUpdate error', errorLs);
+        });
+    }
 
 
     // display helpers
@@ -167,7 +191,11 @@ function Aftermath(props) {
             <ST.GridPage container spacing={'16px'}>
 
                 <Grid item xs={12}>
-                    <ST.FlexHorizontal sx={{ }}>
+                    <ST.FlexHorizontal sx={{justifyContent: 'flex-end'}}>
+                        <MaterialsBar />
+                    </ST.FlexHorizontal>
+
+                    <ST.FlexHorizontal>
                         { nextStep == 'victory' &&
                             <ST.FlexHorizontal>
                                 <ResultImage src={RC.VictoryIcon} sx={{marginRight: '30px'}}/>
@@ -186,8 +214,6 @@ function Aftermath(props) {
                     <ST.FlexHorizontal>
                         <SubTitle >{ heistTx }</SubTitle>
                     </ST.FlexHorizontal>
-
-                    <MaterialsBar />
 
                     { errorLs.length > 0 &&
                         <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />

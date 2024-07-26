@@ -64,7 +64,7 @@ function Deployment(props) {
         else {
             // console.log(location.state.stage);
             setStage(location.state.stage);
-            // window.history.replaceState({}, document.title);
+            window.history.replaceState({}, document.title);
         }
     });
 
@@ -132,7 +132,7 @@ function Deployment(props) {
         if (!!thiefR4) thievesAssigned += 1;
         if (!!thiefR5) thievesAssigned += 1;
 
-        if (thievesAssigned == location.state.stage.NumberRooms)
+        if (thievesAssigned == stage.NumberRooms)
             setIsFulfilled(true);
         else 
             setIsFulfilled(false);
@@ -146,10 +146,10 @@ function Deployment(props) {
     const [selectedRoomNo, setSelectedRoomNo] = useState(0);
 
     useEffect(() => {
-        const newRoom = location.state.stage.ObstaclesR1;
+        const newRoom = stage.ObstaclesR1;
         setSelectedRoom(newRoom);
         setSelectedRoomNo(1);
-    }, []);
+    }, [stage]);
 
     const handleTraps = (roomNo) => {
         var newRoom = '';
@@ -233,7 +233,7 @@ function Deployment(props) {
                     <ST.ContentCard elevation={3} sx={{padding: '16px 8px 16px 16px',}}> 
 
                         <ST.FlexHorizontal sx={{justifyContent: 'flex-start', display: 'none' }}>
-                            <Box sx={{ width: `${location.state.stage.NumberRooms * 175 + 65}px`,
+                            <Box sx={{ width: `${stage.NumberRooms * 175 + 65}px`,
                                 borderBottom: `4px solid ${ST.GoldText}` }}>
                             </Box>
                             <ST.FlexHorizontal sx={{ width: '36px', margin: '0px 0px 0px 8px', }}>

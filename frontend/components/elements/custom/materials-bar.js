@@ -1,7 +1,7 @@
 /**************************************************************************************************
 MATERIALS BAR
 **************************************************************************************************/
-import { useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Box, LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -39,80 +39,152 @@ const MaterialGroup = styled(ST.FlexHorizontal)(({ theme }) => ({
     // borderRight: '1px solid black',
 }));
 
-const MaterialImage = styled('img')(({ theme }) => ({
-    width: '36px',
-}));
 
-const DataSpacer = styled(ST.FlexVertical)(({ theme }) => ({
-    width: '58px',
-    marginTop: '-6px',
-}));
+function MaterialTemplate(props) {
 
-const CurrencyProgress = styled(LinearProgress)(({ theme }) => ({
-    width: '45px',
-    height: '8px',
-    borderRadius: '4px',
+    const MaterialImage = styled('img')(({ theme }) => ({
+        width: '36px', 
+        borderRadius: '50%',
+        background: !props.isHighlight ? '' : 
+            `radial-gradient(circle at 50% 50%, rgba(224, 255, 255, 1) 0%, rgba(238, 130, 238, 0) 70%)`,
+    }));
+
+    const DataSpacer = styled(ST.FlexVertical)(({ theme }) => ({
+        position: 'relative',
+        width: ( !props.isGems ? '58px' : '46px' ),
+        height: '24px',
+        marginTop: '-6px',
+    }));
     
-    background: 'tan',
-    '& .MuiLinearProgress-bar': { backgroundColor: 'gold' }
-}));
+    const MaterialText = styled(ST.BaseText)(({ theme }) => ({
+        position: 'absolute',
+        bottom: '0px',
+        fontSize: ( !props.isGems ? 
+            (!props.isHighlight ? '170%' : '230%') :
+            (!props.isHighlight ? '190%' : '250%') ),
+        fontWeight: !props.isHighlight ? 'normal' : 'bold',
+        color: !props.isHighlight ? ST.DefaultText : 'crimson',
+        textShadow: !props.isHighlight ? '' : 
+            '-1px 1px 0 honeydew, 1px 1px 0 honeydew, 1px -1px 0 honeydew, -1px -1px 0 honeydew',
+    }));
 
+    const CurrencyProgress = styled(LinearProgress)(({ theme }) => ({
+        width: '45px',
+        height: '8px',
+        borderRadius: '4px',
+
+        background: 'tan',
+        '& .MuiLinearProgress-bar': { 
+            backgroundColor: (props.matStorage > 0 ? 'gold' : 'SlateGray'),
+        },
+    }));
+
+    return (
+        <MaterialGroup>
+            <MaterialImage src={ RC.getMaterial(props.iconCode) } />
+            <ST.FlexVertical>
+                <DataSpacer>
+                    <MaterialText>{ props.matAmount.toLocaleString() }</MaterialText>
+                </DataSpacer>
+                { !props.isGems &&
+                    <CurrencyProgress 
+                        variant='determinate' 
+                        value={ props.matAmount / props.matStorage * 100 }
+                    />
+                }
+            </ST.FlexVertical>
+        </MaterialGroup>
+    );
+}
+
+MaterialTemplate.defaultProps = {
+    iconCode: '',
+    matAmount: 0,
+    matStorage: 0,
+    isGems: false,
+    isHighlight: false,
+};
+
+
+function usePrevious(value) {
+    // preserve the previous value of the state
+    const ref = useRef();
+    useEffect(() => {
+        ref.current = value;
+    }, [value]);
+    return ref.current;
+}
 
 function MaterialsBar(props) {
 
     const { guildStore } = useContext(GlobalContext);
+    const prevGuild = usePrevious(guildStore[0]);
+
+    const [highlightGold, setHighlightGold] = useState(false);
+    const [highlightWood, setHighlightWood] = useState(false);
+    const [highlightStone, setHighlightStone] = useState(false);
+    const [highlightIron, setHighlightIron] = useState(false);
+    const [highlightGems, setHighlightGems] = useState(false);
+
+    useEffect(() => {
+
+        if (!guildStore[0] || !prevGuild)
+            return;
+
+        const goldChanged = guildStore[0].VaultGold - prevGuild.VaultGold;
+        const woodChanged = guildStore[0].VaultWood - prevGuild.VaultWood;
+        const stoneChanged = guildStore[0].VaultStone - prevGuild.VaultStone;
+        const ironChanged = guildStore[0].VaultIron - prevGuild.VaultIron;
+        const gemsChanged = guildStore[0].VaultGems - prevGuild.VaultGems;
+        
+        if (!!goldChanged) setHighlightGold(true);
+        if (!!woodChanged) setHighlightWood(true);
+        if (!!stoneChanged) setHighlightStone(true);
+        if (!!ironChanged) setHighlightIron(true);
+        if (!!gemsChanged) setHighlightGems(true);
+
+        setTimeout(() => {
+            setHighlightGold(false);
+            setHighlightWood(false);
+            setHighlightStone(false);
+            setHighlightIron(false);
+            setHighlightGems(false);
+        }, 2000);
+
+    }, [ guildStore[0] ]);
 
     return (
         <BarContainer sx={{ display: !!guildStore[0] ? 'flex' : 'none' }}>
             { !!guildStore[0] && <>
 
-                <MaterialGroup>
-                    <MaterialImage src={ RC.getMaterial('gold') } />
-                    <ST.FlexVertical>
-                        <DataSpacer>
-                            <ST.BaseText>{ guildStore[0].VaultGold.toLocaleString() }</ST.BaseText>
-                        </DataSpacer>
-                        <CurrencyProgress 
-                            variant='determinate' 
-                            value={ guildStore[0].VaultGold / guildStore[0].StorageGold * 100 }
-                        />
-                    </ST.FlexVertical>
-                </MaterialGroup>
+                <MaterialTemplate
+                    iconCode={ 'gold' }
+                    matAmount={ guildStore[0].VaultGold }
+                    matStorage={ guildStore[0].StorageGold }
+                    isHighlight={ highlightGold }
+                />
 
-                <MaterialGroup>
-                    <MaterialImage src={ RC.getMaterial('wood') } />
-                    <ST.FlexVertical>
-                        <DataSpacer>
-                            <ST.BaseText>{ guildStore[0].VaultWood.toLocaleString()}</ST.BaseText>
-                        </DataSpacer>
-                        <CurrencyProgress 
-                            variant='determinate' 
-                            value={ guildStore[0].VaultWood / guildStore[0].StorageWood * 100 }
-                        />
-                    </ST.FlexVertical>
-                </MaterialGroup>
+                <MaterialTemplate
+                    iconCode={ 'wood' }
+                    matAmount={ guildStore[0].VaultWood }
+                    matStorage={ guildStore[0].StorageWood }
+                    isHighlight={ highlightWood }
+                />
 
-                <MaterialGroup>
-                    <MaterialImage src={ RC.getMaterial('stone') } />
-                    <ST.FlexVertical>
-                        <DataSpacer>
-                            <ST.BaseText>{ guildStore[0].VaultStone.toLocaleString()}</ST.BaseText>
-                        </DataSpacer>
-                        <CurrencyProgress 
-                            variant='determinate' 
-                            value={ guildStore[0].VaultStone / 100 * 100  }
-                        />
-                    </ST.FlexVertical>
-                </MaterialGroup>
+                <MaterialTemplate
+                    iconCode={ 'stone' }
+                    matAmount={ guildStore[0].VaultStone }
+                    matStorage={ guildStore[0].StorageStone }
+                    isHighlight={ highlightStone }
+                />
 
-                <MaterialGroup>
-                    <MaterialImage src={ RC.getMaterial('gems') } />
-                    <ST.FlexVertical>
-                        <DataSpacer>
-                            <ST.BaseText sx={{fontSize: '200%'}}>{ guildStore[0].VaultGems.toLocaleString()}</ST.BaseText>
-                        </DataSpacer>
-                    </ST.FlexVertical>
-                </MaterialGroup>
+                <MaterialTemplate
+                    iconCode={ 'gems' }
+                    matAmount={ guildStore[0].VaultGems }
+                    matStorage={ guildStore[0].StorageGems }
+                    isHighlight={ highlightGems }
+                    isGems={ true }
+                />
 
             </>}
         </BarContainer>

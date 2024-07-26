@@ -342,7 +342,7 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, runResults)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 11) #runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 
