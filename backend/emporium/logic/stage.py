@@ -232,6 +232,74 @@ def CheckPermitted(obstacleLs, stageType, maxObstacles):
     return permited
 
 
+def GetExpedition(level, expType):
+
+    expedi = EM.ExpeditionType.objects.filter(Type=expType)
+
+    expediDx = expedi[0].__dict__
+    expediDx.pop('id')
+    expediDx.pop('_state')
+
+    expediDx['level'] = level
+    return expediDx
+
+
+def GetStarThief(resourceId):
+    trait = resourceId.split('-')[1]
+    stars = int(resourceId[-1])
+    thiefTemplate = EM.UnlockableThief.objects.GetOrNone(ResourceId=resourceId)
+
+    rareDx = {
+        'class': thiefTemplate.Class,
+        'stars': stars,
+        'agi': 0,
+        'cun': 0,
+        'mig': 0,
+        'end': 0,
+    }
+
+    rareDx[trait] = stars +2        # StartTrait column is unused
+
+    advanceTraits = ['agi', 'cun', 'mig', 'end']
+    advanceTraits.remove(trait)
+
+    potential = []
+    copies = stars +1
+    for rg in range(0, copies):
+        potential += advanceTraits
+
+    for rg in range(0, thiefTemplate.RandomTraits):
+        advance = random.choice(potential)
+        potential.remove(advance)
+        rareDx[advance] += 1
+
+    return rareDx
+
+def GetMagicItem(resourceId):
+    itemTemplate = EM.UnlockableItem.objects.GetOrNone(ResourceId=resourceId)
+    enchants = itemTemplate.EnchantmentList.split(', ')
+
+    rareDx = {
+        'magic': random.choice(enchants),
+    }
+    return rareDx
+
+def GetRareMaterial(resourceId, guildMd):
+
+    tower = EM.GothicTower.objects.GetOrNone(Throne=guildMd.ThroneLevel, StageNo=1)
+    FACTOR = 2
+
+    amount = tower.Wood * FACTOR
+    if 'stone' in resourceId: amount = tower.Stone * FACTOR
+    if 'iron' in resourceId: amount = tower.Iron * FACTOR
+
+    rareDx = {
+        'amount': amount,
+        'cost': int(tower.Gold * 0.75),
+    }
+    return rareDx
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 RESEARCH STAGE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -344,16 +412,4 @@ def GetDevMight():
         'Experience': 8, 'Difficulty': DIFFICULTY+4, 'Damage': DAMAGE, },
     ]
     return obstacleLs
-
-
-def GetExpedition(level, expType):
-
-    expedi = EM.ExpeditionType.objects.filter(Type=expType)
-
-    expediDx = expedi[0].__dict__
-    expediDx.pop('id')
-    expediDx.pop('_state')
-
-    expediDx['level'] = level
-    return expediDx
 

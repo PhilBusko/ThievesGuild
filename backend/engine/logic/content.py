@@ -620,3 +620,151 @@ def GetReplacement(guildMd, rewardDx):
 
     return replace
 
+
+def GetOrCreateMarket(guildMd, rareCount):
+
+    trunkNow = timezone.now().replace(microsecond=0)
+    currDate = f"{trunkNow.year}-{str(trunkNow.month).zfill(2)}-{str(trunkNow.day).zfill(2)}"
+
+    # check for existing daily market
+
+    checkInventory = GM.MarketStore.objects.filter(
+        GuildFK=guildMd, CreateDate=currDate, ThroneLevel=guildMd.ThroneLevel
+        ).values()
+
+    if len(checkInventory) > 0:
+        checkInventory = AttachMarketDisplay(checkInventory)
+        resourceDf = PD.DataFrame(checkInventory).drop(
+            ['_state', 'GuildFK_id', 'ThroneLevel'], axis=1, errors='ignore')
+        commonDf = resourceDf[resourceDf['StoreType'] == 'common']
+        rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
+        return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
+
+    # create common item inventory
+    # has thief 1S and class wargear
+
+    GM.MarketStore.objects.filter(GuildFK=guildMd).delete()
+
+    commonThief = EM.UnlockableThief.objects.filter(Stars=1).values()
+    commonItem = EM.UnlockableItem.objects.filter(
+        Level=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=False).values()
+
+    for cm in commonThief:
+        newReso = GM.MarketStore()
+        newReso.GuildFK = guildMd
+        newReso.CreateDate = currDate
+        newReso.ThroneLevel = guildMd.ThroneLevel
+        newReso.ResourceId = cm['ResourceId']
+        newReso.StoreType = 'common'
+        newReso.save()
+
+    for cm in commonItem:
+        newReso = GM.MarketStore()
+        newReso.GuildFK = guildMd
+        newReso.CreateDate = currDate
+        newReso.ThroneLevel = guildMd.ThroneLevel
+        newReso.ResourceId = cm['ResourceId']
+        newReso.StoreType = 'common'
+        newReso.save()
+
+    # create rare items from random table
+    # has accessories, materials, unlocked resources
+
+    rareAccessory = EM.UnlockableItem.objects.filter(
+        Level=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=True)
+
+    rareThief = GM.ThiefUnlocked.objects.filter(
+        GuildFK=guildMd)
+
+    rareMagic = GM.ItemUnlocked.objects.filter(
+        GuildFK=guildMd, ItemFK__Level__in=[guildMd.ThroneLevel, guildMd.ThroneLevel -1])
+
+    potentialLs = []
+
+    # for rr in rareAccessory:
+    #     potentialLs.append(rr.ResourceId)
+
+    for rr in rareThief:
+        potentialLs.append(rr.ThiefFK.ResourceId)
+
+    for rr in rareMagic:
+        potentialLs.append(rr.ItemFK.ResourceId)
+
+    potentialLs += ['material-wood']
+    if guildMd.ThroneLevel >= 4: potentialLs.append('material-stone')
+    if guildMd.ThroneLevel >= 7: potentialLs.append('material-iron')
+
+    for rg in range(0, rareCount):
+
+        randomType = random.choice(potentialLs)
+        potentialLs.remove(randomType)
+
+        newReso = GM.MarketStore()
+        newReso.GuildFK = guildMd
+        newReso.CreateDate = currDate
+        newReso.ThroneLevel = guildMd.ThroneLevel
+        newReso.ResourceId = randomType
+        newReso.StoreType = 'rare'
+
+        if 'm0' in randomType:
+            newReso.RareProperties = None
+
+        if 'thief' in randomType:
+            newReso.RareProperties = ST.GetStarThief(randomType)
+
+        if 'm1' in randomType:
+            newReso.RareProperties = ST.GetMagicItem(randomType)
+
+        if 'material' in randomType:
+            newReso.RareProperties = ST.GetRareMaterial(randomType, guildMd)
+
+        newReso.save()
+
+    # get the newly created data
+
+    inventory = GM.MarketStore.objects.filter(
+        GuildFK=guildMd, CreateDate=currDate, ThroneLevel=guildMd.ThroneLevel
+        ).values()
+
+    inventory = AttachMarketDisplay(inventory)
+
+    resourceDf = PD.DataFrame(inventory).drop(['_state', 'GuildFK_id', 'ThroneLevel'], axis=1, errors='ignore')
+    commonDf = resourceDf[resourceDf['StoreType'] == 'common']
+    rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
+
+    return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
+
+def AttachMarketDisplay(resourceLs):
+
+    for rs in resourceLs:
+
+        iconCode = resourceDx = None
+
+        if 'thief' in rs['ResourceId']:
+            resourceMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=rs['ResourceId'])
+            resourceDx = resourceMd.__dict__
+            removeKeys = ['id', '_state', 'StartTrait', 'UnlockThrone', 'ResourceId']
+            for k in removeKeys:
+                resourceDx.pop(k)
+            iconCode = f"class-{resourceMd.Class.lower()}-s{resourceMd.Stars}"
+        
+        elif 'material' in rs['ResourceId']:
+            resourceDx = {'StoreCost': rs['RareProperties']['cost']}
+            iconCode = rs['ResourceId'].split('-')[1]
+
+        else:
+            resourceMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=rs['ResourceId'])
+            resourceDx = resourceMd.__dict__
+            removeKeys = ['id', '_state', 'ResourceId']
+            for k in removeKeys:
+                resourceDx.pop(k)
+
+            if resourceDx['Slot'] in ['weapon', 'armor']: stat = resourceDx['Trait'][:3]
+            else:     stat = 'skl' if resourceDx['Skill'] else 'cmb'
+            iconCode = f"{resourceDx['Slot']}-{stat}-m{resourceDx['MagicLv']}"
+        
+        rs['IconCode'] = iconCode  
+        rs['ResourceDx'] = resourceDx  
+
+    return resourceLs
+

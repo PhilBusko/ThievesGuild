@@ -31,7 +31,7 @@ const getMaterial = (materialCode) => {
     if (materialCode == 'stone')    return StoneMaterial;
     if (materialCode == 'iron')     return IronMaterial;
     return '';
-}
+};
 
 export {
     StarIcon, StarImage, VictoryIcon, DefeatIcon,

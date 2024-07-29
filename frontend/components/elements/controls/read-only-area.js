@@ -10,6 +10,7 @@ function ReadOnlyArea(props) {
 
     const ReadArea = styled(ST.FlexVertical)(({ theme }) => ({
         width: props.width, 
+        height: 'auto',
         alignItems: 'start', 
         background: ST.TableBkgd, 
         borderRadius: '3px',

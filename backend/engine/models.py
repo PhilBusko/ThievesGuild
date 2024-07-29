@@ -107,7 +107,7 @@ class ItemUnlocked(JM.Model):
 class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     CreateDate = JM.DateField(default=now)
-    Heist = JM.TextField()              # tower, trial, raid, dungeon, campaign
+    Heist = JM.TextField()              # tower, trial, dungeon, campaign
     ThroneLevel = JM.IntegerField()     # the currently generated level
     StageNo = JM.IntegerField()
 
@@ -146,5 +146,21 @@ class GuildExpedition(JM.Model):
     ThiefFK = JM.ForeignKey(ThiefInGuild, on_delete=JM.CASCADE, null=True)
     Results = JM.JSONField(null=True)
     Claimed = JM.BooleanField(default=False)
+    objects = DB.BaseManager()
+
+
+
+
+class MarketStore(JM.Model):
+
+    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    CreateDate = JM.DateField(default=now)
+    ThroneLevel = JM.IntegerField()             # currently generated level
+
+    ResourceId = JM.TextField()
+    StoreType = JM.TextField()                  # common, rare
+    RareProperties = JM.JSONField(null=True)    # may have property if rare
+    Bought = JM.BooleanField(default=False)
+
     objects = DB.BaseManager()
 

@@ -38,6 +38,9 @@ engine_url = [
     re_path(r'^expedition-update',  NV.ExpeditionUpdate),
     re_path(r'^expedition-launch',  NV.ExpeditionLaunch),
     re_path(r'^expedition-claim',   NV.ExpeditionClaim),
+
+    re_path(r'^daily-market',   NV.DailyMarket),
+    # re_path(r'^buy-market',   NV.BuyMarket),
 ]
 
 

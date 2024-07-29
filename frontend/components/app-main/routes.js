@@ -10,6 +10,7 @@ import Deployment from '../page-routes/deployment';
 import Playthrough from '../page-routes/playthrough';
 import Aftermath from '../page-routes/aftermath';
 import Expedition from '../page-routes/expeditions';
+import Market from '../page-routes/market';
 
 import UserAccount from '../page-routes/user-account';
 import VerifyEmail from '../page-routes/verify-email';
@@ -62,7 +63,7 @@ export const RoutesConfig = [
     {
         'title': 'Market',
         'path': '/market/',
-        'element': <Scholarium />, 
+        'element': <Market />, 
         'order': 7,
     },
 

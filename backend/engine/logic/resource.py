@@ -13,21 +13,6 @@ import engine.models as GM
 POWER_FACTOR = 50
 
 
-def ResetInjuryCooldowns(guildMd):
-
-    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
-    thiefLs = []
-
-    for md in thiefMds:
-
-        trunkNow = timezone.now().replace(microsecond=0)
-
-        if md.CooldownExpire and md.Status in ['Wounded', 'Knocked Out']:
-            if trunkNow >= md.CooldownExpire:
-                md.Status = 'Ready'
-                md.CooldownExpire = None
-                md.save()
-
 def GetThiefList(guildMd):
 
     thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
@@ -110,6 +95,7 @@ def GetAssetList(guildMd):
     return assetDf
 
 def GetDisplayInfo(itemDx):
+   # subroutine for GetThiefList, GetAssetList
 
     if itemDx['Slot'] in ['weapon', 'armor']: stat = itemDx['Trait'][:3]
     else:     stat = 'skl' if itemDx['Skill'] else 'cmb'
@@ -130,35 +116,6 @@ def GetDisplayInfo(itemDx):
 
     return iconCode, bonusLs
 
-def GetExpeditionCount(guildMd):
-    return 3
-
-
-def ApplyWounds(thiefMd, wounds):
-
-    ratio = round(wounds / thiefMd.Health, 3)
-    status = 'Ready'
-    cooldown = None
-
-    if ratio >= .500 and ratio <= .999:
-        status = 'Wounded'
-        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).WoundPeriod
-
-    elif ratio >= 1.000:
-        status = 'Knocked Out'
-        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).KnockedOutPeriod
-
-    if cooldown:
-
-        trunkNow = timezone.now()
-        trunkNow = trunkNow.replace(microsecond=0)
-        expireTm = PD.Timedelta(cooldown).to_pytimedelta()
-
-        thiefMd.Status = status
-        thiefMd.CooldownExpire = trunkNow + expireTm
-        thiefMd.save()
-
-    return status, cooldown
 
 def GrantExperience(thiefMd, amount):
     levelMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level+1)
@@ -202,6 +159,47 @@ def GrantIron(guildMd, amount):
     if newAmount > maxAmount: newAmount = maxAmount
     guildMd.VaultIron = newAmount
     guildMd.save()
+
+def ApplyWounds(thiefMd, wounds):
+
+    ratio = round(wounds / thiefMd.Health, 3)
+    status = 'Ready'
+    cooldown = None
+
+    if ratio >= .500 and ratio <= .999:
+        status = 'Wounded'
+        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).WoundPeriod
+
+    elif ratio >= 1.000:
+        status = 'Knocked Out'
+        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).KnockedOutPeriod
+
+    if cooldown:
+
+        trunkNow = timezone.now()
+        trunkNow = trunkNow.replace(microsecond=0)
+        expireTm = PD.Timedelta(cooldown).to_pytimedelta()
+
+        thiefMd.Status = status
+        thiefMd.CooldownExpire = trunkNow + expireTm
+        thiefMd.save()
+
+    return status, cooldown
+
+def ResetInjuryCooldowns(guildMd):
+
+    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    thiefLs = []
+
+    for md in thiefMds:
+
+        trunkNow = timezone.now().replace(microsecond=0)
+
+        if md.CooldownExpire and md.Status in ['Wounded', 'Knocked Out']:
+            if trunkNow >= md.CooldownExpire:
+                md.Status = 'Ready'
+                md.CooldownExpire = None
+                md.save()
 
 
 def GetItemTrait(itemMd, trait):
@@ -315,6 +313,12 @@ def SetGuildTotals(guildMd):
     guildMd.StorageIron = maxIron
     guildMd.TotalPower = power
     guildMd.save()
+
+def GetExpeditionCount(guildMd):
+    return 3
+
+def GetDailyStoreCount(guildMd):
+    return 4
 
 
 def CreateNewGuild(user, guildName):

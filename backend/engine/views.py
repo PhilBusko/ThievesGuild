@@ -342,7 +342,7 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 11) #runResults)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 13) #runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 
@@ -441,6 +441,27 @@ def ExpeditionClaim(request):
     expToClaim.save()
 
     return Response({'success': True})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def DailyMarket(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({'message': '* A guild must be chosen in the Account page.'})
+
+    rares = RS.GetDailyStoreCount(guildMd)
+    commonStore, dailyStore = CT.GetOrCreateMarket(guildMd, rares)
+
+    marketDx = {
+        'commonStore': commonStore,
+        'dailyStore': dailyStore,
+    }
+
+    return Response(marketDx)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

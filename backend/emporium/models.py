@@ -12,7 +12,7 @@ class UnlockableThief(JM.Model):
     UnlockThrone = JM.IntegerField()
     StoreCost = JM.IntegerField(null=True)
     StartTrait = JM.TextField()
-    RandomTraits = JM.TextField()
+    RandomTraits = JM.IntegerField()
 
     objects = DB.BaseManager()
     class Meta: unique_together = ('Class', 'Stars')
