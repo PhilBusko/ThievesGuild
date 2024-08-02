@@ -6,6 +6,7 @@ import pandas as PD
 
 import app_proj.notebooks as NT
 import emporium.models as EM
+# import emporium.logic.guild as GD
 
 
 def RollDamage(aveDamage):
@@ -182,6 +183,8 @@ def ObstacleSequence(potentialLs, maxObstacles):
 
 def CheckPermitted(obstacleLs, stageType, maxObstacles):
 
+    print(stageType, maxObstacles)
+    
     # get the minimum obstacle types required based on parameters
 
     if stageType == 'balanced' and maxObstacles <= 9:
@@ -214,7 +217,7 @@ def CheckPermitted(obstacleLs, stageType, maxObstacles):
     countDx = {'Agi': 0, 'Cun': 0, 'Mig': 0, 'All': 0}
     for ob in obstacleLs:
         countDx[ob['Trait']] += 1
-    
+
     permited = True
 
     if countDx['Agi'] < minDx['Agi'] or countDx['Agi'] > minDx['Agi'] +2:
@@ -244,7 +247,7 @@ def GetExpedition(level, expType):
     return expediDx
 
 
-def GetStarThief(resourceId):
+def GetStarThief(resourceId, name):
     trait = resourceId.split('-')[1]
     stars = int(resourceId[-1])
     thiefTemplate = EM.UnlockableThief.objects.GetOrNone(ResourceId=resourceId)
@@ -252,6 +255,7 @@ def GetStarThief(resourceId):
     rareDx = {
         'class': thiefTemplate.Class,
         'stars': stars,
+        'name': name,
         'agi': 0,
         'cun': 0,
         'mig': 0,
@@ -284,9 +288,9 @@ def GetMagicItem(resourceId):
     }
     return rareDx
 
-def GetRareMaterial(resourceId, guildMd):
+def GetRareMaterial(resourceId, throneLevel):
 
-    tower = EM.GothicTower.objects.GetOrNone(Throne=guildMd.ThroneLevel, StageNo=1)
+    tower = EM.GothicTower.objects.GetOrNone(Throne=throneLevel, StageNo=1)
     FACTOR = 2
 
     amount = tower.Wood * FACTOR

@@ -6,11 +6,9 @@ import pandas as PD
 from django.utils import timezone
 
 import emporium.models as EM 
-import emporium.logic.character_names as CN
 import emporium.logic.guild as GD
+import emporium.logic.character_names as CN
 import engine.models as GM 
-
-POWER_FACTOR = 50
 
 
 def GetThiefList(guildMd):
@@ -264,7 +262,8 @@ def SetThiefTotals(thiefMd):
                     GetItemTrait(weapon, 'end') + GetItemTrait(armor, 'end') +
                     GetItemTrait(head, 'end') + GetItemTrait(hands, 'end') + GetItemTrait(feet, 'end'))
 
-    thiefMd.Power = thiefMd.BasePower    # levels power
+    thiefMd.Power = thiefMd.BasePower
+    # thiefMd.Power += levelsPower
     thiefMd.Power += weapon.Power if weapon else 0
     thiefMd.Power += armor.Power if armor else 0 
     thiefMd.Power += head.Power if head else 0
@@ -349,6 +348,15 @@ def CreateNewGuild(user, guildName):
 
     return newGuild
 
+def GetThiefName(guildMd):
+    # random name that doesn't yet appear in guild
+    allNames = CN.CharacterNames()
+    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    existingNameLs = [x.Name for x in thiefMds]
+    availableNames = [x for x in allNames if x not in existingNameLs]
+    thiefName = random.choice(availableNames)
+    return thiefName
+    
 def AppendStartingThief(guildMd, thiefClass, stars, allNames):
 
     thiefMd = EM.UnlockableThief.objects.filter(Class=thiefClass, Stars=stars)
@@ -365,7 +373,7 @@ def AppendStartingThief(guildMd, thiefClass, stars, allNames):
         'Name': thiefName,
         'Class': thiefDx['Class'],
         'Stars': thiefDx['Stars'],
-        'BasePower': thiefDx['StoreCost'] / POWER_FACTOR,
+        'BasePower': thiefDx['StoreCost'] / GD.POWER_FACTOR,
         'BaseAgi': 3 if 'agi' in thiefDx['StartTrait'] else 0,
         'BaseCun': 3 if 'cun' in thiefDx['StartTrait'] else 0,
         'BaseMig': 3 if 'mig' in thiefDx['StartTrait'] else 0,
@@ -388,7 +396,7 @@ def AttachStartingWargear(thiefMd):
         'Level': weaponDx['Level'],
         'TotalLv': weaponDx['TotalLv'],
         'Slot': weaponDx['Slot'],
-        'Power': weaponDx['StoreCost'] / POWER_FACTOR,
+        'Power': weaponDx['StoreCost'] / GD.POWER_FACTOR,
         'Requirement': weaponDx['Requirement'],
         'Trait': weaponDx['Trait'],
         'Combat': weaponDx['Combat'],
@@ -407,7 +415,7 @@ def AttachStartingWargear(thiefMd):
         'Level': armorDx['Level'],
         'TotalLv': armorDx['TotalLv'],
         'Slot': armorDx['Slot'],
-        'Power': armorDx['StoreCost'] / POWER_FACTOR,
+        'Power': armorDx['StoreCost'] / GD.POWER_FACTOR,
         'Requirement': armorDx['Requirement'],
         'Trait': armorDx['Trait'],
         'Combat': armorDx['Combat'],
@@ -428,7 +436,7 @@ def StartingAccessories(guildMd):
             'Level': accessoryDx['Level'],
             'TotalLv': accessoryDx['TotalLv'],
             'Slot': accessoryDx['Slot'],
-            'Power': accessoryDx['StoreCost'] / POWER_FACTOR,
+            'Power': accessoryDx['StoreCost'] / GD.POWER_FACTOR,
             'Skill': accessoryDx['Skill'],
             'Combat': accessoryDx['Combat'],
         }
@@ -442,7 +450,7 @@ def StartingAccessories(guildMd):
             'Level': accessoryDx['Level'],
             'TotalLv': accessoryDx['TotalLv'],
             'Slot': accessoryDx['Slot'],
-            'Power': accessoryDx['StoreCost'] / POWER_FACTOR,
+            'Power': accessoryDx['StoreCost'] / GD.POWER_FACTOR,
             'Skill': accessoryDx['Skill'],
             'Combat': accessoryDx['Combat'],
         }

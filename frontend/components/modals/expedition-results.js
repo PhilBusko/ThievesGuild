@@ -141,8 +141,6 @@ function ExpeditionResults(props) {
         }
     }, [props.open])
 
-
-
     // set the chosen result for advanced expeditions
 
     const [selectResult, setSelectResult] = useState('first');
@@ -150,10 +148,6 @@ function ExpeditionResults(props) {
     const handleChange = (evt, value) => {
         setSelectResult(value);
     }
-
-    
-
-
 
     // format the data for display
 

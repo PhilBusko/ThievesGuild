@@ -213,21 +213,20 @@ function Deployment(props) {
                             { getTitle(stage.Heist) } - { ` Stage ${ stage.StageNo }` }
                         </ST.TitleText>
                     </ST.TitleGroup>
+
+                    { errorLs.length > 0 &&
+                        <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
+                            <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                        </ST.FlexHorizontal>
+                    }
+                    { message && <Grid item xs={12}>
+                        <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
+                            <Broadcast>
+                                <ST.BaseText>{ message }</ST.BaseText>
+                            </Broadcast>
+                        </ST.FlexHorizontal>
+                    </Grid> }
                 </Grid>
-
-                { message && <Grid item xs={12}>
-                    <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
-                        <Broadcast>
-                            <ST.BaseText>{ message }</ST.BaseText>
-                        </Broadcast>
-                    </ST.FlexHorizontal>
-                </Grid> }
-
-                { errorLs.length > 0 &&
-                    <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
-                        <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                    </ST.FlexHorizontal>
-                }
 
                 <ST.GridItemCenter item xs={12} >
                     <ST.ContentCard elevation={3} sx={{padding: '16px 8px 16px 16px',}}> 

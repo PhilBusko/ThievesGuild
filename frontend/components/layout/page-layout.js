@@ -207,7 +207,7 @@ function PageLayout(props) {
 
                 </Box>
             </Box>
-            <br></br>
+            <br></br> <br></br> <br></br>
 
             <LogInModal open={loginOpen} setOpen={setLoginOpen} />
             <LogOutModal open={logoutOpen} setOpen={setLogoutOpen} />

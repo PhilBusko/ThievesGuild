@@ -9,6 +9,7 @@ import app_proj.notebooks as NT
 import emporium.models as EM 
 import emporium.logic.guild as GD
 import emporium.logic.stage as ST
+import emporium.logic.character_names as CN
 import engine.models as GM 
 
 
@@ -628,17 +629,17 @@ def GetOrCreateMarket(guildMd, rareCount):
 
     # check for existing daily market
 
-    checkInventory = GM.MarketStore.objects.filter(
-        GuildFK=guildMd, CreateDate=currDate, ThroneLevel=guildMd.ThroneLevel
-        ).values()
+    # checkInventory = GM.MarketStore.objects.filter(
+    #     GuildFK=guildMd, CreateDate=currDate, ThroneLevel=guildMd.ThroneLevel
+    #     ).values()
 
-    if len(checkInventory) > 0:
-        checkInventory = AttachMarketDisplay(checkInventory)
-        resourceDf = PD.DataFrame(checkInventory).drop(
-            ['_state', 'GuildFK_id', 'ThroneLevel'], axis=1, errors='ignore')
-        commonDf = resourceDf[resourceDf['StoreType'] == 'common']
-        rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
-        return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
+    # if len(checkInventory) > 0:
+    #     checkInventory = AttachMarketDisplay(checkInventory)
+    #     resourceDf = PD.DataFrame(checkInventory).drop(
+    #         ['_state', 'GuildFK_id', 'ThroneLevel'], axis=1, errors='ignore')
+    #     commonDf = resourceDf[resourceDf['StoreType'] == 'common']
+    #     rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
+    #     return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
 
     # create common item inventory
     # has thief 1S and class wargear
@@ -656,6 +657,13 @@ def GetOrCreateMarket(guildMd, rareCount):
         newReso.ThroneLevel = guildMd.ThroneLevel
         newReso.ResourceId = cm['ResourceId']
         newReso.StoreType = 'common'
+        newReso.RareProperties = {
+            'name': GetThiefName(guildMd),
+            'agi': 3 if 'agi' in cm['ResourceId'] else 0,
+            'cun': 3 if 'cun' in cm['ResourceId'] else 0,
+            'mig': 3 if 'mig' in cm['ResourceId'] else 0,
+            'end': 0,
+        }
         newReso.save()
 
     for cm in commonItem:
@@ -681,8 +689,8 @@ def GetOrCreateMarket(guildMd, rareCount):
 
     potentialLs = []
 
-    # for rr in rareAccessory:
-    #     potentialLs.append(rr.ResourceId)
+    for rr in rareAccessory:
+        potentialLs.append(rr.ResourceId)
 
     for rr in rareThief:
         potentialLs.append(rr.ThiefFK.ResourceId)
@@ -690,9 +698,9 @@ def GetOrCreateMarket(guildMd, rareCount):
     for rr in rareMagic:
         potentialLs.append(rr.ItemFK.ResourceId)
 
-    potentialLs += ['material-wood']
-    if guildMd.ThroneLevel >= 4: potentialLs.append('material-stone')
-    if guildMd.ThroneLevel >= 7: potentialLs.append('material-iron')
+    # potentialLs += ['material-wood']
+    # if guildMd.ThroneLevel >= 4: potentialLs.append('material-stone')
+    # if guildMd.ThroneLevel >= 7: potentialLs.append('material-iron')
 
     for rg in range(0, rareCount):
 
@@ -710,13 +718,14 @@ def GetOrCreateMarket(guildMd, rareCount):
             newReso.RareProperties = None
 
         if 'thief' in randomType:
-            newReso.RareProperties = ST.GetStarThief(randomType)
+            newName = GetThiefName(guildMd)
+            newReso.RareProperties = ST.GetStarThief(randomType, newName)
 
         if 'm1' in randomType:
             newReso.RareProperties = ST.GetMagicItem(randomType)
 
-        if 'material' in randomType:
-            newReso.RareProperties = ST.GetRareMaterial(randomType, guildMd)
+        # if 'material' in randomType:
+        #     newReso.RareProperties = ST.GetRareMaterial(randomType, guildMd.ThroneLevel)
 
         newReso.save()
 
@@ -734,26 +743,42 @@ def GetOrCreateMarket(guildMd, rareCount):
 
     return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
 
+def GetThiefName(guildMd):
+    # random name that doesn't yet appear in guild
+    allNames = CN.CharacterNames()
+    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    existingNameLs = [x.Name for x in thiefMds]
+    availableNames = [x for x in allNames if x not in existingNameLs]
+    thiefName = random.choice(availableNames)
+    return thiefName
+
 def AttachMarketDisplay(resourceLs):
+    # resource: MarketStore dict
 
     for rs in resourceLs:
 
-        iconCode = resourceDx = None
+        name = power = iconCode = resourceDx = None
 
         if 'thief' in rs['ResourceId']:
             resourceMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=rs['ResourceId'])
+            name = resourceMd.Class
+            power = int(resourceMd.StoreCost / GD.POWER_FACTOR)
             resourceDx = resourceMd.__dict__
             removeKeys = ['id', '_state', 'StartTrait', 'UnlockThrone', 'ResourceId']
             for k in removeKeys:
                 resourceDx.pop(k)
             iconCode = f"class-{resourceMd.Class.lower()}-s{resourceMd.Stars}"
-        
+
         elif 'material' in rs['ResourceId']:
+            name = rs['ResourceId'].split('-')[1].title()
+            power = None
             resourceDx = {'StoreCost': rs['RareProperties']['cost']}
             iconCode = rs['ResourceId'].split('-')[1]
 
         else:
             resourceMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=rs['ResourceId'])
+            name  = resourceMd.Name
+            power = int(resourceMd.StoreCost / GD.POWER_FACTOR)
             resourceDx = resourceMd.__dict__
             removeKeys = ['id', '_state', 'ResourceId']
             for k in removeKeys:
@@ -762,7 +787,28 @@ def AttachMarketDisplay(resourceLs):
             if resourceDx['Slot'] in ['weapon', 'armor']: stat = resourceDx['Trait'][:3]
             else:     stat = 'skl' if resourceDx['Skill'] else 'cmb'
             iconCode = f"{resourceDx['Slot']}-{stat}-m{resourceDx['MagicLv']}"
-        
+
+            resourceDx['Requirement'] = resourceDx['Requirement'].title() if resourceDx['Requirement'] else 'Any class'
+            resourceDx['Slot'] = resourceDx['Slot'].title()
+
+            if resourceDx['Trait']:
+                traitLs = resourceDx['Trait'].split(' ')
+                resourceDx['Trait'] = f"{traitLs[0].title()} +{traitLs[1]}"
+
+            if resourceDx['Combat']:
+                traitLs = resourceDx['Combat'].split(' ')
+                resourceDx['Combat'] = f"{traitLs[0].title()} +{traitLs[1]}"
+
+            if resourceDx['Skill']:
+                traitLs = resourceDx['Skill'].split(' ')
+                resourceDx['Skill'] = f"{traitLs[0].title()} +{traitLs[1]}"
+
+            if rs['RareProperties'] and 'magic' in rs['RareProperties']:
+                traitLs = rs['RareProperties']['magic'].split(' ')
+                rs['RareProperties']['magic'] = f"{traitLs[0].title()} +{traitLs[1]}"
+
+        rs['Name'] = name
+        rs['Power'] = power
         rs['IconCode'] = iconCode  
         rs['ResourceDx'] = resourceDx  
 

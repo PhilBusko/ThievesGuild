@@ -8,7 +8,6 @@ import { styled } from '@mui/material/styles'
 
 import * as ST from '../styled-elements';
 import * as GI from '../../assets/guild-icons';
-import * as RC from '../../assets/resource';
 
 
 const StyledTable = styled(DataGrid)(({ theme }) => ({
@@ -112,9 +111,7 @@ function VaultTable(props) {
             sortable: true, sortingOrder: ['asc', 'desc'],
             width: 90, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<>
-                <ST.BaseText> { `${params.value} ( ${params.row.Level}`} </ST.BaseText> 
-                { !!params.row.Magic && <RC.StarImage src={ RC.StarIcon } /> }
-                <ST.BaseText> &nbsp;) </ST.BaseText> 
+                <ST.BaseText> { params.value} [ {params.row.Level} ] </ST.BaseText> 
             </>),
         },
         {

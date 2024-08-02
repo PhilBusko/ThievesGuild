@@ -32,7 +32,7 @@ const BaseText = styled(Typography)(({ theme }) => ({
 const BaseHighlight = styled(BaseText)(({ theme }) => ({
     fontSize: '210%',
     fontWeight: 'bold',
-    lineHeight: 1.0,
+    letterSpacing: 0.4,
 }));
 
 const LinkText = styled(Typography)(({ theme }) => ({
@@ -73,7 +73,8 @@ const GridPage = styled(Grid)(({ theme }) => ({
     width: '100%',
     margin: '0px',
     padding: '0px',
-    [theme.breakpoints.up('md')]: {padding: '0px 200px 0px 0px'},   // T R B L
+    [theme.breakpoints.up('md')]: {padding: '0px 20px 0px 0px'},   // T R B L
+    [theme.breakpoints.up('lg')]: {padding: '0px 200px 0px 0px'},
 }));
 
 const GridItemCenter = styled(Grid)(({ theme }) => ({
