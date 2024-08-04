@@ -629,17 +629,17 @@ def GetOrCreateMarket(guildMd, rareCount):
 
     # check for existing daily market
 
-    # checkInventory = GM.MarketStore.objects.filter(
-    #     GuildFK=guildMd, CreateDate=currDate, ThroneLevel=guildMd.ThroneLevel
-    #     ).values()
+    checkInventory = GM.MarketStore.objects.filter(
+        GuildFK=guildMd, CreateDate=currDate, ThroneLevel=guildMd.ThroneLevel
+        ).values()
 
-    # if len(checkInventory) > 0:
-    #     checkInventory = AttachMarketDisplay(checkInventory)
-    #     resourceDf = PD.DataFrame(checkInventory).drop(
-    #         ['_state', 'GuildFK_id', 'ThroneLevel'], axis=1, errors='ignore')
-    #     commonDf = resourceDf[resourceDf['StoreType'] == 'common']
-    #     rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
-    #     return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
+    if len(checkInventory) > 0:
+        checkInventory = AttachMarketDisplay(checkInventory)
+        resourceDf = PD.DataFrame(checkInventory).drop(
+            ['_state', 'GuildFK_id', 'ThroneLevel'], axis=1, errors='ignore')
+        commonDf = resourceDf[resourceDf['StoreType'] == 'common']
+        rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
+        return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
 
     # create common item inventory
     # has thief 1S and class wargear
@@ -813,4 +813,28 @@ def AttachMarketDisplay(resourceLs):
         rs['ResourceDx'] = resourceDx  
 
     return resourceLs
+
+def BuyPermission(storeId, guildMd):
+
+    storeMd = GM.MarketStore.objects.GetOrNone(id=storeId)
+
+    # check for thief blockage
+
+    if 'thief' in storeMd.ResourceId:
+        thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+        maxThieves = guildMd.MaxThieves
+        if len(thiefMds) == maxThieves:
+            return 'guild occupancy is full'
+
+    # generic blockage
+
+    if 'thief' in storeMd.ResourceId:
+        resourceMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=storeMd.ResourceId)
+    else:
+        resourceMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=storeMd.ResourceId)
+
+    if resourceMd.StoreCost > guildMd.VaultGold:
+        return 'gold coffers are deficient'
+
+    return None
 

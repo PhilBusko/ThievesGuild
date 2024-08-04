@@ -60,6 +60,7 @@ const NearBlack = '#262626';
 
 const HighlightPurple = '#ff1aff';
 const DarkGold = 'goldenrod';
+const MagicHighlight = 'aqua';
 
 const FadedBlue = '#6666ff';
 const ControlBkgd = '#e4c49b';
@@ -163,11 +164,12 @@ export {
 
     DefaultText,
     GoldText,
-    FadedBlue,
-    ControlBkgd,
     NearBlack,
     HighlightPurple,
     DarkGold,
+    MagicHighlight,
+    FadedBlue,
+    ControlBkgd,
     TableBkgd,
     MenuBkgd,
 

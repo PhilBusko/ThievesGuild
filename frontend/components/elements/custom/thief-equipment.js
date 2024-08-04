@@ -125,9 +125,7 @@ function ThiefEquipment(props) {
                                 <InventoryBlock sx={{ width: '100px' }}>
                                     <ST.BaseText>{inv.Name}</ST.BaseText>
                                     <ST.FlexHorizontal sx={{justifyContent: 'space-between',}}>
-                                        <ST.BaseText sx={{}}>Lv { inv.Level } </ST.BaseText>
-                                        { inv.TotalLv > inv.Level && 
-                                            <RC.StarImage src={ RC.StarIcon } /> }
+                                        <ST.BaseText sx={{}}>Lv { inv.TotalLv } </ST.BaseText>
                                         <ST.BaseText sx={{}}>Pwr { inv.Power } </ST.BaseText>
                                     </ST.FlexHorizontal>
                                 </InventoryBlock>
@@ -136,6 +134,9 @@ function ThiefEquipment(props) {
                                 <InventoryBlock sx={{ width: '110px' }}> 
                                     { inv.bonusLs.map((bns, id) => (
                                         <ST.BaseText key={id}>{ bns }</ST.BaseText>
+                                    ))}
+                                    { inv.magicLs.map((bns, id) => (
+                                        <ST.BaseText key={id} sx={{color: ST.MagicHighlight}}>{ bns }</ST.BaseText>
                                     ))}
                                 </InventoryBlock>
                                 <SeparatorStats src={ SeparatorSilver } />
@@ -181,10 +182,8 @@ function ThiefEquipment(props) {
                 <InventoryBlock sx={{ width: '100px' }}>
                     <ST.BaseText>{props.equipmentInfo.Name}</ST.BaseText>
                     <ST.FlexHorizontal sx={{justifyContent: 'space-between',}}>
-                        <ST.BaseText sx={{}}>Lv { props.equipmentInfo.Level } </ST.BaseText>
-                        { props.equipmentInfo.TotalLv >  props.equipmentInfo.Level && 
-                            <RC.StarImage src={ RC.StarIcon } /> }
-                        <ST.BaseText sx={{}}>Pwr { props.equipmentInfo.Power } </ST.BaseText>
+                        <ST.BaseText>Lv { props.equipmentInfo.TotalLv } </ST.BaseText>
+                        <ST.BaseText>Pwr { props.equipmentInfo.Power } </ST.BaseText>
                     </ST.FlexHorizontal>
                 </InventoryBlock>
                 <SeparatorStats src={ SeparatorSilver } />
@@ -192,6 +191,9 @@ function ThiefEquipment(props) {
                 <InventoryBlock sx={{ width: '110px' }}>
                     { props.equipmentInfo.bonusLs.map((bns, id) => (
                         <ST.BaseText key={id}>{ bns }</ST.BaseText>
+                    ))}
+                    { props.equipmentInfo.magicLs.map((bns, id) => (
+                        <ST.BaseText key={id} sx={{color: ST.MagicHighlight}}>{ bns }</ST.BaseText>
                     ))}
                 </InventoryBlock>
             </>}

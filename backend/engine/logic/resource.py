@@ -50,14 +50,16 @@ def GetThiefList(guildMd):
                 item = itemCheck[0]
                 res = item.pop('GuildFK_id')
                 res = item.pop('ThiefFK_id')
-                code, bonuses = GetDisplayInfo(item)
+                code, bonusLs, magicLs = GetDisplayInfo(item)
                 item['iconCode'] = code
-                item['bonusLs'] = bonuses 
+                item['bonusLs'] = bonusLs 
+                item['magicLs'] = magicLs 
             else:
                 item = {}
                 item['id'] = -1
                 item['iconCode'] = f"{sl}-empty"
                 item['bonusLs'] = [] 
+                item['magicLs'] = [] 
 
             thiefDx[sl] = item
 
@@ -76,9 +78,10 @@ def GetAssetList(guildMd):
     assetLs = list(assetMds.values())
 
     for st in assetLs:
-        code, bonuses = GetDisplayInfo(st)
+        code, bonusLs, magicLs = GetDisplayInfo(st)
         st['iconCode'] = code
-        st['bonusLs'] = bonuses
+        st['bonusLs'] = bonusLs
+        st['magicLs'] = magicLs
 
         claimant = None
         if st['ThiefFK_id']:
@@ -109,10 +112,13 @@ def GetDisplayInfo(itemDx):
     if itemDx['Combat']:
         statLs = itemDx['Combat'].split(' ')
         bonusLs.append(f"{statLs[0].title()} +{statLs[1]}")
-    if itemDx['Magic']:
-        bonusLs.append(itemDx['Magic'])
 
-    return iconCode, bonusLs
+    magicLs = []
+    if itemDx['Magic']:
+        statLs = itemDx['Magic'].split(' ')
+        magicLs.append(f"{statLs[0].title()} +{statLs[1]}")
+
+    return iconCode, bonusLs, magicLs
 
 
 def GrantExperience(thiefMd, amount):
@@ -202,33 +208,30 @@ def ResetInjuryCooldowns(guildMd):
 
 def GetItemTrait(itemMd, trait):
     if not itemMd: return 0
-    if not itemMd.Trait: return 0
 
-    if trait in itemMd.Trait:
+    if itemMd.Trait and trait in itemMd.Trait:
         total = int(itemMd.Trait.split(' ')[1])
     else:
         total = 0
 
     if itemMd.Magic and trait in itemMd.Magic:
-        total += itemMd.Magic[trait]
+        total += int(itemMd.Magic.split(' ')[1])
     return total
 
 def GetItemCombat(itemMd, stat):
     if not itemMd: return 0
-    if not itemMd.Combat: return 0
 
-    if stat in itemMd.Combat:
+    if itemMd.Combat and stat in itemMd.Combat:
         total = int(itemMd.Combat.split(' ')[1])
     else:
         total = 0
 
     if itemMd.Magic and stat in itemMd.Magic:
-        total += itemMd.Magic[stat]
+        total += int(itemMd.Magic.split(' ')[1])
     return total
 
 def GetItemSkill(itemMd, skill):
     if not itemMd: return 0
-    if not itemMd.Skill: return 0
 
     if itemMd.Skill and skill in itemMd.Skill:
         total = int(itemMd.Skill.split(' ')[1])
@@ -236,7 +239,7 @@ def GetItemSkill(itemMd, skill):
         total = 0
 
     if itemMd.Magic and skill in itemMd.Magic:
-        total += itemMd.Magic[skill]
+        total += int(itemMd.Magic.split(' ')[1])
     return total
 
 def SetThiefTotals(thiefMd):
@@ -301,7 +304,7 @@ def SetGuildTotals(guildMd):
 
     throneMd = EM.ThroneUpgrades.objects.GetOrNone(Level=guildMd.ThroneLevel)
     
-    maxGold = throneMd.GoldStorage
+    maxGold = throneMd.GoldStorage +2000
     maxWood = throneMd.WoodStorage
     maxStone = throneMd.StoneStorage
     maxIron = throneMd.IronStorage
@@ -332,12 +335,12 @@ def CreateNewGuild(user, guildName):
     AttachStartingWargear(newThief)
     newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
     AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
-    AttachStartingWargear(newThief)
+    # newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
+    # AttachStartingWargear(newThief)
+    # newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
+    # AttachStartingWargear(newThief)
+    # newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
+    # AttachStartingWargear(newThief)
 
     StartingAccessories(newGuild)
 

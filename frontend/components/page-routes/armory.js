@@ -22,10 +22,12 @@ const Broadcast = styled(Box)(({ theme }) => ({
 
 function Armory(props) {
 
+
     // globals
 
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
+
 
     // vault data
 
@@ -36,7 +38,7 @@ function Armory(props) {
             url: '/engine/vault-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData.thiefLs)
+                // console.log(responseData);
                 setVaultLs(responseData.assetLs);
             }
             else {
@@ -90,14 +92,12 @@ function Armory(props) {
                 <ST.GridItemCenter item xs={12} lg={9}>
                     <ST.ContentCard elevation={3}> 
                         <ST.ContentTitle sx={{ marginBottom: '8px', }}>Vault</ST.ContentTitle>
-                        <Stack spacing='8px'>
 
                             <VaultTable
                                 dataLs={vaultLs}
                                 notifySell={handleSellItem}
                             />
 
-                        </Stack>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 

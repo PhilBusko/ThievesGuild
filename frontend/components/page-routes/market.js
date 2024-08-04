@@ -1,19 +1,21 @@
 /**************************************************************************************************
 MARKET
 **************************************************************************************************/
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Grid, Box } from '@mui/material';
 import { Button, ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DoubleArrow } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config';
+import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import * as GI from '../assets/guild-icons';
 import * as RC from '../assets/resource';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import MaterialsBar from '../elements/custom/materials-bar';
+import MarketBuy from '../modals/market-buy';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -150,7 +152,6 @@ function StoreItem(props) {
 
         </ST.FlexHorizontal>
 
-
         <Box sx={{ padding: '0px 24px'}}>
             <StatsGroup>
 
@@ -209,7 +210,7 @@ function StoreItem(props) {
                         </ST.BaseText>
                     </>}
                     { !!props.itemDx.RareProperties && <>
-                        <ST.BaseText sx={{margin: '0px 10px', color: 'aqua',}}>
+                        <ST.BaseText sx={{margin: '0px 10px', color: ST.MagicHighlight}}>
                             { props.itemDx.RareProperties.magic }
                         </ST.BaseText>
                         <ST.BaseText sx={{margin: '0px 10px'}}>
@@ -221,7 +222,6 @@ function StoreItem(props) {
             </StatsGroup>
         </Box>
 
-
         <ST.FlexHorizontal sx={{justifyContent: 'space-around'}}>
 
             <ST.FlexHorizontal sx={{width: 'auto', justifyContent: 'flex-end'}}>
@@ -231,19 +231,21 @@ function StoreItem(props) {
                 </ST.BaseHighlight>
             </ST.FlexHorizontal>
 
-            <BuyButton disabled={ props.itemDx.Bought }>
-                <ST.LinkText>
-                    { !props.itemDx.Bought ? 'Buy' : 'Void' }
-                </ST.LinkText>
+            <BuyButton
+                variant='contained'
+                onClick={() => { props.notifyBuy(props.itemDx.id) }}
+                disabled={ !!props.itemDx.Bought }
+            >
+                <ST.LinkText>{ !props.itemDx.Bought ? 'Buy' : 'Void' }</ST.LinkText>
             </BuyButton>
 
         </ST.FlexHorizontal>
     </>);
-}
+};
 
 StoreItem.defaultProps = {
     itemDx: {},
-    notifySeeTraps: () => {},
+    notifyBuy: () => {},
 };
 
 
@@ -289,7 +291,7 @@ function Market(props) {
     const [commonStore, setCommonStore] = useState(null);
     const [dailyStore, setDailyStore] = useState(null);
 
-    useEffect(() => {
+    const storeUpdate = () => {
         AxiosConfig({
             url: '/engine/daily-market',
         }).then(responseData => {
@@ -299,15 +301,94 @@ function Market(props) {
                 setDailyStore(responseData.dailyStore);
             }
             else {
-                setMessage(responseData.message)
+                setMessage(responseData.message);
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to view your guild's information.")
+                setMessage("* You must be logged in to view your guild's information.");
             else
                 setErrorLs(errorLs);
         });
+    }
+
+    useEffect(() => {
+        storeUpdate();
     }, []);
+
+
+    // buy modal
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const [permission, setPermission] = useState('initial');
+    const [modalResource, setModalResource] = useState({});
+
+    const handleBuyPermission = (storeId) => {
+        AxiosConfig({
+            method: 'POST',
+            url: '/engine/buy-permission',
+            data: { 'storeId': storeId },
+        }).then(responseData => {
+            if (!responseData.message) {
+
+                const res1 = commonStore.filter(res => res.id == storeId);
+                const res2 = dailyStore.filter(res => res.id == storeId);
+                var resource = res1.length > 0 ? res1[0] : res2[0];
+
+                setPermission(responseData.notPermitted);
+                setModalResource(resource);
+
+                setTimeout(() => {
+                    setModalOpen(true);
+                }, 100);        
+            }
+            else {
+                setMessage(responseData.message);
+            }
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        });
+    }
+
+
+    // buy resource
+
+    const handleBuyResource = (storeId) => {
+        AxiosConfig({
+            method: 'POST',
+            url: '/engine/buy-market',
+            data: { 'storeId': storeId },
+        }).then(responseData => {
+            if (!responseData.message) {
+                console.log(responseData);
+                setModalOpen(false);
+                storeUpdate();  // refresh the bought item
+                guildUpdate();
+            }
+            else {
+                setModalOpen(false);
+                setMessage(responseData.message);
+            }
+        }).catch(errorLs => {
+            setModalOpen(false);
+            setErrorLs(errorLs);
+        });
+    }
+
+    const { guildStore } = useContext(GlobalContext);
+    const guildUpdate = () => {
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            if (Object.keys(responseData).length === 0) {
+                guildStore[1](null);
+            }
+            else {
+                guildStore[1](responseData);
+            }
+        }).catch(errorLs => {
+            console.log('guildUpdate error', errorLs);
+        });
+    }
 
 
     // render
@@ -350,7 +431,10 @@ function Market(props) {
                         <PanelArea sx={{ display: commonCollapse ? 'none' : 'flex' }}>
                             { !!commonStore && commonStore.map((st, id) => (
                                 <ItemWrapper key={ id }>
-                                    <StoreItem itemDx={ st } />
+                                    <StoreItem 
+                                        itemDx={ st }
+                                        notifyBuy={ handleBuyPermission }
+                                    />
                                 </ItemWrapper>
                             ))}
                         </PanelArea>
@@ -375,7 +459,10 @@ function Market(props) {
                         <PanelArea sx={{ display: dailyCollapse ? 'none' : 'flex' }}>
                             { !!dailyStore && dailyStore.map((st, id) => (
                                 <ItemWrapper key={ id }>
-                                    <StoreItem itemDx={ st } />
+                                    <StoreItem 
+                                        itemDx={ st }
+                                        notifyBuy={ handleBuyPermission }
+                                    />
                                 </ItemWrapper>
                             ))}
                         </PanelArea>
@@ -385,6 +472,14 @@ function Market(props) {
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>
+
+                <MarketBuy 
+                    open={ modalOpen } 
+                    setOpen={ setModalOpen }
+                    itemDx={ modalResource }
+                    notPermitted={ permission }
+                    notifyBuy={ handleBuyResource }
+                />
 
             </ST.GridPage >
         </PageLayout>

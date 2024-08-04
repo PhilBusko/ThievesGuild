@@ -1,7 +1,7 @@
 /**************************************************************************************************
 VAULT TABLE
 **************************************************************************************************/
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
@@ -77,6 +77,13 @@ const tableWidth = '750px';
 
 function VaultTable(props) {
 
+    // datagrid bug
+
+    const [ready, isReady] = useState(false);
+    useEffect(() => {
+        isReady(true);
+    }, []);
+
     const [sortModel, setSortModel] = useState([
         {
             field: 'equippedThief',
@@ -111,7 +118,7 @@ function VaultTable(props) {
             sortable: true, sortingOrder: ['asc', 'desc'],
             width: 90, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<>
-                <ST.BaseText> { params.value} [ {params.row.Level} ] </ST.BaseText> 
+                <ST.BaseText> { params.value} [ {params.row.TotalLv} ] </ST.BaseText> 
             </>),
         },
         {
@@ -130,6 +137,11 @@ function VaultTable(props) {
                     { params.value.map((bns, id) => (
                         <ST.BaseText key={id} sx={{marginRight: '8px'}}>{ bns }</ST.BaseText>
                     ))}
+                    { params.row.magicLs.map((bns, id) => (
+                        <ST.BaseText key={id} sx={{marginRight: '8px', color: ST.MagicHighlight}}>
+                            { bns }
+                        </ST.BaseText>
+                    ))}
                 </ST.FlexHorizontal>
             </>),
         },
@@ -146,7 +158,7 @@ function VaultTable(props) {
     // render
 
     return (<>
-        { props.dataLs.length > 0 &&
+        { !!ready && props.dataLs.length > 0 &&
             <StyledTable
                 rows={props.dataLs}
                 columns={colDefs}

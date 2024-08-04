@@ -59,7 +59,7 @@ function Barracks(props) {
             url: '/engine/vault-details',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.assetLs)
+                console.log(responseData.assetLs)
                 setVaultLs(responseData.assetLs);
             }
             else {

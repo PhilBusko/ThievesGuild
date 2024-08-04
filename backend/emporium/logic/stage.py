@@ -6,7 +6,6 @@ import pandas as PD
 
 import app_proj.notebooks as NT
 import emporium.models as EM
-# import emporium.logic.guild as GD
 
 
 def RollDamage(aveDamage):
@@ -182,8 +181,6 @@ def ObstacleSequence(potentialLs, maxObstacles):
     return obstacleLs
 
 def CheckPermitted(obstacleLs, stageType, maxObstacles):
-
-    print(stageType, maxObstacles)
     
     # get the minimum obstacle types required based on parameters
 

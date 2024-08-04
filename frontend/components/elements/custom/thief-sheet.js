@@ -28,8 +28,8 @@ const EquipmentPanel = styled(Stack)(({ theme }) => ({
 
 const ThiefContainer = styled(Box)(({ theme }) => ({
     width: '136px', 
-    height: '190px', 
-    margin: '0px 16px 0px 8px',
+    height: '190px',
+    margin: '0px 28px 0px 8px',     // T R B L
     border: '1px solid tan', 
     background: 'darkslategrey',
 }));
@@ -75,7 +75,7 @@ function ThiefSheet(props) {
 
     return (<>
         {Object.keys(props.infoDx).length > 0 && <>
-            <ST.FlexHorizontal sx={{width: '675px', justifyContent: 'space-around', alignItems: 'flex-start'}}>
+            <ST.FlexHorizontal sx={{width: '685px', justifyContent: 'space-around', alignItems: 'flex-start'}}>
                 <SheetControl>
                     <ST.FlexHorizontal>
 

@@ -12,9 +12,9 @@ import { AppTheme } from '../elements/styled-elements';
 import AuthPanel from './auth-panel';
 import NavRoutes from './nav-routes';
 import * as ST from '../elements/styled-elements';
-import LogInModal from '../modals/login-modal';
-import LogOutModal from '../modals/logout-modal';
-import SignUpModal from '../modals/signup-modal';
+import LogInModal from '../modals/auth-login';
+import LogOutModal from '../modals/auth-logout';
+import SignUpModal from '../modals/auth-signup';
 
 
 // NAVIGATION 
