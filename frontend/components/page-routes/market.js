@@ -3,19 +3,19 @@ MARKET
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { Grid, Box } from '@mui/material';
-import { Button, ButtonBase } from '@mui/material';
+import { ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DoubleArrow } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config';
 import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
-import * as ST from  '../elements/styled-elements';
-import * as GI from '../assets/guild-icons';
-import * as RC from '../assets/resource';
+import * as ST from '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import MaterialsBar from '../elements/custom/materials-bar';
+import StoreResource from '../elements/custom/store-resource';
 import MarketBuy from '../modals/market-buy';
+import StoreBlueprint from '../elements/custom/store-blueprint';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -48,7 +48,7 @@ const PanelArea = styled(ST.FlexHorizontal)(({ theme }) => ({
     flexWrap: 'wrap',
 }));
 
-const ItemWrapper = styled(ST.FlexVertical)(({ theme }) => ({
+const ResourceWrapper = styled(ST.FlexVertical)(({ theme }) => ({
     width: '190px',
     height: '195px',
     margin: '16px 0px 0px 16px',
@@ -60,193 +60,13 @@ const ItemWrapper = styled(ST.FlexVertical)(({ theme }) => ({
     background: ST.TableBkgd,
 }));
 
-const StoreIcon = styled('img')(({ theme }) => ({
-    margin: '8px 0px 0px 0px',
-    width: '54px',
+const BlueprintPanel = styled(Box)(({ theme }) => ({
+    width: '690px',
+    [theme.breakpoints.up('lg')]: {width: '920px'},
+    marginTop: '20px',
+    padding: '8px 0px 10px 0px',        // T R B L
+    overflowX: 'scroll',
 }));
-
-const StarIcon = styled('img')(({ theme }) => ({
-    margin: '6px 0px 0px 0px',
-    width: '18px',
-}));
-
-
-const StatsGroup = styled(ST.FlexHorizontal)(({ theme }) => ({
-    height: '50px',
-    margin: '0px 0px 10px 0px',         // T R B L
-    borderTop: '1px solid silver',
-    borderBottom: '1px solid silver',
-    borderRadius: '2px',
-
-    padding: '0px 0px 8px 0px',         // T R B L
-    justifyContent: 'space-around', 
-    flexWrap: 'wrap',
-}));
-
-
-const PriceIcon = styled('img')(({ theme }) => ({
-    margin: '2px 4px 0px 0px',
-    width: '34px',
-}));
-
-const BuyButton = styled(Button)(({ theme }) => ({
-    minWidth: '64px',
-    backgroundColor: ST.FadedBlue,
-    '& .MuiTypography-root': { 
-        color: 'white',
-        letterSpacing: 1.5,   
-    },
-    '&:hover': {backgroundColor: '#00cccc',},
-}));
-
-
-function StoreItem(props) {
-
-    // format data for display
-
-    const getIcon = (resourceId, iconCode) => {
-        // console.log(category, iconCode)
-        if (resourceId.includes('material') == false)    return GI.GetIconAsset(iconCode);
-        if (resourceId.includes('material') == true)     return RC.getMaterial(iconCode);
-        return null;
-    }
-
-    // render
-
-    return (<>
-        <ST.FlexHorizontal sx={{justifyContent: 'space-between', alignItems: 'flex-start'}}>
-
-            <ST.FlexVertical sx={{ marginBottom: '10px',
-                justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                <ST.BaseHighlight>{props.itemDx.Name}</ST.BaseHighlight>
-                { !!props.itemDx.ResourceId.includes('thief') && <>
-                    <ST.FlexHorizontal sx={{justifyContent: 'flex-start'}}>
-                        <StarIcon src={ RC.StarIcon } />
-                        { props.itemDx.ResourceDx.Stars > 1 && 
-                            <StarIcon src={ RC.StarIcon } sx={{marginLeft: '-6px'}} /> 
-                        }
-                        <ST.BaseText sx={{marginLeft: '4px', textWrap: 'nowrap'}}>
-                            - Pwr {props.itemDx.Power}
-                        </ST.BaseText>
-                    </ST.FlexHorizontal>
-                    <ST.BaseText sx={{}}>
-                        Thief, {props.itemDx.RareProperties.name}
-                    </ST.BaseText>
-                </>}
-                { !props.itemDx.ResourceId.includes('thief') && 
-                    !props.itemDx.ResourceId.includes('material') && <>
-                    <ST.BaseText sx={{textWrap: 'nowrap'}}>
-                        Lv {props.itemDx.ResourceDx.TotalLv} - Pwr {props.itemDx.Power}
-                    </ST.BaseText>
-                    <ST.BaseText sx={{fontSize: '160%', textWrap: 'nowrap'}}>
-                        {props.itemDx.ResourceDx.Slot},&nbsp;
-                        {props.itemDx.ResourceDx.Requirement}
-                    </ST.BaseText>
-                </>}
-                { !!props.itemDx.ResourceId.includes('material') && <>
-                    <ST.BaseText> &nbsp; </ST.BaseText>
-                </>}
-            </ST.FlexVertical>
-
-            <StoreIcon src={ getIcon(props.itemDx.ResourceId, props.itemDx.IconCode) } />
-
-        </ST.FlexHorizontal>
-
-        <Box sx={{ padding: '0px 24px'}}>
-            <StatsGroup>
-
-                { !!props.itemDx.ResourceId.includes('thief') && <>
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        Agi {props.itemDx.RareProperties.agi}
-                    </ST.BaseText>
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        Mig {props.itemDx.RareProperties.mig}
-                    </ST.BaseText>
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        Cun {props.itemDx.RareProperties.cun}
-                    </ST.BaseText>
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        End {props.itemDx.RareProperties.end}
-                    </ST.BaseText>
-                </>}
-
-                { !props.itemDx.ResourceId.includes('thief') && 
-                  !props.itemDx.ResourceId.includes('material') && 
-                  !!props.itemDx.ResourceDx.Trait && <>
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        {props.itemDx.ResourceDx.Trait}
-                    </ST.BaseText>
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        {props.itemDx.ResourceDx.Combat}
-                    </ST.BaseText>
-                </>}
-
-                { !props.itemDx.ResourceId.includes('thief') && 
-                  !props.itemDx.ResourceId.includes('material') && 
-                  !props.itemDx.ResourceDx.Trait && <>
-                    { !!props.itemDx.ResourceDx.Combat && <>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            { props.itemDx.ResourceDx.Combat}
-                        </ST.BaseText>
-                    </>}
-                    { !!props.itemDx.ResourceDx.Skill && <>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            { props.itemDx.ResourceDx.Skill }
-                        </ST.BaseText>
-                    </>}
-                    <ST.BaseText sx={{margin: '0px 10px'}}>
-                        &nbsp; &nbsp; &nbsp; &nbsp;
-                    </ST.BaseText>
-                </>}
-
-                { !props.itemDx.ResourceId.includes('thief') && 
-                  !props.itemDx.ResourceId.includes('material') && <>
-                    { !props.itemDx.RareProperties && <>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            &nbsp; &nbsp; &nbsp; &nbsp;
-                        </ST.BaseText>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            &nbsp; &nbsp; &nbsp; &nbsp;
-                        </ST.BaseText>
-                    </>}
-                    { !!props.itemDx.RareProperties && <>
-                        <ST.BaseText sx={{margin: '0px 10px', color: ST.MagicHighlight}}>
-                            { props.itemDx.RareProperties.magic }
-                        </ST.BaseText>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            &nbsp; &nbsp; &nbsp; &nbsp;
-                        </ST.BaseText>
-                    </>}
-                </>}
-
-            </StatsGroup>
-        </Box>
-
-        <ST.FlexHorizontal sx={{justifyContent: 'space-around'}}>
-
-            <ST.FlexHorizontal sx={{width: 'auto', justifyContent: 'flex-end'}}>
-                <PriceIcon src={ RC.GoldMaterial } />
-                <ST.BaseHighlight sx={{marginTop: '-6px'}}>
-                    { props.itemDx.ResourceDx.StoreCost.toLocaleString() }
-                </ST.BaseHighlight>
-            </ST.FlexHorizontal>
-
-            <BuyButton
-                variant='contained'
-                onClick={() => { props.notifyBuy(props.itemDx.id) }}
-                disabled={ !!props.itemDx.Bought }
-            >
-                <ST.LinkText>{ !props.itemDx.Bought ? 'Buy' : 'Void' }</ST.LinkText>
-            </BuyButton>
-
-        </ST.FlexHorizontal>
-    </>);
-};
-
-StoreItem.defaultProps = {
-    itemDx: {},
-    notifyBuy: () => {},
-};
 
 
 function Market(props) {
@@ -261,7 +81,7 @@ function Market(props) {
     // collapse each section
 
     const [commonCollapse, setCommonCollapse] = useState(true);
-    const [dailyCollapse, setDailyCollapse] = useState(false);
+    const [dailyCollapse, setDailyCollapse] = useState(true);
     const [unlockCollapse, setUnlockCollapse] = useState(false);
     const [dollarCollapse, setDollarCollapse] = useState(false);
 
@@ -290,6 +110,10 @@ function Market(props) {
 
     const [commonStore, setCommonStore] = useState(null);
     const [dailyStore, setDailyStore] = useState(null);
+    const [thiefBp, setThiefBp] = useState(null);
+    const [itemW2Bp, setItemW2Bp] = useState(null);
+    const [itemW3Bp, setItemW3Bp] = useState(null);
+    const [itemW4Bp, setItemW4Bp] = useState(null);
 
     const storeUpdate = () => {
         AxiosConfig({
@@ -299,6 +123,9 @@ function Market(props) {
                 console.log(responseData)
                 setCommonStore(responseData.commonStore);
                 setDailyStore(responseData.dailyStore);
+                setThiefBp(responseData.blueprints.thieves);
+                setItemW2Bp(responseData.blueprints.itemsW2);
+                setItemW3Bp(responseData.blueprints.itemsW3);
             }
             else {
                 setMessage(responseData.message);
@@ -430,12 +257,12 @@ function Market(props) {
 
                         <PanelArea sx={{ display: commonCollapse ? 'none' : 'flex' }}>
                             { !!commonStore && commonStore.map((st, id) => (
-                                <ItemWrapper key={ id }>
-                                    <StoreItem 
+                                <ResourceWrapper key={ id }>
+                                    <StoreResource 
                                         itemDx={ st }
                                         notifyBuy={ handleBuyPermission }
                                     />
-                                </ItemWrapper>
+                                </ResourceWrapper>
                             ))}
                         </PanelArea>
                         <PanelArea sx={{ display: commonCollapse ? 'flex' : 'none' }}>
@@ -458,17 +285,66 @@ function Market(props) {
 
                         <PanelArea sx={{ display: dailyCollapse ? 'none' : 'flex' }}>
                             { !!dailyStore && dailyStore.map((st, id) => (
-                                <ItemWrapper key={ id }>
-                                    <StoreItem 
+                                <ResourceWrapper key={ id }>
+                                    <StoreResource 
                                         itemDx={ st }
                                         notifyBuy={ handleBuyPermission }
                                     />
-                                </ItemWrapper>
+                                </ResourceWrapper>
                             ))}
                         </PanelArea>
                         <PanelArea sx={{ display: dailyCollapse ? 'flex' : 'none' }}>
                             &nbsp; 
                         </PanelArea>
+
+                    </ST.ContentCard>
+                </ST.GridItemCenter>
+
+
+
+
+
+                <ST.GridItemCenter item xs={12}>
+                    <ST.ContentCard elevation={3}>
+
+                        <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                            <ST.ContentTitle sx={{ marginBottom: '8px', }}>Blueprints Discovered</ST.ContentTitle>
+                            <DeploymentCollapse onClick={handleUnlockCollapse}
+                                sx={{transform: unlockCollapse ? 'rotate(90deg)' : 'rotate(270deg)'}}>
+                                <DoubleArrow></DoubleArrow>
+                            </DeploymentCollapse>
+                        </ST.FlexHorizontal>
+
+                        <PanelArea sx={{ display: unlockCollapse ? 'flex' : 'none' }}>
+                            &nbsp; 
+                        </PanelArea>
+
+                        <BlueprintPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                            { !!thiefBp && thiefBp.map((st, id) => (
+                                <StoreBlueprint 
+                                    key={ id }
+                                    resourceDx={ st }
+                                />
+                            ))}
+                        </BlueprintPanel>
+
+                        <BlueprintPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                            { !!itemW2Bp && itemW2Bp.map((st, id) => (
+                                <StoreBlueprint 
+                                    key={ id }
+                                    resourceDx={ st }
+                                />
+                            ))}
+                        </BlueprintPanel>
+
+                        <BlueprintPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                            { !!itemW3Bp && itemW3Bp.map((st, id) => (
+                                <StoreBlueprint 
+                                    key={ id }
+                                    resourceDx={ st }
+                                />
+                            ))}
+                        </BlueprintPanel>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

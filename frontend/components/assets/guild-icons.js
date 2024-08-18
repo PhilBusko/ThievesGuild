@@ -43,6 +43,12 @@ import classRuffianS1 from '../assets/guild/class-ruffian-s1.png'
 import classBurglarS2 from '../assets/guild/class-burglar-s2.png'
 import classScoundrelS2 from '../assets/guild/class-scoundrel-s2.png'
 import classRuffianS2 from '../assets/guild/class-ruffian-s2.png'
+import classBurglarS3 from '../assets/guild/class-burglar-s3.png'
+import classScoundrelS3 from '../assets/guild/class-scoundrel-s3.png'
+import classRuffianS3 from '../assets/guild/class-ruffian-s3.png'
+import classBurglarS4 from '../assets/guild/class-burglar-s4.png'
+import classScoundrelS4 from '../assets/guild/class-scoundrel-s4.png'
+import classRuffianS4 from '../assets/guild/class-ruffian-s4.png'
 
 
 const SmallIcon = styled('img')(({ theme }) => ({
@@ -94,6 +100,12 @@ function GetIconAsset(iconCode) {
         case 'class-burglar-s2':        return classBurglarS2;
         case 'class-scoundrel-s2':      return classScoundrelS2;
         case 'class-ruffian-s2':        return classRuffianS2;
+        case 'class-burglar-s3':        return classBurglarS3;
+        case 'class-scoundrel-s3':      return classScoundrelS3;
+        case 'class-ruffian-s3':        return classRuffianS3;
+        case 'class-burglar-s4':        return classBurglarS4;
+        case 'class-scoundrel-s4':      return classScoundrelS4;
+        case 'class-ruffian-s4':        return classRuffianS4;
         default:                        return null;
     }
 }

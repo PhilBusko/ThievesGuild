@@ -120,6 +120,40 @@ def GetDisplayInfo(itemDx):
 
     return iconCode, bonusLs, magicLs
 
+def GetBlueprints(guildMd):
+
+    # get thieves
+
+    unlockThief = EM.UnlockableThief.objects.filter(Stars__gt=1).values()
+    for th in unlockThief:
+        th['Name'] = th['Class']
+        th['IconCode'] = f"class-{th['Class'].lower()}-s{th['Stars']}"
+        th['Power'] = th['StoreCost'] / GD.POWER_FACTOR
+        checkUnlock = GM.ThiefUnlocked.objects.GetOrNone(GuildFK=guildMd, ThiefFK__ResourceId=th['ResourceId'])
+        th['Unlocked'] = True if checkUnlock else False
+
+    # get items
+
+    def GetItemBlueprints(level):
+        unlockItem = EM.UnlockableItem.objects.filter(Level=level, MagicLv__gt=0).values()
+        for rs in unlockItem:
+            if rs['Slot'] in ['weapon', 'armor']: stat = rs['Trait'][:3]
+            else:     stat = 'skl' if rs['Skill'] else 'cmb'
+            rs['IconCode'] = f"{rs['Slot']}-{stat}-m{rs['TotalLv'] - rs['Level']}"
+            rs['Power'] = rs['StoreCost'] / GD.POWER_FACTOR
+            checkUnlock = GM.ItemUnlocked.objects.GetOrNone(GuildFK=guildMd, ItemFK__ResourceId=rs['ResourceId'])
+            rs['Unlocked'] = True if checkUnlock else False
+        return unlockItem
+
+    # return
+
+    return {
+        'thieves': unlockThief,
+        'itemsW2': GetItemBlueprints(2),
+        'itemsW3': GetItemBlueprints(3),
+        'itemsW4': [],
+    }
+
 
 def GrantExperience(thiefMd, amount):
     levelMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level+1)

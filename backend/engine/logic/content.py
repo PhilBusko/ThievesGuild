@@ -676,7 +676,7 @@ def GetOrCreateMarket(guildMd, rareCount):
         newReso.save()
 
     # create rare items from random table
-    # has accessories, materials, unlocked resources
+    # has accessories, unlocked resources
 
     rareAccessory = EM.UnlockableItem.objects.filter(
         Level=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=True)

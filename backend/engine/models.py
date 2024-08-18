@@ -148,9 +148,6 @@ class GuildExpedition(JM.Model):
     Claimed = JM.BooleanField(default=False)
     objects = DB.BaseManager()
 
-
-
-
 class MarketStore(JM.Model):
 
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)

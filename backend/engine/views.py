@@ -459,11 +459,13 @@ def DailyMarket(request):
     rares = RS.GetDailyStoreCount(guildMd)
     commonStore, dailyStore = CT.GetOrCreateMarket(guildMd, rares)
 
+    blueprints = RS.GetBlueprints(guildMd)
+
     marketDx = {
         'commonStore': commonStore,
         'dailyStore': dailyStore,
+        'blueprints': blueprints,
     }
-
     return Response(marketDx)
 
 @api_view(['POST'])
@@ -481,10 +483,6 @@ def BuyPermission(request):
         'notPermitted': permission,
     }
     return Response(permissionDx)
-
-
-
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
