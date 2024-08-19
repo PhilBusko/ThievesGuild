@@ -288,7 +288,7 @@ function Aftermath(props) {
 
                             <ST.FlexHorizontal key={idx} sx={{
                                 paddingLeft: '20px', justifyContent: 'flex-start', alignItems: 'center'}}>
-                                <MaterialImage src={ RC.getMaterial(val.type) } />
+                                <MaterialImage src={ RC.GetMaterial(val.type) } />
                                 <ST.BaseHighlight sx={{width: '50px' , margin: '-8px 0px 0px 0px',}}>
                                     {val.fullAmount}
                                 </ST.BaseHighlight>

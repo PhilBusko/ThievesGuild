@@ -81,7 +81,7 @@ function MaterialTemplate(props) {
 
     return (
         <MaterialGroup>
-            <MaterialImage src={ RC.getMaterial(props.iconCode) } />
+            <MaterialImage src={ RC.GetMaterial(props.iconCode) } />
             <ST.FlexVertical>
                 <DataSpacer>
                     <MaterialText>{ props.matAmount.toLocaleString() }</MaterialText>

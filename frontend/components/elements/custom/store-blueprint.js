@@ -3,7 +3,6 @@ STORE BLUEPRINT
 **************************************************************************************************/
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-
 import * as ST from '../../elements/styled-elements';
 import * as GI from '../../assets/guild-icons';
 import * as RC from '../../assets/resource';

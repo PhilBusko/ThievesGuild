@@ -445,7 +445,6 @@ def ExpeditionClaim(request):
 
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def DailyMarket(request):
@@ -461,9 +460,20 @@ def DailyMarket(request):
 
     blueprints = RS.GetBlueprints(guildMd)
 
+    gemStore = [
+        {'gems': 10,    'targetAmount': 232,    'targetIcon': 'material-gold', },
+        {'gems': 60,    'targetAmount': 1740,   'targetIcon': 'material-gold', },
+        {'gems': 120,   'targetAmount': 4176,   'targetIcon': 'material-gold', },
+        {'gems': 20,    'targetAmount': 120,    'targetIcon': 'material-wood', },
+        {'gems': 80,    'targetAmount': 600,    'targetIcon': 'material-wood', },
+        {'gems': 30,    'targetAmount': 114,    'targetIcon': 'material-stone', },
+        {'gems': 40,    'targetAmount': 76,     'targetIcon': 'material-iron', },
+    ]
+
     marketDx = {
         'commonStore': commonStore,
         'dailyStore': dailyStore,
+        'gemStore': gemStore,
         'blueprints': blueprints,
     }
     return Response(marketDx)
@@ -553,6 +563,36 @@ def BuyMarket(request):
         'bought': storeMd.Bought,
     }
     return Response(resultDx)
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def GemExchange(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    gems = int(request.data.get('gems'))
+    material = request.data.get('material')
+    amount = int(request.data.get('amount'))
+
+    # check permissions
+
+    if guildMd.VaultGems < gems:
+        return Response({'message': '* Gem coffers are deficient.'})
+
+    # trade the goods
+
+    guildMd.VaultGems -= gems
+    guildMd.save()
+
+    if 'gold' in material:  RS.GrantGold(guildMd, amount)
+    if 'wood' in material:  RS.GrantWood(guildMd, amount)
+    if 'stone' in material:  RS.GrantStone(guildMd, amount)
+    if 'iron' in material:  RS.GrantIron(guildMd, amount)
+
+    return Response({'success': True})
+
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

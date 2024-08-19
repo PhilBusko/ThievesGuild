@@ -15,6 +15,7 @@ import ReadOnlyArea from '../elements/controls/read-only-area';
 import MaterialsBar from '../elements/custom/materials-bar';
 import StoreResource from '../elements/custom/store-resource';
 import MarketBuy from '../modals/market-buy';
+import StoreGem from '../elements/custom/store-gem';
 import StoreBlueprint from '../elements/custom/store-blueprint';
 
 
@@ -38,29 +39,14 @@ const DeploymentCollapse = styled(ButtonBase)(({ theme }) => ({
     },
 }));
 
-const PanelArea = styled(ST.FlexHorizontal)(({ theme }) => ({
+const FillPanel = styled(ST.FlexHorizontal)(({ theme }) => ({
     width: '690px',
     [theme.breakpoints.up('lg')]: {width: '920px'},
-    // border: '3px solid silver',
-    // borderRadius: '3px',
-    // background: ST.ControlBkgd,
     padding: '0px 0px 10px 0px',        // T R B L
     flexWrap: 'wrap',
 }));
 
-const ResourceWrapper = styled(ST.FlexVertical)(({ theme }) => ({
-    width: '190px',
-    height: '195px',
-    margin: '16px 0px 0px 16px',
-    border: '2px solid silver',
-    borderRadius: '10px',
-
-    justifyContent: 'flex-start',
-    padding: '3px 10px 6px 10px',
-    background: ST.TableBkgd,
-}));
-
-const BlueprintPanel = styled(Box)(({ theme }) => ({
+const ScrollPanel = styled(Box)(({ theme }) => ({
     width: '690px',
     [theme.breakpoints.up('lg')]: {width: '920px'},
     marginTop: '20px',
@@ -81,9 +67,10 @@ function Market(props) {
     // collapse each section
 
     const [commonCollapse, setCommonCollapse] = useState(true);
-    const [dailyCollapse, setDailyCollapse] = useState(true);
-    const [unlockCollapse, setUnlockCollapse] = useState(false);
-    const [dollarCollapse, setDollarCollapse] = useState(false);
+    const [dailyCollapse, setDailyCollapse] = useState(false);
+    const [gemCollapse, setGemCollapse] = useState(true);
+    const [dollarCollapse, setDollarCollapse] = useState(true);
+    const [unlockCollapse, setUnlockCollapse] = useState(true);
 
     const handleCommonCollapse = () => {
         const newCollapse = !commonCollapse;
@@ -95,9 +82,9 @@ function Market(props) {
         setDailyCollapse(newCollapse);
     }
 
-    const handleUnlockCollapse = () => {
-        const newCollapse = !unlockCollapse;
-        setUnlockCollapse(newCollapse);
+    const handleGemCollapse = () => {
+        const newCollapse = !gemCollapse;
+        setGemCollapse(newCollapse);
     }
 
     const handleDollarCollapse = () => {
@@ -105,11 +92,17 @@ function Market(props) {
         setDollarCollapse(newCollapse);
     }
 
+    const handleUnlockCollapse = () => {
+        const newCollapse = !unlockCollapse;
+        setUnlockCollapse(newCollapse);
+    }
+
 
     // stores data
 
     const [commonStore, setCommonStore] = useState(null);
     const [dailyStore, setDailyStore] = useState(null);
+    const [gemStore, setGemStore] = useState(null);
     const [thiefBp, setThiefBp] = useState(null);
     const [itemW2Bp, setItemW2Bp] = useState(null);
     const [itemW3Bp, setItemW3Bp] = useState(null);
@@ -123,6 +116,7 @@ function Market(props) {
                 console.log(responseData)
                 setCommonStore(responseData.commonStore);
                 setDailyStore(responseData.dailyStore);
+                setGemStore(responseData.gemStore);
                 setThiefBp(responseData.blueprints.thieves);
                 setItemW2Bp(responseData.blueprints.itemsW2);
                 setItemW3Bp(responseData.blueprints.itemsW3);
@@ -218,6 +212,30 @@ function Market(props) {
     }
 
 
+    // gem exchange button, no modal
+
+    const handleTrade = (gems, material, amount) => {
+
+        setMessage('');
+
+        AxiosConfig({
+            method: 'POST',
+            url: '/engine/gem-exchange',
+            data: { 'gems': gems, 'material': material, 'amount': amount,  },
+        }).then(responseData => {
+            if (!responseData.message) {
+                console.log(responseData);
+                guildUpdate();
+            }
+            else {
+                setMessage(responseData.message);
+            }
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        });
+    }
+
+
     // render
 
     return (
@@ -255,19 +273,18 @@ function Market(props) {
                             </DeploymentCollapse>
                         </ST.FlexHorizontal>
 
-                        <PanelArea sx={{ display: commonCollapse ? 'none' : 'flex' }}>
+                        <FillPanel sx={{ display: commonCollapse ? 'none' : 'flex', maxWidth: '700px' }}>
                             { !!commonStore && commonStore.map((st, id) => (
-                                <ResourceWrapper key={ id }>
-                                    <StoreResource 
-                                        itemDx={ st }
-                                        notifyBuy={ handleBuyPermission }
-                                    />
-                                </ResourceWrapper>
+                                <StoreResource 
+                                    key={ id }
+                                    itemDx={ st }
+                                    notifyBuy={ handleBuyPermission }
+                                />
                             ))}
-                        </PanelArea>
-                        <PanelArea sx={{ display: commonCollapse ? 'flex' : 'none' }}>
+                        </FillPanel>
+                        <FillPanel sx={{ display: commonCollapse ? 'flex' : 'none', maxWidth: '700px' }}>
                             &nbsp; 
-                        </PanelArea>
+                        </FillPanel>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>
@@ -283,26 +300,52 @@ function Market(props) {
                             </DeploymentCollapse>
                         </ST.FlexHorizontal>
 
-                        <PanelArea sx={{ display: dailyCollapse ? 'none' : 'flex' }}>
+                        <FillPanel sx={{ display: dailyCollapse ? 'none' : 'flex' }}>
                             { !!dailyStore && dailyStore.map((st, id) => (
-                                <ResourceWrapper key={ id }>
-                                    <StoreResource 
-                                        itemDx={ st }
-                                        notifyBuy={ handleBuyPermission }
-                                    />
-                                </ResourceWrapper>
+                                <StoreResource
+                                    key={ id }
+                                    itemDx={ st }
+                                    notifyBuy={ handleBuyPermission }
+                                />
                             ))}
-                        </PanelArea>
-                        <PanelArea sx={{ display: dailyCollapse ? 'flex' : 'none' }}>
+                        </FillPanel>
+                        <FillPanel sx={{ display: dailyCollapse ? 'flex' : 'none' }}>
                             &nbsp; 
-                        </PanelArea>
+                        </FillPanel>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
+                <ST.GridItemCenter item xs={12}>
+                    <ST.ContentCard elevation={3}>
 
+                        <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                            <ST.ContentTitle sx={{ marginBottom: '8px', }}>Gem Exchange</ST.ContentTitle>
+                            <DeploymentCollapse onClick={handleGemCollapse}
+                                sx={{transform: gemCollapse ? 'rotate(90deg)' : 'rotate(270deg)'}}>
+                                <DoubleArrow></DoubleArrow>
+                            </DeploymentCollapse>
+                        </ST.FlexHorizontal>
 
+                        <FillPanel sx={{ display: gemCollapse ? 'flex' : 'none', maxWidth: '800px' }}>
+                            &nbsp; 
+                        </FillPanel>
 
+                        <FillPanel sx={{ display: gemCollapse ? 'none' : 'flex', maxWidth: '800px' }}>
+                            { !!gemStore && gemStore.map((st, id) => (
+                                st.targetIcon.includes('gold') &&
+                                    <StoreGem key={ id } materialDx={ st } notifyTrade={ handleTrade } />
+                            ))}
+                        </FillPanel>
+                        <FillPanel sx={{ display: gemCollapse ? 'none' : 'flex', maxWidth: '800px' }}>
+                            { !!gemStore && gemStore.map((st, id) => (
+                                !st.targetIcon.includes('gold') &&
+                                    <StoreGem key={ id } materialDx={ st } notifyTrade={ handleTrade } />
+                            ))}
+                        </FillPanel>
+
+                    </ST.ContentCard>
+                </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12}>
                     <ST.ContentCard elevation={3}>
@@ -315,36 +358,36 @@ function Market(props) {
                             </DeploymentCollapse>
                         </ST.FlexHorizontal>
 
-                        <PanelArea sx={{ display: unlockCollapse ? 'flex' : 'none' }}>
+                        <FillPanel sx={{ display: unlockCollapse ? 'flex' : 'none' }}>
                             &nbsp; 
-                        </PanelArea>
+                        </FillPanel>
 
-                        <BlueprintPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                        <ScrollPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
                             { !!thiefBp && thiefBp.map((st, id) => (
                                 <StoreBlueprint 
                                     key={ id }
                                     resourceDx={ st }
                                 />
                             ))}
-                        </BlueprintPanel>
+                        </ScrollPanel>
 
-                        <BlueprintPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                        <ScrollPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
                             { !!itemW2Bp && itemW2Bp.map((st, id) => (
                                 <StoreBlueprint 
                                     key={ id }
                                     resourceDx={ st }
                                 />
                             ))}
-                        </BlueprintPanel>
+                        </ScrollPanel>
 
-                        <BlueprintPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                        <ScrollPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
                             { !!itemW3Bp && itemW3Bp.map((st, id) => (
                                 <StoreBlueprint 
                                     key={ id }
                                     resourceDx={ st }
                                 />
                             ))}
-                        </BlueprintPanel>
+                        </ScrollPanel>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

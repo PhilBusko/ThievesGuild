@@ -114,7 +114,7 @@ function MarketBuy(props) {
     const getIcon = (resourceId, iconCode) => {
         // console.log(category, iconCode)
         if (resourceId.includes('material') == false)    return GI.GetIconAsset(iconCode);
-        if (resourceId.includes('material') == true)     return RC.getMaterial(iconCode);
+        if (resourceId.includes('material') == true)     return RC.GetMaterial(iconCode);
         return null;
     }
 

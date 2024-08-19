@@ -42,6 +42,7 @@ engine_url = [
     re_path(r'^daily-market',       NV.DailyMarket),
     re_path(r'^buy-permission',     NV.BuyPermission),
     re_path(r'^buy-market',         NV.BuyMarket),
+    re_path(r'^gem-exchange',       NV.GemExchange),
 ]
 
 urlpatterns = [

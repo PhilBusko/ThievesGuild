@@ -165,7 +165,7 @@ function ExpeditionResults(props) {
         // console.log(category, iconCode)
         if (category == 'blueprint')    return GI.GetIconAsset(iconCode);
         if (category == 'resource')     return GI.GetIconAsset(iconCode);
-        if (category == 'material')     return RC.getMaterial(iconCode);
+        if (category == 'material')     return RC.GetMaterial(iconCode);
         return null;
     }
 

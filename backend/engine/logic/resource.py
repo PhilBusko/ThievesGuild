@@ -23,9 +23,7 @@ def GetThiefList(guildMd):
 
         # thief stats
 
-        dmgMin = thiefDx['Damage'] - int(thiefDx['Damage'] /2)
-        dmgMax = thiefDx['Damage'] + int(thiefDx['Damage'] /2)
-        thiefDx['DisplayDamage'] = f"{dmgMin}-{dmgMax}"
+        thiefDx['DisplayDamage'] = f"<{thiefDx['Damage']}>"
         thiefDx['GuildIcon'] = f"class-{thiefDx['Class'].lower()}-s{thiefDx['Stars']}"
         thiefDx['StageIcon'] = f"thief-{thiefDx['Class'].lower()}"
         thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefDx['Level'])
