@@ -69,7 +69,7 @@ class ThiefInGuild(JM.Model):
     Perceive = JM.IntegerField(null=True)
     Traverse = JM.IntegerField(null=True)
 
-    Status = JM.TextField(default='Ready')      # Ready > 50% (Fatigued), Wounded > 99%, Knocked Out 100%, Training
+    Status = JM.TextField(default='Ready')      # Ready < 50% (Fatigued), Wounded < 99%, Knocked Out 100%, Training
     CooldownExpire = JM.DateTimeField(null=True)
     # Position = JM.TextField(default='Available')
 
@@ -91,6 +91,16 @@ class ItemInGuild(JM.Model):
     Combat = JM.TextField(null=True)
     Magic = JM.TextField(null=True)
     objects = DB.BaseManager()
+
+
+class RoomInGuild(JM.Model):
+    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    Name = JM.TextField()
+    Description = JM.TextField(null=True)
+    Level = JM.IntegerField()
+    Placement = JM.TextField(unique=True)
+    objects = DB.BaseManager()
+
 
 
 class ThiefUnlocked(JM.Model):

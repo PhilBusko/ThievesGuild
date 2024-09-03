@@ -54,6 +54,7 @@ function ThiefSheet(props) {
     const [filteredHead, setFilteredHead] = useState([]);
     const [filteredHands, setFilteredHands] = useState([]);
     const [filteredFeet, setFilteredFeet] = useState([]);
+    const [filteredBack, setFilteredBack] = useState([]);
 
     useEffect(() => {
 
@@ -64,12 +65,14 @@ function ThiefSheet(props) {
         const heads = props.inventoryLs.filter((item) => item.Slot=='head');
         const hands = props.inventoryLs.filter((item) => item.Slot=='hands');
         const feets = props.inventoryLs.filter((item) => item.Slot=='feet');
+        const backs = props.inventoryLs.filter((item) => item.Slot=='back');
 
         setFilteredWeapons(weapons);
         setFilteredArmor(armors);
         setFilteredHead(heads);
         setFilteredHands(hands);
         setFilteredFeet(feets);
+        setFilteredBack(backs);
 
     }, [props.infoDx]);
 
@@ -123,6 +126,13 @@ function ThiefSheet(props) {
                         <ThiefEquipment 
                             equipmentInfo={props.infoDx.feet}
                             inventoryDisplay={filteredFeet}
+                            thiefName={props.infoDx.Name}
+                            equipDisabled={ props.infoDx.Status == 'Exploring' }
+                            notifyEquip={props.notifyEquip}
+                        />
+                        <ThiefEquipment 
+                            equipmentInfo={props.infoDx.back}
+                            inventoryDisplay={filteredBack}
                             thiefName={props.infoDx.Name}
                             equipDisabled={ props.infoDx.Status == 'Exploring' }
                             notifyEquip={props.notifyEquip}

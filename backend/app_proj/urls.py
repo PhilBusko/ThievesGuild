@@ -23,6 +23,7 @@ emporium_url = [
 engine_url = [
     re_path(r'^user-account',   NV.UserAccount),
     re_path(r'^chosen-guild',   NV.ChosenGuild),
+    re_path(r'^guild-info',     NV.GuildInfo),
 
     re_path(r'^create-guild',   NV.CreateGuild),
     re_path(r'^select-guild',   NV.SelectGuild),

@@ -39,7 +39,7 @@ def GetThiefList(guildMd):
 
         thiefItems = GM.ItemInGuild.objects.filter(ThiefFK=md).values()
         thiefDx['ItemCount'] = len(thiefItems)
-        slots = ['weapon', 'armor', 'head', 'hands', 'feet', ]
+        slots = ['weapon', 'armor', 'head', 'hands', 'feet', 'back']
 
         for sl in slots:
             itemCheck = [x for x in thiefItems if x['Slot']==sl]
@@ -96,7 +96,7 @@ def GetAssetList(guildMd):
 def GetDisplayInfo(itemDx):
    # subroutine for GetThiefList, GetAssetList
 
-    if itemDx['Slot'] in ['weapon', 'armor']: stat = itemDx['Trait'][:3]
+    if itemDx['Slot'] in ['weapon', 'armor', 'back']: stat = itemDx['Trait'][:3]
     else:     stat = 'skl' if itemDx['Skill'] else 'cmb'
     iconCode = f"{itemDx['Slot']}-{stat}-m{itemDx['TotalLv'] - itemDx['Level']}"
 
@@ -135,7 +135,7 @@ def GetBlueprints(guildMd):
     def GetItemBlueprints(level):
         unlockItem = EM.UnlockableItem.objects.filter(Level=level, MagicLv__gt=0).values()
         for rs in unlockItem:
-            if rs['Slot'] in ['weapon', 'armor']: stat = rs['Trait'][:3]
+            if rs['Slot'] in ['weapon', 'armor', 'back']: stat = rs['Trait'][:3]
             else:     stat = 'skl' if rs['Skill'] else 'cmb'
             rs['IconCode'] = f"{rs['Slot']}-{stat}-m{rs['TotalLv'] - rs['Level']}"
             rs['Power'] = rs['StoreCost'] / GD.POWER_FACTOR
@@ -151,6 +151,41 @@ def GetBlueprints(guildMd):
         'itemsW3': GetItemBlueprints(3),
         'itemsW4': [],
     }
+
+
+
+def GetCurrentThieves(guildMd):
+    thiefLs = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    return len(thiefLs)
+
+def GetCurrentItems(guildMd):
+    itemLs = GM.ItemInGuild.objects.filter(GuildFK=guildMd)
+    return len(itemLs)
+
+def GetExpeditionCount(guildMd):
+    count = 0
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+
+
+
+
+    for rm in roomLs:
+        count += 0
+
+    return count
+
+
+
+def GetDailyStoreCount(guildMd):
+    count = 4
+    return count
+
+
+def GetMaxThieves(guildMd):
+    count = 6
+    return count
+
+
 
 
 def GrantExperience(thiefMd, amount):
@@ -237,6 +272,19 @@ def ResetInjuryCooldowns(guildMd):
                 md.CooldownExpire = None
                 md.save()
 
+
+def PrepGuild(userMd):
+
+    currDt = timezone.now()
+    currDate = f"{currDt.year}-{str(currDt.month).zfill(2)}-{str(currDt.day).zfill(2)}"
+
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if guildMd.LastPlayed != currDate:
+        guildMd.LastPlayed = currDate
+        guildMd.save()
+
+    return guildMd
 
 def GetItemTrait(itemMd, trait):
     if not itemMd: return 0
@@ -341,18 +389,12 @@ def SetGuildTotals(guildMd):
     maxStone = throneMd.StoneStorage
     maxIron = throneMd.IronStorage
 
+    guildMd.TotalPower = power
     guildMd.StorageGold = maxGold
     guildMd.StorageWood = maxWood
     guildMd.StorageStone = maxStone
     guildMd.StorageIron = maxIron
-    guildMd.TotalPower = power
     guildMd.save()
-
-def GetExpeditionCount(guildMd):
-    return 3
-
-def GetDailyStoreCount(guildMd):
-    return 4
 
 
 def CreateNewGuild(user, guildName):

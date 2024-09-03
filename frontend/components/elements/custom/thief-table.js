@@ -111,13 +111,14 @@ function ThiefTable(props) {
         },
         {
             field: 'equipment', headerName: 'Requisitions', sortable: false,
-            width: 220, 
+            width: 260, 
             renderCell: (params) => (<>
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.weapon.iconCode) } />
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.armor.iconCode) } />
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.head.iconCode) } />
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.hands.iconCode) } />
                 <GI.SmallIcon src={ GI.GetIconAsset(params.row.feet.iconCode) } />
+                <GI.SmallIcon src={ GI.GetIconAsset(params.row.back.iconCode) } />
             </>),
         },
         {
@@ -173,7 +174,7 @@ function ThiefTable(props) {
             <StyledTable
                 rows={props.dataLs}
                 columns={colDefs}
-                sx={{ width: '730px' }}
+                sx={{ width: '770px' }}
                 rowHeight={58}
                 autoHeight={true}
                 density='compact'            

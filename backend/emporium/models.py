@@ -43,6 +43,12 @@ class ThiefLevel(JM.Model):
     KnockedOutPeriod = JM.TextField()
     objects = DB.BaseManager()
 
+class CastleRoom(JM.Model):
+    Name = JM.TextField(unique=True)
+    UnlockThrone = JM.IntegerField()
+    Description = JM.TextField()
+    objects = DB.BaseManager()
+
 class ThroneUpgrades(JM.Model):
     Level = JM.IntegerField(unique=True)
     Wood = JM.IntegerField()

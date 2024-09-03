@@ -784,7 +784,7 @@ def AttachMarketDisplay(resourceLs):
             for k in removeKeys:
                 resourceDx.pop(k)
 
-            if resourceDx['Slot'] in ['weapon', 'armor']: stat = resourceDx['Trait'][:3]
+            if resourceDx['Slot'] in ['weapon', 'armor', 'back']: stat = resourceDx['Trait'][:3]
             else:     stat = 'skl' if resourceDx['Skill'] else 'cmb'
             iconCode = f"{resourceDx['Slot']}-{stat}-m{resourceDx['MagicLv']}"
 

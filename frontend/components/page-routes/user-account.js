@@ -3,6 +3,7 @@ USER ACCOUNT
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { Grid, Stack } from '@mui/material';
+import { styled } from '@mui/material/styles'
 
 import AxiosConfig from '../app-main/axios-config'
 import { GlobalContext } from '../app-main/global-store';
@@ -17,7 +18,8 @@ import GuildDelete from '../modals/guild-delete';
 
 function UserAccount(props) {
 
-    // update the guild, needed after guild deletion
+
+    // update the global guild
 
     const { guildStore } = useContext(GlobalContext);
     const guildUpdate = () => {
@@ -34,6 +36,7 @@ function UserAccount(props) {
             console.log('guildUpdate error', errorLs);
         });
     }
+
 
     // load user data
 
@@ -53,6 +56,7 @@ function UserAccount(props) {
             };
             setUserInfo(newInfo);
             setGuildLs(responseData['Guilds']);
+            getGuildInfo();
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
@@ -65,6 +69,7 @@ function UserAccount(props) {
         setTimeout(userConnect, 200);
     }, []);
 
+
     // edit guilds
 
     const [createGuildOpen, setCreateGuildOpen] = useState(false);
@@ -75,6 +80,28 @@ function UserAccount(props) {
         setDeleteName(row.Name);
         setDeleteGuildOpen(true);
     }
+
+
+    // display current guild's details
+
+    const [leftInfo, setLeftInfo] = useState({});
+    const [middleInfo, setMiddleInfo] = useState({});
+    const [rightInfo, setRightInfo] = useState({});
+
+    const getGuildInfo = () => {
+
+        AxiosConfig({
+            url: '/engine/guild-info',
+        }).then(responseData => {
+            console.log(responseData);
+            setLeftInfo(responseData.leftDx);
+            setMiddleInfo(responseData.middleDx);
+            setRightInfo(responseData.rightDx);
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        });
+    }
+
 
     // select guild from table
 
@@ -88,12 +115,14 @@ function UserAccount(props) {
             url: '/engine/select-guild',
             data: { 'guildName': guildName },
         }).then(responseData => {
-            userConnect();
             guildUpdate();
+            userConnect();      // update the selected guild
+            getGuildInfo();
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
     }
+
 
     // render
 
@@ -140,9 +169,21 @@ function UserAccount(props) {
 
                         <ST.ContentTitle sx={{ marginBottom: '8px', }}>Magna Carta</ST.ContentTitle>
 
-                        <Stack spacing='8px' sx={{ width: '280px' }}>
-                            <DisplayDict infoDx={ userInfo } />
-                        </Stack>
+                        <DisplayDict infoDx={ userInfo } width={ '280px' }/>
+
+                    </ST.ContentCard>
+                </ST.GridItemCenter>
+
+                <ST.GridItemCenter item xs={12} lg={8}>
+                    <ST.ContentCard elevation={3} sx={{marginTop: '20px'}}> 
+
+                        <ST.ContentTitle sx={{ marginBottom: '8px' }}>Guild Appraisal</ST.ContentTitle>
+                        
+                        <ST.FlexHorizontal sx={{alignItems: 'flex-start'}}>
+                            <DisplayDict infoDx={ leftInfo } width={ '200px' }/>
+                            <DisplayDict infoDx={ middleInfo } width={ '170px' }/>
+                            <DisplayDict infoDx={ rightInfo } width={ '170px' }/>
+                        </ST.FlexHorizontal>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

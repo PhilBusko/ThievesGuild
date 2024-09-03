@@ -84,7 +84,7 @@ function Heists(props) {
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to view your daily heists.")
+                setMessage("* You must be logged in to go on your Heists.")
             else
                 setErrorLs(errorLs);
         });

@@ -59,7 +59,7 @@ function Barracks(props) {
             url: '/engine/vault-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData.assetLs)
+                // console.log(responseData.assetLs)
                 setVaultLs(responseData.assetLs);
             }
             else {
@@ -154,6 +154,10 @@ function Barracks(props) {
                     </ST.FlexHorizontal>
                 </Grid> }
 
+                { errorLs.length > 0 && <Grid item xs={12}>
+                    <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                </Grid> }
+
                 <ST.GridItemCenter item xs={12} sx={{background: ''}}>
                     <ST.ContentCard elevation={3}> 
                         <Stack spacing={'8px'}>
@@ -163,9 +167,6 @@ function Barracks(props) {
                                 notifySelect={handleThiefSelected}
                                 notifyTimer={() => { getThiefDetails(); }}
                             />
-                            { errorLs.length > 0 &&
-                                <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                            }
                         </Stack>
                     </ST.ContentCard>
                 </ST.GridItemCenter>

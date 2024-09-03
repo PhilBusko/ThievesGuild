@@ -64,12 +64,55 @@ def ChosenGuild(request):
     guildDx = {}
     if guildMd:
         guildDx = guildMd.__dict__
-        guildDx.pop('id')
-        guildDx.pop('_state')
-        guildDx.pop('UserFK_id')
-        guildDx.pop('Selected')
+        removeKeys = ['id', '_state', 'UserFK_id', 'Selected']
+        for k in removeKeys:
+            guildDx.pop(k)
 
     return Response(guildDx)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GuildInfo(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    leftDx = {
+        'Charter': guildMd.Name,
+        'Power': guildMd.TotalPower,
+        'Throne': guildMd.ThroneLevel,
+        'Campaign': guildMd.CampaignWorld,
+        'Last Played': guildMd.LastPlayed,
+        'Created': guildMd.CreateDate,
+    }
+
+    middleDx = {
+        'Thieves': f"{RS.GetCurrentThieves(guildMd)} / {guildMd.MaxThieves}",
+        'Items': RS.GetCurrentItems(guildMd),
+        'Castle Rooms': '*',
+        'Expeditions': '*',
+        'Magic Store': '*',
+    }
+
+    rightDx = {
+        'Gold': f"{guildMd.VaultGold} / {guildMd.StorageGold}",
+        'Wood': f"{guildMd.VaultWood} / {guildMd.StorageWood}",
+        'Stone': f"{guildMd.VaultStone} / {guildMd.StorageStone}",
+        'Iron': f"{guildMd.VaultIron} / {guildMd.StorageIron}",
+        'Gems': guildMd.VaultGems,
+    }
+
+    guildDx = {
+        'leftDx': leftDx,
+        'middleDx': middleDx,
+        'rightDx': rightDx,
+    }
+    return Response(guildDx)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -234,7 +277,7 @@ CONTENT VIEWS
 def DailyHeists(request):
 
     userMd = request.user
-    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    guildMd = RS.PrepGuild(userMd)
 
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
@@ -307,7 +350,7 @@ def LaunchRoom(request):
 def ExpeditionUpdate(request):
 
     userMd = request.user
-    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    guildMd = RS.PrepGuild(userMd)
 
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
@@ -443,14 +486,12 @@ def ExpeditionClaim(request):
     return Response({'success': True})
 
 
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def DailyMarket(request):
 
     userMd = request.user
-    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    guildMd = RS.PrepGuild(userMd)
 
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
@@ -564,8 +605,6 @@ def BuyMarket(request):
     }
     return Response(resultDx)
 
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def GemExchange(request):
@@ -592,7 +631,6 @@ def GemExchange(request):
     if 'iron' in material:  RS.GrantIron(guildMd, amount)
 
     return Response({'success': True})
-
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

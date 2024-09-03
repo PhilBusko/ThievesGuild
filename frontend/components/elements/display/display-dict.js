@@ -5,10 +5,6 @@ import { styled } from '@mui/material/styles'
 import * as ST from '../styled-elements';
 
 
-const ContrastText = styled(ST.BaseText)(({ theme }) => ({
-    color: ST.DefaultText,
-}));
-
 function DisplayDict(props) {
 
     const DisplayTable = styled('table')(({ theme }) => ({
@@ -24,15 +20,15 @@ function DisplayDict(props) {
 
     return (<>
         {Object.keys(props.infoDx).length > 0 &&
-            <DisplayTable>
+            <DisplayTable sx={{ width: props.width }}>
                 <tbody>
                     { Object.keys(props.infoDx).map((key, idx) => ( 
                         <tr key={idx}>
                             <td>
-                                <ContrastText sx={{ whiteSpace: 'nowrap'}}><b>{key}:</b></ContrastText>
+                                <ST.BaseText sx={{ whiteSpace: 'nowrap'}}><b>{key}:</b></ST.BaseText>
                             </td>
                             <td>
-                                <ContrastText>{ props.infoDx[key] }</ContrastText>
+                                <ST.BaseText>{ props.infoDx[key] }</ST.BaseText>
                             </td>
                         </tr> 
                     )) }
@@ -44,7 +40,7 @@ function DisplayDict(props) {
                 <tbody>
                     <tr>
                         <td>
-                            <ContrastText sx={{ textAlign: 'center' }}>No Data</ContrastText>
+                            <ST.BaseText sx={{ textAlign: 'center' }}>No Data</ST.BaseText>
                         </td>
                     </tr> 
                 </tbody>
@@ -55,7 +51,7 @@ function DisplayDict(props) {
 
 DisplayDict.defaultProps = {
     infoDx: {},
-    width: '280px',
+    width: '240px',
     height: '180px',
 };
 

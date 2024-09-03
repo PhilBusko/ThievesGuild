@@ -487,7 +487,7 @@ def GenerateBlueprint(throne, existingDx):
     if randType == 'item':
         itemMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=resId)
         
-        if itemMd.Slot in ['weapon', 'armor']: stat = itemMd.Trait[:3]
+        if itemMd.Slot in ['weapon', 'armor', 'back']: stat = itemMd.Trait[:3]
         else:     stat = 'skl' if itemMd.Skill else 'cmb'
         iconCode = f"{itemMd.Slot}-{stat}-m{itemMd.MagicLv}"
         name = itemMd.Name
@@ -544,7 +544,7 @@ def GenerateResource(throne, existingDx):
     if randType == 'item':
         itemMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=resId)
         
-        if itemMd.Slot in ['weapon', 'armor']: stat = itemMd.Trait[:3]
+        if itemMd.Slot in ['weapon', 'armor', 'back']: stat = itemMd.Trait[:3]
         else:     stat = 'skl' if itemMd.Skill else 'cmb'
         iconCode = f"{itemMd.Slot}-{stat}-m{itemMd.MagicLv}"
         name = itemMd.Name

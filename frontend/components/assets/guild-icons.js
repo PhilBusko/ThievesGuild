@@ -37,6 +37,10 @@ import feetSklM1 from '../assets/guild/feet-skl-m1.png'
 import feetCmbM1 from '../assets/guild/feet-cmb-m1.png'
 import feetEmpty from '../assets/guild/feet-empty.png'
 
+import backEndM0 from '../assets/guild/back-end-m0.png'
+import backEndM1 from '../assets/guild/back-end-m1.png'
+import backEmpty from '../assets/guild/back-empty.png'
+
 import classBurglarS1 from '../assets/guild/class-burglar-s1.png'
 import classScoundrelS1 from '../assets/guild/class-scoundrel-s1.png'
 import classRuffianS1 from '../assets/guild/class-ruffian-s1.png'
@@ -93,6 +97,10 @@ function GetIconAsset(iconCode) {
         case 'feet-skl-m1':     return feetSklM1;
         case 'feet-cmb-m1':     return feetCmbM1;
         case 'feet-empty':      return feetEmpty;
+
+        case 'back-end-m0':     return backEndM0;
+        case 'back-end-m1':     return backEndM1;
+        case 'back-empty':      return backEmpty;
 
         case 'class-burglar-s1':        return classBurglarS1;
         case 'class-scoundrel-s1':      return classScoundrelS1;

@@ -48,7 +48,7 @@ function Expedition(props) {
                 guildStore[1](responseData);
             }
         }).catch(errorLs => {
-            console.log('GuildUpdate error', errorLs);
+            setErrorLs(errorLs);
         });
     }
 
@@ -69,7 +69,7 @@ function Expedition(props) {
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to view your guild's information.")
+                setMessage("* You must be logged in to launch your Expeditions.")
             else
                 setErrorLs(errorLs);
         });
@@ -97,10 +97,8 @@ function Expedition(props) {
                 setMessage(responseData.message)
             }
         }).catch(errorLs => {
-            if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to view your guild's information.")
-            else
-                setErrorLs(errorLs);
+            // updateExpeditions handles log in error
+            console.log(errorLs);
         });
     };
 

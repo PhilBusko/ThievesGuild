@@ -126,7 +126,7 @@ function Market(props) {
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to view your guild's information.");
+                setMessage("* You must be logged in to visit the Market.");
             else
                 setErrorLs(errorLs);
         });
