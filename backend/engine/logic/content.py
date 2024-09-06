@@ -10,7 +10,9 @@ import emporium.models as EM
 import emporium.logic.guild as GD
 import emporium.logic.stage as ST
 import emporium.logic.character_names as CN
+
 import engine.models as GM 
+import engine.logic.resource as RS
 
 
 def BackgroundBias():
@@ -818,15 +820,15 @@ def BuyPermission(storeId, guildMd):
 
     storeMd = GM.MarketStore.objects.GetOrNone(id=storeId)
 
-    # check for thief blockage
+    # thief blockage
 
     if 'thief' in storeMd.ResourceId:
         thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
-        maxThieves = guildMd.MaxThieves
+        maxThieves = RS.GetThiefMax(guildMd)
         if len(thiefMds) == maxThieves:
             return 'guild occupancy is full'
 
-    # generic blockage
+    # cost blockage
 
     if 'thief' in storeMd.ResourceId:
         resourceMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=storeMd.ResourceId)

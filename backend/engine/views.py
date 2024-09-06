@@ -258,7 +258,6 @@ def ChangeEquip(request):
         if prevClaimant: RS.SetThiefTotals(prevClaimant)
 
     RS.SetThiefTotals(thiefMd)
-    RS.SetGuildTotals(guildMd)
 
     # refresh the frontend
 

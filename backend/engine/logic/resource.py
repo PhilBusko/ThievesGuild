@@ -403,21 +403,26 @@ def SetThiefTotals(thiefMd):
     head = GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='head')
     hands = GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='hands')
     feet = GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='feet')
+    back = GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='back')
 
     # traits are foundation of combat stats
 
     thiefMd.Agility = (thiefMd.BaseAgi + thiefMd.TrainedAgi + 
                     GetItemTrait(weapon, 'agi') + GetItemTrait(armor, 'agi') +
-                    GetItemTrait(head, 'agi') + GetItemTrait(hands, 'agi') + GetItemTrait(feet, 'agi'))
+                    GetItemTrait(head, 'agi') + GetItemTrait(hands, 'agi') + 
+                    GetItemTrait(feet, 'agi') + GetItemTrait(back, 'agi') )
     thiefMd.Cunning = (thiefMd.BaseCun + thiefMd.TrainedCun + 
                     GetItemTrait(weapon, 'cun') + GetItemTrait(armor, 'cun') +
-                    GetItemTrait(head, 'cun') + GetItemTrait(hands, 'cun') + GetItemTrait(feet, 'cun'))
+                    GetItemTrait(head, 'cun') + GetItemTrait(hands, 'cun') + 
+                    GetItemTrait(feet, 'cun') + GetItemTrait(back, 'cun') )
     thiefMd.Might = (thiefMd.BaseMig + thiefMd.TrainedMig +
                     GetItemTrait(weapon, 'mig') + GetItemTrait(armor, 'mig') +
-                    GetItemTrait(head, 'mig') + GetItemTrait(hands, 'mig') + GetItemTrait(feet, 'mig'))
+                    GetItemTrait(head, 'mig') + GetItemTrait(hands, 'mig') + 
+                    GetItemTrait(feet, 'mig') + GetItemTrait(back, 'mig') )
     thiefMd.Endurance = (thiefMd.BaseEnd + thiefMd.TrainedEnd +
                     GetItemTrait(weapon, 'end') + GetItemTrait(armor, 'end') +
-                    GetItemTrait(head, 'end') + GetItemTrait(hands, 'end') + GetItemTrait(feet, 'end'))
+                    GetItemTrait(head, 'end') + GetItemTrait(hands, 'end') + 
+                    GetItemTrait(feet, 'end') + GetItemTrait(back, 'end') )
 
     thiefMd.Power = thiefMd.BasePower
     # thiefMd.Power += levelsPower
@@ -426,26 +431,33 @@ def SetThiefTotals(thiefMd):
     thiefMd.Power += head.Power if head else 0
     thiefMd.Power += hands.Power if hands else 0
     thiefMd.Power += feet.Power if feet else 0
+    thiefMd.Power += back.Power if back else 0
 
     # set combat 
 
     thiefMd.Health = 58 + thiefMd.Endurance * 4
 
     thiefMd.Attack = (thiefMd.Agility + GetItemCombat(weapon, 'att') + GetItemCombat(armor, 'att') +
-                    GetItemCombat(head, 'att') + GetItemCombat(hands, 'att') + GetItemCombat(feet, 'att'))
+                    GetItemCombat(head, 'att') + GetItemCombat(hands, 'att') + 
+                    GetItemCombat(feet, 'att') + GetItemCombat(back, 'att') )
     thiefMd.Damage = (6 + thiefMd.Cunning + GetItemCombat(weapon, 'dmg') + GetItemCombat(armor, 'dmg') +
-                    GetItemCombat(head, 'dmg') + GetItemCombat(hands, 'dmg') + GetItemCombat(feet, 'dmg'))
+                    GetItemCombat(head, 'dmg') + GetItemCombat(hands, 'dmg') + 
+                    GetItemCombat(feet, 'dmg') + GetItemCombat(back, 'dmg') )
     thiefMd.Defense = (11 + thiefMd.Might + GetItemCombat(weapon, 'def') + GetItemCombat(armor, 'def') +
-                    GetItemCombat(head, 'def') + GetItemCombat(hands, 'def') + GetItemCombat(feet, 'def'))
+                    GetItemCombat(head, 'def') + GetItemCombat(hands, 'def') + 
+                    GetItemCombat(feet, 'def') + GetItemCombat(back, 'def') )
 
     # set skills 
 
     thiefMd.Sabotage = (GetItemSkill(weapon, 'sab') + GetItemSkill(armor, 'sab') +
-                    GetItemSkill(head, 'sab') + GetItemSkill(hands, 'sab') + GetItemSkill(feet, 'sab'))
+                    GetItemSkill(head, 'sab') + GetItemSkill(hands, 'sab') + 
+                    GetItemSkill(feet, 'sab') + GetItemSkill(back, 'sab') )
     thiefMd.Perceive = (GetItemSkill(weapon, 'per') + GetItemSkill(armor, 'per') +
-                    GetItemSkill(head, 'per') + GetItemSkill(hands, 'per') + GetItemSkill(feet, 'per'))
+                    GetItemSkill(head, 'per') + GetItemSkill(hands, 'per') + 
+                    GetItemSkill(feet, 'per') + GetItemSkill(back, 'per') )
     thiefMd.Traverse = (GetItemSkill(weapon, 'tra') + GetItemSkill(armor, 'tra') +
-                    GetItemSkill(head, 'tra') + GetItemSkill(hands, 'tra') + GetItemSkill(feet, 'tra'))
+                    GetItemSkill(head, 'tra') + GetItemSkill(hands, 'tra') + 
+                    GetItemSkill(feet, 'tra') + GetItemSkill(back, 'tra') )
 
     thiefMd.save()
 
