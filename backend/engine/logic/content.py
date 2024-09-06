@@ -648,7 +648,7 @@ def GetOrCreateMarket(guildMd, rareCount):
 
     commonThief = EM.UnlockableThief.objects.filter(Stars=1).values()
     commonItem = EM.UnlockableItem.objects.filter(
-        Level=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=False).values()
+        Throne=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=False).values()
 
     for cm in commonThief:
         newReso = GM.MarketStore()

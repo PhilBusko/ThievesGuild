@@ -41,6 +41,7 @@ function Expedition(props) {
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
+            console.log(responseData);
             if (Object.keys(responseData).length === 0) {
                 guildStore[1](null);
             }
@@ -60,9 +61,13 @@ function Expedition(props) {
         AxiosConfig({
             url: '/engine/expedition-update',
         }).then(responseData => {
-            if (!responseData.message) {
+            if (!responseData.message && responseData.expeditions.length > 0) {
                 // console.log(responseData);
                 setExpeditionLs(responseData.expeditions);
+            }
+            else if (!responseData.message && responseData.expeditions.length == 0) {
+                // console.log(responseData);
+                setMessage("* Build the Cartographer room to endeavor in Expeditions.");
             }
             else {
                 setMessage(responseData.message)

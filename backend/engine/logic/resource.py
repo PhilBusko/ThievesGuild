@@ -153,39 +153,127 @@ def GetBlueprints(guildMd):
     }
 
 
+def GetTotalPower(guildMd):
+    thiefOb = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    power = 0
+    for th in thiefOb:
+        power += th.Power
+    return power
 
-def GetCurrentThieves(guildMd):
+def GetThiefCount(guildMd):
     thiefLs = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
     return len(thiefLs)
 
-def GetCurrentItems(guildMd):
+def GetThiefMax(guildMd):
+
+    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Dormitory')
+    count = throneMd.MaxThieves
+
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.filter(Level=rm.Level)
+        count += roomLookup.Dorm_MaxThieves
+
+    return count
+
+def GetItemCount(guildMd):
     itemLs = GM.ItemInGuild.objects.filter(GuildFK=guildMd)
     return len(itemLs)
 
-def GetExpeditionCount(guildMd):
-    count = 0
-    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+def GetGoldMax(guildMd):
 
-
-
+    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Bank')
+    count = throneMd.Throne_Gold
 
     for rm in roomLs:
-        count += 0
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Bank_Gold
 
     return count
 
+def GetStoneMax(guildMd):
 
+    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Warehouse')
+    count = throneMd.Throne_Stone
 
-def GetDailyStoreCount(guildMd):
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Warehouse_Stone
+
+    return count
+
+def GetRoomCount(guildMd):
+    room1 = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Placement__contains='R')
+    room2 = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Placement__contains='L')
+    return len(room1) + len(room2)
+
+def GetRoomMax(guildMd):
+    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    return throneMd.MaxRoomCount
+
+def GetExpeditionCount(guildMd):
+    count = 3 #0
+
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Cartog_Slots
+
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Jeweler')
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Jeweler_ExpedSlots
+
+    return count
+
+def GetMagicStoreCount(guildMd):
     count = 4
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Fence')
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Fence_MagicSlots
     return count
 
+def GetRecoveryTime(guildMd):
+    count = PD.Timedelta(0).to_pytimedelta()
 
-def GetMaxThieves(guildMd):
-    count = 6
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Dormitory')
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += PD.Timedelta(roomLookup.Dorm_Recovery).to_pytimedelta() 
+
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+    for rm in roomLs:
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        count += PD.Timedelta(roomLookup.Cartog_Recovery).to_pytimedelta() 
+
     return count
 
+def GetGoldBonus(guildMd):
+    count = 0
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Fence')
+    for rm in roomLs:
+        roomLookup = EM.AdvancedRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Fence_GoldBonus
+    return count
 
+def GetStoneBonus(guildMd):
+    count = 0
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Workshop')
+    for rm in roomLs:
+        roomLookup = EM.AdvancedRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Workshop_StoneBonus
+    return count
+
+def GetGemsBonus(guildMd):
+    count = 0
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Jeweler')
+    for rm in roomLs:
+        roomLookup = EM.AdvancedRoom.objects.GetOrNone(Level=rm.Level)
+        count += roomLookup.Jeweler_GemBonus
+    return count
 
 
 def GrantExperience(thiefMd, amount):
@@ -197,10 +285,17 @@ def GrantExperience(thiefMd, amount):
     thiefMd.save()
 
 def GrantGold(guildMd, amount):
-    maxAmount = guildMd.StorageGold
+    maxAmount = GetGoldMax(guildMd)
     newAmount = guildMd.VaultGold + amount
     if newAmount > maxAmount: newAmount = maxAmount
     guildMd.VaultGold = newAmount
+    guildMd.save()
+
+def GrantStone(guildMd, amount):
+    maxAmount = GetStoneMax(guildMd)
+    newAmount = guildMd.VaultStone + amount
+    if newAmount > maxAmount: newAmount = maxAmount
+    guildMd.VaultStone = newAmount
     guildMd.save()
 
 def GrantGems(guildMd, amount):
@@ -208,27 +303,6 @@ def GrantGems(guildMd, amount):
     newAmount = guildMd.VaultGems + amount
     # if newAmount > maxAmount: newAmount = maxAmount
     guildMd.VaultGems = newAmount
-    guildMd.save()
-
-def GrantWood(guildMd, amount):
-    maxAmount = guildMd.StorageWood
-    newAmount = guildMd.VaultWood + amount
-    if newAmount > maxAmount: newAmount = maxAmount
-    guildMd.VaultWood = newAmount
-    guildMd.save()
-
-def GrantStone(guildMd, amount):
-    maxAmount = guildMd.StorageStone
-    newAmount = guildMd.VaultStone + amount
-    if newAmount > maxAmount: newAmount = maxAmount
-    guildMd.VaultStone = newAmount
-    guildMd.save()
-
-def GrantIron(guildMd, amount):
-    maxAmount = guildMd.StorageIron
-    newAmount = guildMd.VaultIron + amount
-    if newAmount > maxAmount: newAmount = maxAmount
-    guildMd.VaultIron = newAmount
     guildMd.save()
 
 def ApplyWounds(thiefMd, wounds):
@@ -375,31 +449,13 @@ def SetThiefTotals(thiefMd):
 
     thiefMd.save()
 
-def SetGuildTotals(guildMd):
-
-    thiefOb = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
-    power = 0
-    for th in thiefOb:
-        power += th.Power
-
-    throneMd = EM.ThroneUpgrades.objects.GetOrNone(Level=guildMd.ThroneLevel)
-    
-    maxGold = throneMd.GoldStorage +2000
-    maxWood = throneMd.WoodStorage
-    maxStone = throneMd.StoneStorage
-    maxIron = throneMd.IronStorage
-
-    guildMd.TotalPower = power
-    guildMd.StorageGold = maxGold
-    guildMd.StorageWood = maxWood
-    guildMd.StorageStone = maxStone
-    guildMd.StorageIron = maxIron
-    guildMd.save()
 
 
 def CreateNewGuild(user, guildName):
 
-    newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True})
+    newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True,
+            'ThroneLevel': 2,
+            })
     newGuild.save()
 
     thiefNames = CN.CharacterNames()
@@ -421,7 +477,6 @@ def CreateNewGuild(user, guildName):
     thiefOb = GM.ThiefInGuild.objects.filter(GuildFK=newGuild)
     for th in thiefOb:
         SetThiefTotals(th)
-    SetGuildTotals(newGuild)
 
     return newGuild
 

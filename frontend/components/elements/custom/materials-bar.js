@@ -11,7 +11,7 @@ import * as RC from '../../assets/resource';
 
 
 const BarContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
-    width: '430px',
+    width: '320px',
     height: '36px',
     border: '3px ridge silver',
     borderRadius: '3px',
@@ -121,9 +121,7 @@ function MaterialsBar(props) {
     const prevGuild = usePrevious(guildStore[0]);
 
     const [highlightGold, setHighlightGold] = useState(false);
-    const [highlightWood, setHighlightWood] = useState(false);
     const [highlightStone, setHighlightStone] = useState(false);
-    const [highlightIron, setHighlightIron] = useState(false);
     const [highlightGems, setHighlightGems] = useState(false);
 
     useEffect(() => {
@@ -132,22 +130,16 @@ function MaterialsBar(props) {
             return;
 
         const goldChanged = guildStore[0].VaultGold - prevGuild.VaultGold;
-        const woodChanged = guildStore[0].VaultWood - prevGuild.VaultWood;
         const stoneChanged = guildStore[0].VaultStone - prevGuild.VaultStone;
-        const ironChanged = guildStore[0].VaultIron - prevGuild.VaultIron;
         const gemsChanged = guildStore[0].VaultGems - prevGuild.VaultGems;
         
         if (!!goldChanged) setHighlightGold(true);
-        if (!!woodChanged) setHighlightWood(true);
         if (!!stoneChanged) setHighlightStone(true);
-        if (!!ironChanged) setHighlightIron(true);
         if (!!gemsChanged) setHighlightGems(true);
 
         setTimeout(() => {
             setHighlightGold(false);
-            setHighlightWood(false);
             setHighlightStone(false);
-            setHighlightIron(false);
             setHighlightGems(false);
         }, 2000);
 
@@ -162,13 +154,6 @@ function MaterialsBar(props) {
                     matAmount={ guildStore[0].VaultGold }
                     matStorage={ guildStore[0].StorageGold }
                     isHighlight={ highlightGold }
-                />
-
-                <MaterialTemplate
-                    iconCode={ 'wood' }
-                    matAmount={ guildStore[0].VaultWood }
-                    matStorage={ guildStore[0].StorageWood }
-                    isHighlight={ highlightWood }
                 />
 
                 <MaterialTemplate

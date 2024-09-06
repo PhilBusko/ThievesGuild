@@ -19,20 +19,10 @@ class Guild(JM.Model):
 
     ThroneLevel = JM.IntegerField(default=1)
     CampaignWorld = JM.IntegerField(default=1)
-    TotalPower = JM.IntegerField(default=0)
-
-    MaxThieves = JM.IntegerField(default=6)
-    StorageGold = JM.IntegerField(default=0)
-    StorageGems = JM.IntegerField(default=0)
-    StorageWood = JM.IntegerField(default=0)
-    StorageStone = JM.IntegerField(default=0)
-    StorageIron = JM.IntegerField(default=0)
 
     VaultGold = JM.IntegerField(default=0)
-    VaultGems = JM.IntegerField(default=10)
-    VaultWood = JM.IntegerField(default=0)
     VaultStone = JM.IntegerField(default=0)
-    VaultIron = JM.IntegerField(default=0)
+    VaultGems = JM.IntegerField(default=10)
     DungeonCheck = JM.DateField(null=True)
 
     objects = DB.BaseManager()
@@ -92,7 +82,6 @@ class ItemInGuild(JM.Model):
     Magic = JM.TextField(null=True)
     objects = DB.BaseManager()
 
-
 class RoomInGuild(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Name = JM.TextField()
@@ -100,7 +89,6 @@ class RoomInGuild(JM.Model):
     Level = JM.IntegerField()
     Placement = JM.TextField(unique=True)
     objects = DB.BaseManager()
-
 
 
 class ThiefUnlocked(JM.Model):

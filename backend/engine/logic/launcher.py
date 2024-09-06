@@ -225,9 +225,7 @@ def RunResults(guildMd, thiefMd, roomNo, stageMd, obstacleLs, results):
         for key in stageRewards.keys():
             if key == 'gold':   RS.GrantGold(guildMd, stageRewards[key])
             if key == 'gems':   RS.GrantGems(guildMd, stageRewards[key])
-            if key == 'wood':   RS.GrantWood(guildMd, stageRewards[key])
             if key == 'stone':  RS.GrantStone(guildMd, stageRewards[key])
-            if key == 'iron':   RS.GrantIron(guildMd, stageRewards[key])
 
         # display all room results
 
@@ -455,7 +453,7 @@ def GenerateBlueprint(throne, existingDx):
 
     randType = 'item'
     randTypeNo = random.randint(1, 10)
-    if randTypeNo >= 7:         # 40% chance
+    if randTypeNo >= 8:         # 30% chance
         randType = 'thief'
 
     if randType == 'item':
@@ -511,7 +509,7 @@ def GenerateBlueprint(throne, existingDx):
 
 def GenerateResource(throne, existingDx):
 
-    # generate the base reward 
+    # DEPRECATED
 
     randType = 'item'
     randTypeNo = random.randint(1, 10)
@@ -571,9 +569,7 @@ def GenerateResource(throne, existingDx):
 
 def GenerateMaterial(throne, existingDx):
 
-    typeLs = ['Gold', 'Gems', 'Wood']
-    if throne >= 4: typeLs.append('Stone')
-    if throne >= 7: typeLs.append('Iron')
+    typeLs = ['Gold', 'Stone', 'Gems']
     FACTOR = 3
 
     randType = random.choice(typeLs)

@@ -91,12 +91,13 @@ function Armory(props) {
 
                 <ST.GridItemCenter item xs={12} lg={9}>
                     <ST.ContentCard elevation={3}> 
+                    
                         <ST.ContentTitle sx={{ marginBottom: '8px', }}>Vault</ST.ContentTitle>
 
-                            <VaultTable
-                                dataLs={vaultLs}
-                                notifySell={handleSellItem}
-                            />
+                        <VaultTable
+                            dataLs={vaultLs}
+                            notifySell={handleSellItem}
+                        />
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

@@ -181,8 +181,8 @@ function UserAccount(props) {
                         
                         <ST.FlexHorizontal sx={{alignItems: 'flex-start'}}>
                             <DisplayDict infoDx={ leftInfo } width={ '200px' }/>
-                            <DisplayDict infoDx={ middleInfo } width={ '170px' }/>
-                            <DisplayDict infoDx={ rightInfo } width={ '170px' }/>
+                            <DisplayDict infoDx={ middleInfo } width={ '180px' }/>
+                            <DisplayDict infoDx={ rightInfo } width={ '220px' }/>
                         </ST.FlexHorizontal>
 
                     </ST.ContentCard>

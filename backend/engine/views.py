@@ -68,11 +68,13 @@ def ChosenGuild(request):
         for k in removeKeys:
             guildDx.pop(k)
 
+        # somehow the guild gets trashed when converted to dict
+        guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+        guildDx['StorageGold'] = RS.GetGoldMax(guildMd)
+        guildDx['StorageStone'] = RS.GetStoneMax(guildMd)
+
     return Response(guildDx)
-
-
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -83,7 +85,7 @@ def GuildInfo(request):
 
     leftDx = {
         'Charter': guildMd.Name,
-        'Power': guildMd.TotalPower,
+        'Power': RS.GetTotalPower(guildMd),
         'Throne': guildMd.ThroneLevel,
         'Campaign': guildMd.CampaignWorld,
         'Last Played': guildMd.LastPlayed,
@@ -91,19 +93,22 @@ def GuildInfo(request):
     }
 
     middleDx = {
-        'Thieves': f"{RS.GetCurrentThieves(guildMd)} / {guildMd.MaxThieves}",
-        'Items': RS.GetCurrentItems(guildMd),
-        'Castle Rooms': '*',
-        'Expeditions': '*',
-        'Magic Store': '*',
+        'Thieves': f"{RS.GetThiefCount(guildMd)} / {RS.GetThiefMax(guildMd)}",
+        'Items': RS.GetItemCount(guildMd),
+        'Castle Rooms': f"{RS.GetRoomCount(guildMd)} / {RS.GetRoomMax(guildMd)}",
+        'Expeditions': RS.GetExpeditionCount(guildMd),
+        'Magic Store': RS.GetMagicStoreCount(guildMd),
     }
 
+    recovery = RS.GetRecoveryTime(guildMd)
     rightDx = {
-        'Gold': f"{guildMd.VaultGold} / {guildMd.StorageGold}",
-        'Wood': f"{guildMd.VaultWood} / {guildMd.StorageWood}",
-        'Stone': f"{guildMd.VaultStone} / {guildMd.StorageStone}",
-        'Iron': f"{guildMd.VaultIron} / {guildMd.StorageIron}",
+        'Gold': f"{guildMd.VaultGold} / {RS.GetGoldMax(guildMd)}",
+        'Stone': f"{guildMd.VaultStone} / {RS.GetStoneMax(guildMd)}",
         'Gems': guildMd.VaultGems,
+        'Recovery': f"{recovery} min" if recovery else "0 min",
+        'Gold Bonus': f"{RS.GetGoldBonus(guildMd)}%",
+        'Stone Bonus': f"{RS.GetStoneBonus(guildMd)}%",
+        'Gems Bonus': f"+{RS.GetGemsBonus(guildMd)}",
     }
 
     guildDx = {
@@ -456,10 +461,8 @@ def ExpeditionClaim(request):
     elif not replace and selectReward['category'] == 'material':
         amount = int(selectReward['value'].split(' ')[0])
         if selectReward['resourceId'] == 'gold':        RS.GrantGold(guildMd, amount)
-        if selectReward['resourceId'] == 'gems':        RS.GrantGems(guildMd, amount)
-        if selectReward['resourceId'] == 'wood':        RS.GrantWood(guildMd, amount)
         if selectReward['resourceId'] == 'stone':       RS.GrantStone(guildMd, amount)
-        if selectReward['resourceId'] == 'iron':        RS.GrantIron(guildMd, amount)
+        if selectReward['resourceId'] == 'gems':        RS.GrantGems(guildMd, amount)
 
     elif replace:
         amount = int(replace.split(' ')[-2])
@@ -496,19 +499,20 @@ def DailyMarket(request):
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
 
-    rares = RS.GetDailyStoreCount(guildMd)
+    rares = RS.GetMagicStoreCount(guildMd)
     commonStore, dailyStore = CT.GetOrCreateMarket(guildMd, rares)
 
     blueprints = RS.GetBlueprints(guildMd)
 
     gemStore = [
-        {'gems': 10,    'targetAmount': 232,    'targetIcon': 'material-gold', },
-        {'gems': 60,    'targetAmount': 1740,   'targetIcon': 'material-gold', },
-        {'gems': 120,   'targetAmount': 4176,   'targetIcon': 'material-gold', },
-        {'gems': 20,    'targetAmount': 120,    'targetIcon': 'material-wood', },
-        {'gems': 80,    'targetAmount': 600,    'targetIcon': 'material-wood', },
-        {'gems': 30,    'targetAmount': 114,    'targetIcon': 'material-stone', },
-        {'gems': 40,    'targetAmount': 76,     'targetIcon': 'material-iron', },
+        {'gems': 50,    'targetAmount': 230,    'targetIcon': 'material-gold', },
+        {'gems': 200,   'targetAmount': 1100,   'targetIcon': 'material-gold', },
+        {'gems': 400,   'targetAmount': 2600,   'targetIcon': 'material-gold', },
+        {'gems': 600,   'targetAmount': 4400,   'targetIcon': 'material-gold', },
+        {'gems': 40,    'targetAmount': 80,     'targetIcon': 'material-stone', },
+        {'gems': 160,   'targetAmount': 390,    'targetIcon': 'material-stone', },
+        {'gems': 320,   'targetAmount': 920,    'targetIcon': 'material-stone', },
+        {'gems': 520,   'targetAmount': 1700,   'targetIcon': 'material-stone', },
     ]
 
     marketDx = {
@@ -626,9 +630,7 @@ def GemExchange(request):
     guildMd.save()
 
     if 'gold' in material:  RS.GrantGold(guildMd, amount)
-    if 'wood' in material:  RS.GrantWood(guildMd, amount)
     if 'stone' in material:  RS.GrantStone(guildMd, amount)
-    if 'iron' in material:  RS.GrantIron(guildMd, amount)
 
     return Response({'success': True})
 
