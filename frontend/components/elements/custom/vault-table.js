@@ -114,11 +114,11 @@ function VaultTable(props) {
             renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         },
         {
-            field: 'Power', headerName: 'Power',
+            field: 'TotalLv', headerName: 'Level',
             sortable: true, sortingOrder: ['asc', 'desc'],
             width: 90, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<>
-                <ST.BaseText> { params.value} [ {params.row.TotalLv} ] </ST.BaseText> 
+                <ST.BaseText> {params.value} [{params.row.Power}] </ST.BaseText> 
             </>),
         },
         {

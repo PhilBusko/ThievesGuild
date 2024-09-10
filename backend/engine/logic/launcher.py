@@ -237,6 +237,7 @@ def RunResults(guildMd, thiefMd, roomNo, stageMd, obstacleLs, results):
 def AttachDisplayData(roomRewards, stageRewards):
 
     # assemble display for frontend
+    # textTwo can be for guild bonus
 
     roomTotal = {}
     for rm in roomRewards:
@@ -256,24 +257,6 @@ def AttachDisplayData(roomRewards, stageRewards):
             'textTwo': None,
         })
 
-    material = 'gems'
-    if material in stageRewards or material in roomTotal:
-        fullRewards.append({
-            'type': material, 
-            'fullAmount': stageRewards.get(material, 0) + roomTotal.get(material, 0),
-            'textOne': f"{roomTotal[material]} collected" if material in roomTotal else None,
-            'textTwo': None,
-        })
-
-    material = 'wood'
-    if material in stageRewards:
-        fullRewards.append({
-            'type': material, 
-            'fullAmount': stageRewards.get(material, 0),
-            'textOne': None,
-            'textTwo': None,
-        })
-
     material = 'stone'
     if material in stageRewards:
         fullRewards.append({
@@ -283,12 +266,12 @@ def AttachDisplayData(roomRewards, stageRewards):
             'textTwo': None,
         })
 
-    material = 'iron'
-    if material in stageRewards:
+    material = 'gems'
+    if material in stageRewards or material in roomTotal:
         fullRewards.append({
             'type': material, 
-            'fullAmount': stageRewards.get(material, 0),
-            'textOne': None,
+            'fullAmount': stageRewards.get(material, 0) + roomTotal.get(material, 0),
+            'textOne': f"{roomTotal[material]} collected" if material in roomTotal else None,
             'textTwo': None,
         })
 
@@ -306,13 +289,16 @@ def RunExpedition(expeditionMd):
     expTemplate = EM.ExpeditionType.objects.GetOrNone(Type=expeditionMd.BaseType)
 
     # main trait
+    # range(begin, end +1)
+
+    bias = 1    # bias=0 : pass 18; b=1 : pass 27
 
     if expTemplate.MainTrait == 'agi': bonus = thiefMd.Agility
     if expTemplate.MainTrait == 'cun': bonus = thiefMd.Cunning
     if expTemplate.MainTrait == 'mig': bonus = thiefMd.Might
     if expTemplate.MainTrait == 'end': bonus = thiefMd.Endurance
 
-    for rg in range(1, 7):
+    for rg in range(1, 7 +bias +bias +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -323,7 +309,7 @@ def RunExpedition(expeditionMd):
     if expTemplate.SecondaryOne == 'mig': bonus = thiefMd.Might
     if expTemplate.SecondaryOne == 'end': bonus = thiefMd.Endurance
 
-    for rg in range(1, 3):
+    for rg in range(1, 3 +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -332,7 +318,7 @@ def RunExpedition(expeditionMd):
     if expTemplate.SecondaryTwo == 'mig': bonus = thiefMd.Might
     if expTemplate.SecondaryTwo == 'end': bonus = thiefMd.Endurance
 
-    for rg in range(1, 3):
+    for rg in range(1, 3 +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -341,7 +327,7 @@ def RunExpedition(expeditionMd):
     if expTemplate.SecondaryThree == 'mig': bonus = thiefMd.Might
     if expTemplate.SecondaryThree == 'end': bonus = thiefMd.Endurance
 
-    for rg in range(1, 3):
+    for rg in range(1, 3 +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -357,7 +343,7 @@ def RunExpedition(expeditionMd):
         if 'sab' in expTemplate.SkillOne: bonus += thiefMd.Sabotage
         if 'per' in expTemplate.SkillOne: bonus += thiefMd.Perceive
         if 'tra' in expTemplate.SkillOne: bonus += thiefMd.Traverse
-    for rg in range(1, 3):
+    for rg in range(1, 3 +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -370,7 +356,7 @@ def RunExpedition(expeditionMd):
         if 'sab' in expTemplate.SkillTwo: bonus += thiefMd.Sabotage
         if 'per' in expTemplate.SkillTwo: bonus += thiefMd.Perceive
         if 'tra' in expTemplate.SkillTwo: bonus += thiefMd.Traverse
-    for rg in range(1, 3):
+    for rg in range(1, 3 +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -383,7 +369,7 @@ def RunExpedition(expeditionMd):
         if 'sab' in expTemplate.SkillThree: bonus += thiefMd.Sabotage
         if 'per' in expTemplate.SkillThree: bonus += thiefMd.Perceive
         if 'tra' in expTemplate.SkillThree: bonus += thiefMd.Traverse
-    for rg in range(1, 3):
+    for rg in range(1, 3 +bias):
         roll = random.randint(1, 20)
         if roll + bonus >= diffTarget: passed += 1
 
@@ -400,7 +386,7 @@ def ExpeditionResults(throne, expMd, runResults):
 
     resDx = {'passed': runResults}
 
-    if runResults >= 13:
+    if runResults >= 19:
         resDx['grade'] = 'A'
         rewardDx = GenerateBlueprint(throne, None)
         resDx['reward'] = rewardDx
@@ -408,15 +394,7 @@ def ExpeditionResults(throne, expMd, runResults):
         if challenge == 'advanced':
             resDx['reward2'] = GenerateBlueprint(throne, rewardDx)
 
-    # elif runResults == 12:
-    #     resDx['grade'] = 'B'
-    #     rewardDx = GenerateResource(throne, None)
-    #     resDx['reward'] = rewardDx
-
-    #     if challenge == 'advanced':
-    #         resDx['reward2'] = GenerateResource(throne, rewardDx)
-
-    elif runResults >= 11:
+    elif runResults >= 17:
         resDx['grade'] = 'B'
         rewardDx = GenerateMaterial(throne, None)
         resDx['reward'] = rewardDx
@@ -424,7 +402,7 @@ def ExpeditionResults(throne, expMd, runResults):
         if challenge == 'advanced':
             resDx['reward2'] = GenerateMaterial(throne, rewardDx)
 
-    elif runResults == 10:
+    elif runResults == 15:
         resDx['grade'] = 'C'
         resDx['reward'] = {
             'category': 'nothing',
@@ -436,8 +414,15 @@ def ExpeditionResults(throne, expMd, runResults):
 
     else:
         resDx['grade'] = 'D'
-        rewardDx = GetInjury(expMd.ThiefFK.id)
-        resDx['reward'] = rewardDx
+        thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=expMd.ThiefFK.id)
+        thiefLevel = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
+        resDx['reward'] = {
+            'category': 'injury',
+            'resourceId': 'injury',
+            'title': 'Expedition Failure',
+            'iconCode': None,
+            'value': f"Injured - {thiefLevel.KnockedOutPeriod}",
+        }
 
     # experience reward
 
@@ -453,11 +438,14 @@ def GenerateBlueprint(throne, existingDx):
 
     randType = 'item'
     randTypeNo = random.randint(1, 10)
-    if randTypeNo >= 8:         # 30% chance
+    if randTypeNo >= 9:         # 30% chance
         randType = 'thief'
 
+    # thief S2 only unlocks at T4
+    if throne <= 3: randType = 'item'
+
     if randType == 'item':
-        blueprint = list(EM.UnlockableItem.objects.filter(Level=throne, MagicLv__gte=1).values('ResourceId'))
+        blueprint = list(EM.UnlockableItem.objects.filter(Throne=throne, MagicLv__gte=1).values('ResourceId'))
         rand = random.choice(blueprint)
         resId = rand['ResourceId']
 
@@ -466,9 +454,10 @@ def GenerateBlueprint(throne, existingDx):
             resId = rand['ResourceId']
 
     else:
-        unlockThrn = 1
+        unlockThrn = 2
         if throne >= 4 and throne <= 6: unlockThrn = 4
-        if throne >= 7: unlockThrn = 7
+        if throne >= 7 and throne <= 8: unlockThrn = 7
+        if throne == 9: unlockThrn = 9
         blueprint = list(EM.UnlockableThief.objects.filter(UnlockThrone=unlockThrn).values('ResourceId'))
         rand = random.choice(blueprint)
         resId = rand['ResourceId']
@@ -481,6 +470,7 @@ def GenerateBlueprint(throne, existingDx):
 
     iconCode = None
     name = None
+    magic = None
 
     if randType == 'item':
         itemMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=resId)
@@ -489,6 +479,7 @@ def GenerateBlueprint(throne, existingDx):
         else:     stat = 'skl' if itemMd.Skill else 'cmb'
         iconCode = f"{itemMd.Slot}-{stat}-m{itemMd.MagicLv}"
         name = itemMd.Name
+        magic = itemMd.Magic.title().replace(' ', ' +')
 
     else:
         thiefMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=resId)
@@ -503,66 +494,7 @@ def GenerateBlueprint(throne, existingDx):
         'title': 'Blueprint Unlocked' if not existingDx else 'Choose Blueprint',
         'iconCode': iconCode,
         'value': name,
-    }
-
-    return rewardDx
-
-def GenerateResource(throne, existingDx):
-
-    # DEPRECATED
-
-    randType = 'item'
-    randTypeNo = random.randint(1, 10)
-    if randTypeNo >= 7:         # 40% chance
-        randType = 'thief'
-
-    if randType == 'item':
-        resource = list(EM.UnlockableItem.objects.filter(Level=throne, MagicLv=0).values('ResourceId'))
-        rand = random.choice(resource)
-        resId = rand['ResourceId']
-
-        while existingDx and resId == existingDx['resourceId']:
-            rand = random.choice(resource)
-            resId = rand['ResourceId']
-
-    else:
-        resource = list(EM.UnlockableThief.objects.filter(UnlockThrone=0).values('ResourceId'))
-        rand = random.choice(resource)
-        resId = rand['ResourceId']
-
-        while existingDx and resId == existingDx['resourceId']:
-            rand = random.choice(resource)
-            resId = rand['ResourceId']
-
-    # get more display data
-
-    iconCode = None
-    name = None
-
-    if randType == 'item':
-        itemMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=resId)
-        
-        if itemMd.Slot in ['weapon', 'armor', 'back']: stat = itemMd.Trait[:3]
-        else:     stat = 'skl' if itemMd.Skill else 'cmb'
-        iconCode = f"{itemMd.Slot}-{stat}-m{itemMd.MagicLv}"
-        name = itemMd.Name
-
-    else:
-        thiefMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=resId)
-        iconCode = f"class-{thiefMd.Class.lower()}-s{thiefMd.Stars}"
-        name = thiefMd.Class
-
-    # replace happens later, when user views
-    # this allows the user to change their state before claiming
-
-    # return
-
-    rewardDx = {
-        'category': 'resource',
-        'resourceId': resId,
-        'title': 'Resource Gained' if not existingDx else 'Choose Resource',
-        'iconCode': iconCode,
-        'value': name,
+        'magic': magic,
     }
 
     return rewardDx
@@ -570,7 +502,7 @@ def GenerateResource(throne, existingDx):
 def GenerateMaterial(throne, existingDx):
 
     typeLs = ['Gold', 'Stone', 'Gems']
-    FACTOR = 3
+    FACTOR = 4
 
     randType = random.choice(typeLs)
     resourceDx = EM.GothicTower.objects.GetOrNone(Throne=throne, StageNo=1).__dict__
@@ -591,21 +523,6 @@ def GenerateMaterial(throne, existingDx):
         'title': 'Material Gained' if not existingDx else 'Choose Material',
         'iconCode': randType.lower(),
         'value': f"{resourceDx[randType] * FACTOR} {randType}",
-    }
-
-    return rewardDx
-
-def GetInjury(thiefId):
-
-    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
-    thiefLevel = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
-
-    rewardDx = {
-        'category': 'injury',
-        'resourceId': 'injury',
-        'title': 'Expedition Failure',
-        'iconCode': None,
-        'value': f"Injured - {thiefLevel.KnockedOutPeriod}",
     }
 
     return rewardDx

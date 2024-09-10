@@ -36,9 +36,7 @@ const StatsGroup = styled(ST.FlexHorizontal)(({ theme }) => ({
     borderTop: '1px solid silver',
     borderBottom: '1px solid silver',
     borderRadius: '2px',
-
-    padding: '0px 0px 8px 0px',         // T R B L
-    justifyContent: 'space-around', 
+    padding: '0px 0px 8px 0px',
     flexWrap: 'wrap',
 }));
 
@@ -116,23 +114,26 @@ function StoreResource(props) {
                 <StatsGroup>
 
                     { !!props.itemDx.ResourceId.includes('thief') && <>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            Agi {props.itemDx.RareProperties.agi}
-                        </ST.BaseText>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            Mig {props.itemDx.RareProperties.mig}
-                        </ST.BaseText>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            Cun {props.itemDx.RareProperties.cun}
-                        </ST.BaseText>
-                        <ST.BaseText sx={{margin: '0px 10px'}}>
-                            End {props.itemDx.RareProperties.end}
-                        </ST.BaseText>
+                        <ST.FlexHorizontal sx={{justifyContent: 'space-evenly'}}>
+                            <ST.BaseText sx={{margin: '0px 0px'}}>
+                                Agi {props.itemDx.RareProperties.agi}
+                            </ST.BaseText>
+                            <ST.BaseText sx={{margin: '0px 0px'}}>
+                                Mig {props.itemDx.RareProperties.mig}
+                            </ST.BaseText>
+                        </ST.FlexHorizontal>
+                        <ST.FlexHorizontal sx={{justifyContent: 'space-evenly'}}>
+                            <ST.BaseText sx={{margin: '0px 0px'}}>
+                                Cun {props.itemDx.RareProperties.cun}
+                            </ST.BaseText>
+                            <ST.BaseText sx={{margin: '0px 0px'}}>
+                                End {props.itemDx.RareProperties.end}
+                            </ST.BaseText>
+                        </ST.FlexHorizontal>
                     </>}
 
                     { !props.itemDx.ResourceId.includes('thief') && 
-                    !props.itemDx.ResourceId.includes('material') && 
-                    !!props.itemDx.ResourceDx.Trait && <>
+                    ['Weapon', 'Armor'].includes(props.itemDx.ResourceDx.Slot) && <>
                         <ST.BaseText sx={{margin: '0px 10px'}}>
                             {props.itemDx.ResourceDx.Trait}
                         </ST.BaseText>
@@ -142,41 +143,30 @@ function StoreResource(props) {
                     </>}
 
                     { !props.itemDx.ResourceId.includes('thief') && 
-                    !props.itemDx.ResourceId.includes('material') && 
-                    !props.itemDx.ResourceDx.Trait && <>
-                        { !!props.itemDx.ResourceDx.Combat && <>
-                            <ST.BaseText sx={{margin: '0px 10px'}}>
-                                { props.itemDx.ResourceDx.Combat}
-                            </ST.BaseText>
-                        </>}
-                        { !!props.itemDx.ResourceDx.Skill && <>
-                            <ST.BaseText sx={{margin: '0px 10px'}}>
-                                { props.itemDx.ResourceDx.Skill }
-                            </ST.BaseText>
-                        </>}
+                    !['Weapon', 'Armor'].includes(props.itemDx.ResourceDx.Slot) && <>
+                        <ST.BaseText sx={{margin: '0px 10px'}}>
+                            { props.itemDx.ResourceDx.Combat || props.itemDx.ResourceDx.Skill ||
+                                props.itemDx.ResourceDx.Trait }
+                        </ST.BaseText>
                         <ST.BaseText sx={{margin: '0px 10px'}}>
                             &nbsp; &nbsp; &nbsp; &nbsp;
                         </ST.BaseText>
                     </>}
 
-                    { !props.itemDx.ResourceId.includes('thief') && 
-                    !props.itemDx.ResourceId.includes('material') && <>
-                        { !props.itemDx.RareProperties && <>
-                            <ST.BaseText sx={{margin: '0px 10px'}}>
-                                &nbsp; &nbsp; &nbsp; &nbsp;
-                            </ST.BaseText>
+                    { !props.itemDx.ResourceId.includes('thief') && <>
+                        { !props.itemDx.ResourceDx.Magic && <>
                             <ST.BaseText sx={{margin: '0px 10px'}}>
                                 &nbsp; &nbsp; &nbsp; &nbsp;
                             </ST.BaseText>
                         </>}
-                        { !!props.itemDx.RareProperties && <>
+                        { !!props.itemDx.ResourceDx.Magic && <>
                             <ST.BaseText sx={{margin: '0px 10px', color: ST.MagicHighlight}}>
-                                { props.itemDx.RareProperties.magic }
-                            </ST.BaseText>
-                            <ST.BaseText sx={{margin: '0px 10px'}}>
-                                &nbsp; &nbsp; &nbsp; &nbsp;
+                                { props.itemDx.ResourceDx.Magic }
                             </ST.BaseText>
                         </>}
+                        <ST.BaseText sx={{margin: '0px 10px'}}>
+                            &nbsp; &nbsp; &nbsp; &nbsp;
+                        </ST.BaseText>
                     </>}
 
                 </StatsGroup>

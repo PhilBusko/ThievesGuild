@@ -587,7 +587,7 @@ def GetExpeditions(guildMd, trunkNow):
 def GetReplacement(guildMd, rewardDx):
 
     replace = None
-    FACTOR = 2
+    FACTOR = 3
 
     stageMd = EM.GothicTower.objects.GetOrNone(Throne=guildMd.ThroneLevel, StageNo=1)
     gemsLevel = stageMd.Gems
@@ -595,12 +595,14 @@ def GetReplacement(guildMd, rewardDx):
     # check blueprints
 
     if rewardDx['category'] == 'blueprint' and 'thief' in rewardDx['resourceId']:
-        blueprintTrial = GM.ThiefUnlocked.objects.GetOrNone(GuildFK=guildMd, ThiefFK__ResourceId=rewardDx['resourceId'])
+        blueprintTrial = GM.ThiefUnlocked.objects.GetOrNone(
+            UserFK=guildMd.UserFK, ThiefFK__ResourceId=rewardDx['resourceId'])
         if blueprintTrial:
             replace = f"already unlocked, convert to {gemsLevel * FACTOR} gems"
 
     if rewardDx['category'] == 'blueprint' and 'thief' not in rewardDx['resourceId']:
-        blueprintTrial = GM.ItemUnlocked.objects.GetOrNone(GuildFK=guildMd, ItemFK__ResourceId=rewardDx['resourceId'])
+        blueprintTrial = GM.ItemUnlocked.objects.GetOrNone(
+            UserFK=guildMd.UserFK, ItemFK__ResourceId=rewardDx['resourceId'])
         if blueprintTrial:
             replace = f"already unlocked, convert to {gemsLevel * FACTOR} gems"
 
@@ -609,22 +611,16 @@ def GetReplacement(guildMd, rewardDx):
     if rewardDx['category'] == 'material':
         amount = int(rewardDx['value'].split(' ')[0])
 
-        if rewardDx['resourceId'] == 'gold' and guildMd.VaultGold + amount > guildMd.StorageGold:
+        if rewardDx['resourceId'] == 'gold' and guildMd.VaultGold + amount > RS.GetGoldMax(guildMd):
             replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
 
-        if rewardDx['resourceId'] == 'wood' and guildMd.VaultWood + amount > guildMd.StorageWood:
-            replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
-
-        if rewardDx['resourceId'] == 'stone' and guildMd.VaultStone + amount > guildMd.StorageStone:
-            replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
-
-        if rewardDx['resourceId'] == 'iron' and guildMd.VaultIron + amount > guildMd.StorageIron:
+        if rewardDx['resourceId'] == 'stone' and guildMd.VaultStone + amount > RS.GetStoneMax(guildMd):
             replace = f"max reached, convert to {gemsLevel * FACTOR} gems"
 
     return replace
 
 
-def GetOrCreateMarket(guildMd, rareCount):
+def GetOrCreateMarket(userMd, guildMd):
 
     trunkNow = timezone.now().replace(microsecond=0)
     currDate = f"{trunkNow.year}-{str(trunkNow.month).zfill(2)}-{str(trunkNow.day).zfill(2)}"
@@ -681,13 +677,13 @@ def GetOrCreateMarket(guildMd, rareCount):
     # has accessories, unlocked resources
 
     rareAccessory = EM.UnlockableItem.objects.filter(
-        Level=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=True)
+        Throne=guildMd.ThroneLevel, MagicLv=0, Requirement__isnull=True)
 
     rareThief = GM.ThiefUnlocked.objects.filter(
-        GuildFK=guildMd)
+        UserFK=userMd)
 
     rareMagic = GM.ItemUnlocked.objects.filter(
-        GuildFK=guildMd, ItemFK__Level__in=[guildMd.ThroneLevel, guildMd.ThroneLevel -1])
+        UserFK=userMd, ItemFK__Throne__in=[guildMd.ThroneLevel, guildMd.ThroneLevel -1])
 
     potentialLs = []
 
@@ -700,11 +696,11 @@ def GetOrCreateMarket(guildMd, rareCount):
     for rr in rareMagic:
         potentialLs.append(rr.ItemFK.ResourceId)
 
-    # potentialLs += ['material-wood']
-    # if guildMd.ThroneLevel >= 4: potentialLs.append('material-stone')
-    # if guildMd.ThroneLevel >= 7: potentialLs.append('material-iron')
+    rareSlots = RS.GetMagicStoreCount(guildMd)
 
-    for rg in range(0, rareCount):
+    for rg in range(0, rareSlots):
+
+        if len(potentialLs) == 0: break
 
         randomType = random.choice(potentialLs)
         potentialLs.remove(randomType)
@@ -715,19 +711,11 @@ def GetOrCreateMarket(guildMd, rareCount):
         newReso.ThroneLevel = guildMd.ThroneLevel
         newReso.ResourceId = randomType
         newReso.StoreType = 'rare'
-
-        if 'm0' in randomType:
-            newReso.RareProperties = None
+        newReso.RareProperties = None            
 
         if 'thief' in randomType:
             newName = GetThiefName(guildMd)
             newReso.RareProperties = ST.GetStarThief(randomType, newName)
-
-        if 'm1' in randomType:
-            newReso.RareProperties = ST.GetMagicItem(randomType)
-
-        # if 'material' in randomType:
-        #     newReso.RareProperties = ST.GetRareMaterial(randomType, guildMd.ThroneLevel)
 
         newReso.save()
 
@@ -805,9 +793,8 @@ def AttachMarketDisplay(resourceLs):
                 traitLs = resourceDx['Skill'].split(' ')
                 resourceDx['Skill'] = f"{traitLs[0].title()} +{traitLs[1]}"
 
-            if rs['RareProperties'] and 'magic' in rs['RareProperties']:
-                traitLs = rs['RareProperties']['magic'].split(' ')
-                rs['RareProperties']['magic'] = f"{traitLs[0].title()} +{traitLs[1]}"
+            if resourceDx['Magic']:
+                resourceDx['Magic'] = resourceDx['Magic'].title().replace(' ', ' +')
 
         rs['Name'] = name
         rs['Power'] = power

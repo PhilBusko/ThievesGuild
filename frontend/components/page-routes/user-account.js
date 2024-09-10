@@ -2,8 +2,9 @@
 USER ACCOUNT
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
-import { Grid, Stack } from '@mui/material';
+import { Box, Grid, Stack, ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles'
+import { DoubleArrow } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config'
 import { GlobalContext } from '../app-main/global-store';
@@ -14,6 +15,27 @@ import ReadOnlyArea from '../elements/controls/read-only-area';
 import GuildTable from '../elements/custom/guild-table';
 import GuildCreate from '../modals/guild-create';
 import GuildDelete from '../modals/guild-delete';
+import BlueprintPanel from '../elements/custom/blueprint-panel';
+
+
+const DeploymentCollapse = styled(ButtonBase)(({ theme }) => ({
+    top: '-6px',
+    '& svg': {
+        borderRadius: '50%',
+        fontSize: '280%',
+        color: ST.GoldText,
+    },
+    '& svg:hover': {
+        background: ST.DefaultText,
+        color: 'black',
+    },
+}));
+
+const FillPanel = styled(ST.FlexVertical)(({ theme }) => ({
+    width: '690px',
+    [theme.breakpoints.up('lg')]: {width: '920px'},
+    gap: '20px',
+}));
 
 
 function UserAccount(props) {
@@ -40,14 +62,22 @@ function UserAccount(props) {
 
     // load user data
 
+    const [errorLs, setErrorLs] = useState([]);
     const [userInfo, setUserInfo] = useState({});
     const [guildLs, setGuildLs] = useState({});
-    const [errorLs, setErrorLs] = useState([]);
+
+    const [thiefBp, setThiefBp] = useState([]);
+    const [itemW2Bp, setItemW2Bp] = useState([]);
+    const [itemW3Bp, setItemW3Bp] = useState([]);
+    const [itemW4Bp, setItemW4Bp] = useState([]);
 
     const userConnect = () => {
+        setErrorLs([]);
+
         AxiosConfig({
             url: '/engine/user-account',
         }).then(responseData => {
+            console.log(responseData)
             const newInfo = {
                 'Name': responseData.Name,
                 'Unique Id': responseData['Unique Id'],
@@ -57,14 +87,17 @@ function UserAccount(props) {
             setUserInfo(newInfo);
             setGuildLs(responseData['Guilds']);
             getGuildInfo();
+
+            setThiefBp(responseData.thieves);
+            setItemW2Bp(responseData.itemsW2);
+            setItemW3Bp(responseData.itemsW3);
+            setItemW4Bp(responseData.itemsW4);
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
     }
 
     useEffect(() => {
-        setErrorLs([]);
-
         // delay so it goes after the log in
         setTimeout(userConnect, 200);
     }, []);
@@ -89,11 +122,10 @@ function UserAccount(props) {
     const [rightInfo, setRightInfo] = useState({});
 
     const getGuildInfo = () => {
-
         AxiosConfig({
             url: '/engine/guild-info',
         }).then(responseData => {
-            console.log(responseData);
+            // console.log(responseData);
             setLeftInfo(responseData.leftDx);
             setMiddleInfo(responseData.middleDx);
             setRightInfo(responseData.rightDx);
@@ -121,6 +153,16 @@ function UserAccount(props) {
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
+    }
+
+
+    // blueprints per player
+
+    const [unlockCollapse, setUnlockCollapse] = useState(true);
+
+    const handleUnlockCollapse = () => {
+        const newCollapse = !unlockCollapse;
+        setUnlockCollapse(newCollapse);
     }
 
 
@@ -184,6 +226,46 @@ function UserAccount(props) {
                             <DisplayDict infoDx={ middleInfo } width={ '180px' }/>
                             <DisplayDict infoDx={ rightInfo } width={ '220px' }/>
                         </ST.FlexHorizontal>
+
+                    </ST.ContentCard>
+                </ST.GridItemCenter>
+
+                <ST.GridItemCenter item xs={12}>
+                    <ST.ContentCard elevation={3} sx={{marginTop: '20px'}}>
+
+                        <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                            <ST.ContentTitle sx={{ marginBottom: '8px', }}>Blueprints Discovered</ST.ContentTitle>
+                            <DeploymentCollapse onClick={handleUnlockCollapse}
+                                sx={{transform: unlockCollapse ? 'rotate(90deg)' : 'rotate(270deg)'}}>
+                                <DoubleArrow></DoubleArrow>
+                            </DeploymentCollapse>
+                        </ST.FlexHorizontal>
+
+                        <FillPanel sx={{ display: unlockCollapse ? 'flex' : 'none' }}>
+                            &nbsp;
+                        </FillPanel>
+
+                        <FillPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
+                        
+                            <BlueprintPanel
+                                blueprintLs={thiefBp}
+                                title='Thieves '
+                                caption='All Thrones'
+                            />
+
+                            <BlueprintPanel
+                                blueprintLs={itemW2Bp}
+                                title='Items'
+                                caption='Throne II'
+                            />
+
+                            <BlueprintPanel
+                                blueprintLs={itemW3Bp}
+                                title='Items'
+                                caption='Throne III'
+                            />
+
+                        </FillPanel>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

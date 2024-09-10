@@ -69,9 +69,10 @@ class ThiefInGuild(JM.Model):
 class ItemInGuild(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     ThiefFK = JM.ForeignKey(ThiefInGuild, on_delete=JM.CASCADE, null=True)
-    Slot = JM.TextField()
+    Throne = JM.IntegerField()
     Name = JM.TextField()
-    Level = JM.IntegerField()
+    Slot = JM.TextField()
+    MagicLv = JM.IntegerField()
     TotalLv = JM.IntegerField()
     Power = JM.IntegerField()
 
@@ -92,13 +93,14 @@ class RoomInGuild(JM.Model):
 
 
 class ThiefUnlocked(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    UserFK = JM.ForeignKey(MM.User, on_delete=JM.CASCADE)
     ThiefFK = JM.ForeignKey(EM.UnlockableThief, on_delete=JM.CASCADE)
     objects = DB.BaseManager()
 
 class ItemUnlocked(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    UserFK = JM.ForeignKey(MM.User, on_delete=JM.CASCADE)
     ItemFK = JM.ForeignKey(EM.UnlockableItem, on_delete=JM.CASCADE)
+    # ResourceId = JM.TextField()
     objects = DB.BaseManager()
 
 

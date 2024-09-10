@@ -16,7 +16,6 @@ import MaterialsBar from '../elements/custom/materials-bar';
 import StoreResource from '../elements/custom/store-resource';
 import MarketBuy from '../modals/market-buy';
 import StoreGem from '../elements/custom/store-gem';
-import StoreBlueprint from '../elements/custom/store-blueprint';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -46,14 +45,6 @@ const FillPanel = styled(ST.FlexHorizontal)(({ theme }) => ({
     flexWrap: 'wrap',
 }));
 
-const ScrollPanel = styled(Box)(({ theme }) => ({
-    width: '690px',
-    [theme.breakpoints.up('lg')]: {width: '920px'},
-    marginTop: '20px',
-    padding: '8px 0px 10px 0px',        // T R B L
-    overflowX: 'scroll',
-}));
-
 
 function Market(props) {
 
@@ -70,7 +61,6 @@ function Market(props) {
     const [dailyCollapse, setDailyCollapse] = useState(false);
     const [gemCollapse, setGemCollapse] = useState(true);
     const [dollarCollapse, setDollarCollapse] = useState(true);
-    const [unlockCollapse, setUnlockCollapse] = useState(true);
 
     const handleCommonCollapse = () => {
         const newCollapse = !commonCollapse;
@@ -92,34 +82,21 @@ function Market(props) {
         setDollarCollapse(newCollapse);
     }
 
-    const handleUnlockCollapse = () => {
-        const newCollapse = !unlockCollapse;
-        setUnlockCollapse(newCollapse);
-    }
-
-
     // stores data
 
     const [commonStore, setCommonStore] = useState(null);
     const [dailyStore, setDailyStore] = useState(null);
     const [gemStore, setGemStore] = useState(null);
-    const [thiefBp, setThiefBp] = useState(null);
-    const [itemW2Bp, setItemW2Bp] = useState(null);
-    const [itemW3Bp, setItemW3Bp] = useState(null);
-    const [itemW4Bp, setItemW4Bp] = useState(null);
 
     const storeUpdate = () => {
         AxiosConfig({
             url: '/engine/daily-market',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData)
+                // console.log(responseData)
                 setCommonStore(responseData.commonStore);
                 setDailyStore(responseData.dailyStore);
                 setGemStore(responseData.gemStore);
-                setThiefBp(responseData.blueprints.thieves);
-                setItemW2Bp(responseData.blueprints.itemsW2);
-                setItemW3Bp(responseData.blueprints.itemsW3);
             }
             else {
                 setMessage(responseData.message);
@@ -327,67 +304,15 @@ function Market(props) {
                             </DeploymentCollapse>
                         </ST.FlexHorizontal>
 
-                        <FillPanel sx={{ display: gemCollapse ? 'flex' : 'none', maxWidth: '800px' }}>
+                        <FillPanel sx={{ display: gemCollapse ? 'flex' : 'none', maxWidth: '780px' }}>
                             &nbsp; 
                         </FillPanel>
 
-                        <FillPanel sx={{ display: gemCollapse ? 'none' : 'flex', maxWidth: '800px' }}>
+                        <FillPanel sx={{ display: gemCollapse ? 'none' : 'flex', maxWidth: '780px' }}>
                             { !!gemStore && gemStore.map((st, id) => (
-                                st.targetIcon.includes('gold') &&
-                                    <StoreGem key={ id } materialDx={ st } notifyTrade={ handleTrade } />
+                                <StoreGem key={ id } materialDx={ st } notifyTrade={ handleTrade } />
                             ))}
                         </FillPanel>
-                        <FillPanel sx={{ display: gemCollapse ? 'none' : 'flex', maxWidth: '800px' }}>
-                            { !!gemStore && gemStore.map((st, id) => (
-                                !st.targetIcon.includes('gold') &&
-                                    <StoreGem key={ id } materialDx={ st } notifyTrade={ handleTrade } />
-                            ))}
-                        </FillPanel>
-
-                    </ST.ContentCard>
-                </ST.GridItemCenter>
-
-                <ST.GridItemCenter item xs={12}>
-                    <ST.ContentCard elevation={3}>
-
-                        <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
-                            <ST.ContentTitle sx={{ marginBottom: '8px', }}>Blueprints Discovered</ST.ContentTitle>
-                            <DeploymentCollapse onClick={handleUnlockCollapse}
-                                sx={{transform: unlockCollapse ? 'rotate(90deg)' : 'rotate(270deg)'}}>
-                                <DoubleArrow></DoubleArrow>
-                            </DeploymentCollapse>
-                        </ST.FlexHorizontal>
-
-                        <FillPanel sx={{ display: unlockCollapse ? 'flex' : 'none' }}>
-                            &nbsp; 
-                        </FillPanel>
-
-                        <ScrollPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
-                            { !!thiefBp && thiefBp.map((st, id) => (
-                                <StoreBlueprint 
-                                    key={ id }
-                                    resourceDx={ st }
-                                />
-                            ))}
-                        </ScrollPanel>
-
-                        <ScrollPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
-                            { !!itemW2Bp && itemW2Bp.map((st, id) => (
-                                <StoreBlueprint 
-                                    key={ id }
-                                    resourceDx={ st }
-                                />
-                            ))}
-                        </ScrollPanel>
-
-                        <ScrollPanel sx={{ display: unlockCollapse ? 'none' : 'flex' }}>
-                            { !!itemW3Bp && itemW3Bp.map((st, id) => (
-                                <StoreBlueprint 
-                                    key={ id }
-                                    resourceDx={ st }
-                                />
-                            ))}
-                        </ScrollPanel>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

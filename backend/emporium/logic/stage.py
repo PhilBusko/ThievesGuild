@@ -52,18 +52,13 @@ def GetHealAmount(obsLevel):
 def GetStageRewards(rewards):
 
     gold = RollReward(rewards['Gold'])
+    stone = RollReward(rewards['Stone'])
     gems = RollReward(rewards['Gems'])
-
-    potential = ['Wood']
-    if rewards['Stone'] > 0: potential.append('Stone')
-    if rewards['Iron'] > 0: potential.append('Iron')
-    resType = random.choice(potential)
-    resAmount = RollReward(rewards[resType])
 
     resourceDx = {
         'gold': gold,
+        'stone': stone,
         'gems': gems,
-        resType.lower(): resAmount,
     }
 
     return resourceDx

@@ -28,8 +28,12 @@ RESOURCE VIEWS
 def UserAccount(request):
 
     userMd = request.user
-    guilds = GM.Guild.objects.filter(UserFK=userMd)
-    guildLs = list(guilds.values())
+    guildLs = GM.Guild.objects.filter(UserFK=userMd).values()
+
+
+
+
+
 
     if len(guildLs) > 0:
         guildDf = PD.DataFrame(guildLs)
@@ -43,6 +47,15 @@ def UserAccount(request):
         guildLs = []
         selectedName = None
 
+    for gd in guildLs:
+        gd['TotalPower'] = RS.GetTotalPower(gd['id'])
+
+
+
+
+
+
+
     userDx = {
         'Name': userMd.user_name,
         'Email': userMd.email,
@@ -52,6 +65,9 @@ def UserAccount(request):
         'Selected Guild': selectedName,
         'Guilds': guildLs,
     }
+
+    userDx.update(RS.GetBlueprints(userMd))
+
     return Response(userDx)
 
 @api_view(['GET'])
@@ -82,6 +98,9 @@ def GuildInfo(request):
 
     userMd = request.user
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    if not guildMd:
+        return Response({})
 
     leftDx = {
         'Charter': guildMd.Name,
@@ -370,7 +389,7 @@ def ExpeditionUpdate(request):
     claimLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, Claimed=True)
     for ep in claimLs: ep.delete()
 
-    # store the expeditions in slots to keep the order on the frontend
+    # create the expeditions in slots to keep the order on the frontend
 
     dailySlots = RS.GetExpeditionCount(guildMd)
     for sl in range(1, dailySlots +1):
@@ -389,7 +408,7 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 13) #runResults)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 19) #runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 
@@ -443,7 +462,7 @@ def ExpeditionClaim(request):
 
         if 'thief' in selectReward['resourceId']:
             newBlueprint = {
-                'GuildFK': guildMd,
+                'UserFK': guildMd.UserFK,
                 'ThiefFK': EM.UnlockableThief.objects.GetOrNone(ResourceId=selectReward['resourceId']),
             }
             newModel = GM.ThiefUnlocked(**newBlueprint)
@@ -451,7 +470,7 @@ def ExpeditionClaim(request):
 
         else:
             newBlueprint = {
-                'GuildFK': guildMd,
+                'UserFK': guildMd.UserFK,
                 'ItemFK': EM.UnlockableItem.objects.GetOrNone(ResourceId=selectReward['resourceId']),
             }
             newModel = GM.ItemUnlocked(**newBlueprint)
@@ -498,10 +517,7 @@ def DailyMarket(request):
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
 
-    rares = RS.GetMagicStoreCount(guildMd)
-    commonStore, dailyStore = CT.GetOrCreateMarket(guildMd, rares)
-
-    blueprints = RS.GetBlueprints(guildMd)
+    commonStore, dailyStore = CT.GetOrCreateMarket(userMd, guildMd)
 
     gemStore = [
         {'gems': 50,    'targetAmount': 230,    'targetIcon': 'material-gold', },
@@ -518,7 +534,6 @@ def DailyMarket(request):
         'commonStore': commonStore,
         'dailyStore': dailyStore,
         'gemStore': gemStore,
-        'blueprints': blueprints,
     }
     return Response(marketDx)
 

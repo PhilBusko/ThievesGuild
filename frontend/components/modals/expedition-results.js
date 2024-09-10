@@ -87,6 +87,11 @@ const ResultsText = styled(ST.BaseText)(({ theme }) => ({
     whiteSpace: 'nowrap',
 }));
 
+const MagicText = styled(ST.BaseText)(({ theme }) => ({
+    textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
+    color: ST.MagicHighlight,
+}));
+
 const ColorRadio = styled(Radio)(({ theme }) => ({
     color: ST.NearBlack,
     background: ST.DefaultText,
@@ -195,27 +200,28 @@ function ExpeditionResults(props) {
                             </ST.FlexHorizontal>
 
                             { !props.expedition.Results.reward2 && !!props.expedition.Results.reward.iconCode && <>
+                                {/* there is 1 reward */}
                                 <ResultsText>{ props.expedition.Results.reward.title }:</ResultsText>
                                 <ST.FlexHorizontal sx={{width: '100%'}}>
                                     <GainIcon src={ getIcon(props.expedition.Results.reward.category,
                                         props.expedition.Results.reward.iconCode) } />
-                                    <ResultsText sx={{ margin: '-10px 0px 0px 16px' }}>
-                                        { props.expedition.Results.reward.value }
-                                    </ResultsText>
+                                    <ST.FlexVertical sx={{margin: '-9px 0px 0px 12px', alignItems: 'flex-start'}}>
+                                        <ResultsText>
+                                            { props.expedition.Results.reward.value }
+                                        </ResultsText>
+                                        <MagicText>
+                                            { props.expedition.Results.reward.magic }
+                                        </MagicText>
+                                    </ST.FlexVertical>
                                 </ST.FlexHorizontal>
                                 { !!props.expedition.Results.reward.replace &&
                                     <ReplaceText>({props.expedition.Results.reward.replace})</ReplaceText>
                                 }
                             </>}
 
-                            { !props.expedition.Results.reward2 && !props.expedition.Results.reward.iconCode && <>
-                                <ResultsText>{ props.expedition.Results.reward.title }:</ResultsText>
-                                <ResultsText>
-                                    { props.expedition.Results.reward.value }
-                                </ResultsText>
-                            </>}
-
                             { !!props.expedition.Results.reward2 && <>
+                                {/* there are 2 rewards */}
+
                                 <ResultsText>{ props.expedition.Results.reward2.title }:</ResultsText>
 
                                 <RadioGroup
@@ -235,6 +241,9 @@ function ExpeditionResults(props) {
                                             { !!props.expedition.Results.reward.replace &&
                                                 <ReplaceText>({props.expedition.Results.reward.replace})</ReplaceText>
                                             }
+                                            { !props.expedition.Results.reward.replace &&
+                                                <MagicText>{props.expedition.Results.reward.magic}</MagicText>
+                                            }
                                         </ST.FlexVertical>
                                         <ST.FlexVertical sx={{width: '48%'}}>
                                             <ST.FlexHorizontal>
@@ -246,13 +255,25 @@ function ExpeditionResults(props) {
                                             { !!props.expedition.Results.reward2.replace &&
                                                 <ReplaceText>({props.expedition.Results.reward2.replace})</ReplaceText>
                                             }
+                                            { !props.expedition.Results.reward2.replace &&
+                                                <MagicText>{props.expedition.Results.reward2.magic}</MagicText>
+                                            }
                                         </ST.FlexVertical>
 
                                     </DoubleSpacer>
                                 </RadioGroup>
 
                             </>}
-                            
+
+                            { !props.expedition.Results.reward2 && !props.expedition.Results.reward.iconCode && <>
+                                {/* there are 0 rewards */}
+
+                                <ResultsText>{ props.expedition.Results.reward.title }:</ResultsText>
+                                <ResultsText>
+                                    { props.expedition.Results.reward.value }
+                                </ResultsText>
+                            </>}
+
                             <ExpText>Experience +{props.expedition.Results.xp}</ExpText>
                         </ResultsContent>
                     }

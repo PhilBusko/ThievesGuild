@@ -18,7 +18,7 @@ class UnlockableThief(JM.Model):
     class Meta: unique_together = ('Class', 'Stars')
 
 class UnlockableItem(JM.Model):
-    ResourceId = JM.TextField()
+    ResourceId = JM.TextField(unique=True)
     Name = JM.TextField()
     Throne = JM.IntegerField()
     Level = JM.IntegerField()
@@ -30,10 +30,8 @@ class UnlockableItem(JM.Model):
     Trait = JM.TextField(null=True)
     Combat = JM.TextField(null=True)
     Skill = JM.TextField(null=True)
-    Enchantments = JM.TextField(null=True)
-
+    Magic = JM.TextField(null=True)     # 1 blueprint per enchantment
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Name', 'Level', 'MagicLv')
 
 class ThiefLevel(JM.Model):
     Level = JM.IntegerField(unique=True)
@@ -68,6 +66,7 @@ class ThroneRoom(JM.Model):
     MaxThieves = JM.IntegerField()
     Throne_Gold = JM.IntegerField()
     Throne_Stone = JM.IntegerField()
+    MagicSlots = JM.IntegerField()
     objects = DB.BaseManager()
 
 class BasicRoom(JM.Model):

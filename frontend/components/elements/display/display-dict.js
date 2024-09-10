@@ -36,7 +36,7 @@ function DisplayDict(props) {
             </DisplayTable>
         }
         {Object.keys(props.infoDx).length == 0 &&
-            <DisplayTable sx={{ height: props.height }}>
+            <DisplayTable sx={{ width: '150px', height: props.height }}>
                 <tbody>
                     <tr>
                         <td>

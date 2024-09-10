@@ -94,11 +94,11 @@ def GetAssetList(guildMd):
     return assetDf
 
 def GetDisplayInfo(itemDx):
-   # subroutine for GetThiefList, GetAssetList
+    # subroutine for GetThiefList, GetAssetList
 
     if itemDx['Slot'] in ['weapon', 'armor', 'back']: stat = itemDx['Trait'][:3]
     else:     stat = 'skl' if itemDx['Skill'] else 'cmb'
-    iconCode = f"{itemDx['Slot']}-{stat}-m{itemDx['TotalLv'] - itemDx['Level']}"
+    iconCode = f"{itemDx['Slot']}-{stat}-m{itemDx['MagicLv']}"
 
     bonusLs = []
     if itemDx['Trait']:
@@ -118,7 +118,7 @@ def GetDisplayInfo(itemDx):
 
     return iconCode, bonusLs, magicLs
 
-def GetBlueprints(guildMd):
+def GetBlueprints(userMd):
 
     # get thieves
 
@@ -127,20 +127,21 @@ def GetBlueprints(guildMd):
         th['Name'] = th['Class']
         th['IconCode'] = f"class-{th['Class'].lower()}-s{th['Stars']}"
         th['Power'] = th['StoreCost'] / GD.POWER_FACTOR
-        checkUnlock = GM.ThiefUnlocked.objects.GetOrNone(GuildFK=guildMd, ThiefFK__ResourceId=th['ResourceId'])
+        checkUnlock = GM.ThiefUnlocked.objects.GetOrNone(UserFK=userMd, ThiefFK__ResourceId=th['ResourceId'])
         th['Unlocked'] = True if checkUnlock else False
 
     # get items
 
-    def GetItemBlueprints(level):
-        unlockItem = EM.UnlockableItem.objects.filter(Level=level, MagicLv__gt=0).values()
+    def GetItemBlueprints(throne):
+        unlockItem = EM.UnlockableItem.objects.filter(Throne=throne, MagicLv__gt=0).values()
         for rs in unlockItem:
             if rs['Slot'] in ['weapon', 'armor', 'back']: stat = rs['Trait'][:3]
             else:     stat = 'skl' if rs['Skill'] else 'cmb'
-            rs['IconCode'] = f"{rs['Slot']}-{stat}-m{rs['TotalLv'] - rs['Level']}"
+            rs['IconCode'] = f"{rs['Slot']}-{stat}-m{rs['MagicLv']}"
             rs['Power'] = rs['StoreCost'] / GD.POWER_FACTOR
-            checkUnlock = GM.ItemUnlocked.objects.GetOrNone(GuildFK=guildMd, ItemFK__ResourceId=rs['ResourceId'])
+            checkUnlock = GM.ItemUnlocked.objects.GetOrNone(UserFK=userMd, ItemFK__ResourceId=rs['ResourceId'])
             rs['Unlocked'] = True if checkUnlock else False
+            rs['Magic'] = rs['Magic'].title().replace(' ', ' +')
         return unlockItem
 
     # return
@@ -150,6 +151,7 @@ def GetBlueprints(guildMd):
         'itemsW2': GetItemBlueprints(2),
         'itemsW3': GetItemBlueprints(3),
         'itemsW4': [],
+        'itemsW5': [],
     }
 
 
@@ -230,6 +232,10 @@ def GetExpeditionCount(guildMd):
 
 def GetMagicStoreCount(guildMd):
     count = 4
+
+    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    count += throneMd.MagicSlots
+
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Fence')
     for rm in roomLs:
         roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
@@ -354,7 +360,7 @@ def PrepGuild(userMd):
 
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
-    if guildMd.LastPlayed != currDate:
+    if guildMd and guildMd.LastPlayed != currDate:
         guildMd.LastPlayed = currDate
         guildMd.save()
 
@@ -424,15 +430,6 @@ def SetThiefTotals(thiefMd):
                     GetItemTrait(head, 'end') + GetItemTrait(hands, 'end') + 
                     GetItemTrait(feet, 'end') + GetItemTrait(back, 'end') )
 
-    thiefMd.Power = thiefMd.BasePower
-    # thiefMd.Power += levelsPower
-    thiefMd.Power += weapon.Power if weapon else 0
-    thiefMd.Power += armor.Power if armor else 0 
-    thiefMd.Power += head.Power if head else 0
-    thiefMd.Power += hands.Power if hands else 0
-    thiefMd.Power += feet.Power if feet else 0
-    thiefMd.Power += back.Power if back else 0
-
     # set combat 
 
     thiefMd.Health = 58 + thiefMd.Endurance * 4
@@ -459,8 +456,20 @@ def SetThiefTotals(thiefMd):
                     GetItemSkill(head, 'tra') + GetItemSkill(hands, 'tra') + 
                     GetItemSkill(feet, 'tra') + GetItemSkill(back, 'tra') )
 
-    thiefMd.save()
+    # set power
 
+    levelMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
+
+    thiefMd.Power = thiefMd.BasePower
+    thiefMd.Power += levelMd.Power
+    thiefMd.Power += weapon.Power if weapon else 0
+    thiefMd.Power += armor.Power if armor else 0 
+    thiefMd.Power += head.Power if head else 0
+    thiefMd.Power += hands.Power if hands else 0
+    thiefMd.Power += feet.Power if feet else 0
+    thiefMd.Power += back.Power if back else 0
+
+    thiefMd.save()
 
 
 def CreateNewGuild(user, guildName):
@@ -477,12 +486,12 @@ def CreateNewGuild(user, guildName):
     AttachStartingWargear(newThief)
     newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
     AttachStartingWargear(newThief)
-    # newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
-    # AttachStartingWargear(newThief)
-    # newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
-    # AttachStartingWargear(newThief)
-    # newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
-    # AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
+    AttachStartingWargear(newThief)
 
     StartingAccessories(newGuild)
 
@@ -531,39 +540,41 @@ def AttachStartingWargear(thiefMd):
 
     # equip weapon
 
-    weaponDx = EM.UnlockableItem.objects.filter(
-                Level=1, Slot='weapon', Requirement=thiefMd.Class).values()[0]
+    weaponMd = EM.UnlockableItem.objects.GetOrNone(
+                Throne=1, MagicLv=0, Slot='weapon', Requirement=thiefMd.Class)
     newWeapon = {
         'GuildFK': thiefMd.GuildFK,
         'ThiefFK': thiefMd,
-        'Name': weaponDx['Name'],
-        'Level': weaponDx['Level'],
-        'TotalLv': weaponDx['TotalLv'],
-        'Slot': weaponDx['Slot'],
-        'Power': weaponDx['StoreCost'] / GD.POWER_FACTOR,
-        'Requirement': weaponDx['Requirement'],
-        'Trait': weaponDx['Trait'],
-        'Combat': weaponDx['Combat'],
-        'Skill': weaponDx['Skill'],
+        'Throne': weaponMd.Throne,
+        'Name': weaponMd.Name,
+        'MagicLv': weaponMd.MagicLv,
+        'TotalLv': weaponMd.TotalLv,
+        'Slot': weaponMd.Slot,
+        'Power': weaponMd.StoreCost / GD.POWER_FACTOR,
+        'Requirement': weaponMd.Requirement,
+        'Trait': weaponMd.Trait,
+        'Combat': weaponMd.Combat,
+        'Skill': weaponMd.Skill,
     }
     newModel = GM.ItemInGuild(**newWeapon).save()
 
     # equip armor
 
-    armorDx = EM.UnlockableItem.objects.filter(
-                Level=1, Slot='armor', Requirement=thiefMd.Class).values()[0]
+    armorMd = EM.UnlockableItem.objects.GetOrNone(
+                Throne=1, MagicLv=0, Slot='armor', Requirement=thiefMd.Class)
     newArmor = {
         'GuildFK': thiefMd.GuildFK,
         'ThiefFK': thiefMd,
-        'Name': armorDx['Name'],
-        'Level': armorDx['Level'],
-        'TotalLv': armorDx['TotalLv'],
-        'Slot': armorDx['Slot'],
-        'Power': armorDx['StoreCost'] / GD.POWER_FACTOR,
-        'Requirement': armorDx['Requirement'],
-        'Trait': armorDx['Trait'],
-        'Combat': armorDx['Combat'],
-        'Skill': armorDx['Skill'],
+        'Throne': armorMd.Throne,
+        'Name': armorMd.Name,
+        'MagicLv': armorMd.MagicLv,
+        'TotalLv': armorMd.TotalLv,
+        'Slot': armorMd.Slot,
+        'Power': armorMd.StoreCost / GD.POWER_FACTOR,
+        'Requirement': armorMd.Requirement,
+        'Trait': armorMd.Trait,
+        'Combat': armorMd.Combat,
+        'Skill': armorMd.Skill,
     }
     newModel = GM.ItemInGuild(**newArmor).save()
 
@@ -572,12 +583,13 @@ def StartingAccessories(guildMd):
     slots = ['head', 'hands', 'feet']
     for sl in slots:
 
-        accessoryDx = EM.UnlockableItem.objects.filter(Level=1, Slot=sl).values()[0]
+        accessoryDx = EM.UnlockableItem.objects.filter(Throne=1, MagicLv=0, Slot=sl).values()[0]
         newAccessory = {
             'GuildFK': guildMd,
             'ThiefFK': None,
+            'Throne': accessoryDx['Throne'],
             'Name': accessoryDx['Name'],
-            'Level': accessoryDx['Level'],
+            'MagicLv': accessoryDx['MagicLv'],
             'TotalLv': accessoryDx['TotalLv'],
             'Slot': accessoryDx['Slot'],
             'Power': accessoryDx['StoreCost'] / GD.POWER_FACTOR,
@@ -586,12 +598,13 @@ def StartingAccessories(guildMd):
         }
         newModel = GM.ItemInGuild(**newAccessory).save()
 
-        accessoryDx = EM.UnlockableItem.objects.filter(Level=1, Slot=sl).values()[1]
+        accessoryDx = EM.UnlockableItem.objects.filter(Level=1, MagicLv=0, Slot=sl).values()[1]
         newAccessory = {
             'GuildFK': guildMd,
             'ThiefFK': None,
+            'Throne': accessoryDx['Throne'],
             'Name': accessoryDx['Name'],
-            'Level': accessoryDx['Level'],
+            'MagicLv': accessoryDx['MagicLv'],
             'TotalLv': accessoryDx['TotalLv'],
             'Slot': accessoryDx['Slot'],
             'Power': accessoryDx['StoreCost'] / GD.POWER_FACTOR,
