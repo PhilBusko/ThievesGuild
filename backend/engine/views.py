@@ -55,7 +55,6 @@ def UserAccount(request):
 
 
 
-
     userDx = {
         'Name': userMd.user_name,
         'Email': userMd.email,
@@ -289,6 +288,36 @@ def ChangeEquip(request):
         'message': None,
     }
     return Response(details)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def RetireThief(request):
+
+    userMd = request.user
+    thiefId = request.data.get('retireId')
+
+    # any items on thief are unequipped first
+
+    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId).delete()
+
+    return Response({'result': 'success'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def SellItem(request):
+
+    userMd = request.user
+    sellId = request.data.get('sellId') 
+    storeCost = request.data.get('storeCost')
+
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    GM.ItemInGuild.objects.GetOrNone(id=sellId).delete()
+
+    gold = int(storeCost) * 0.5
+    RS.GrantGold(guildMd, gold)
+
+    return Response({'result': 'success'})
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -594,10 +623,11 @@ def BuyMarket(request):
         newItem = {
             'GuildFK': guildMd,
             'ThiefFK': None,
+            'Throne': resourceMd.Throne,
             'Name': resourceMd.Name,
-            'Level': resourceMd.Level,
-            'TotalLv': resourceMd.TotalLv,
             'Slot': resourceMd.Slot,
+            'MagicLv': resourceMd.MagicLv,
+            'TotalLv': resourceMd.TotalLv,
             'Power': resourceMd.StoreCost / GD.POWER_FACTOR,
             'Requirement': resourceMd.Requirement,
             'Trait': resourceMd.Trait,

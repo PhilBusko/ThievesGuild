@@ -2,9 +2,10 @@
 VAULT TABLE
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
-import { Box } from '@mui/material';
+import { Box, ButtonBase } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
+import { CurrencyExchange } from '@mui/icons-material/';
 
 import * as ST from '../styled-elements';
 import * as GI from '../../assets/guild-icons';
@@ -72,7 +73,11 @@ const InventoryIcon = styled('img')(({ theme }) => ({
     }
 }));
 
-const tableWidth = '750px';
+const SellButton = styled(ButtonBase)(({ theme }) => ({
+    color: 'goldenrod',
+}));
+
+const tableWidth = '790px';
 
 
 function VaultTable(props) {
@@ -151,6 +156,16 @@ function VaultTable(props) {
             width: 110, 
             renderCell: (params) => (
                 <ST.BaseText> { params.value ? params.value : '- Unclaimed -' } </ST.BaseText>
+            ),
+        },
+        {
+            field: 'sell', headerName: 'Sell', 
+            sortable: false, 
+            width: 40, headerAlign: 'center', align: 'center',
+            renderCell: (params) => (
+                <SellButton onClick={() => { props.notifySell(params.row); }}>
+                    <CurrencyExchange sx={{fontSize: 'medium'}}/>
+                </SellButton>
             ),
         },
     ];

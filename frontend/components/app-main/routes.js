@@ -3,8 +3,7 @@ APP-MAIN ROUTES
 **************************************************************************************************/
 import Scholarium from '../page-routes/scholarium';
 import Castle from '../page-routes/castle';
-import Barracks from '../page-routes/barracks';
-import Armory from '../page-routes/armory';
+import Garrison from '../page-routes/garrison';
 import Heists from '../page-routes/heists';
 import Deployment from '../page-routes/deployment';
 import Playthrough from '../page-routes/playthrough';
@@ -37,34 +36,28 @@ export const RoutesConfig = [
         'order': 2,
     },
     {
-        'title': 'Barracks',
-        'path': '/barracks/',
-        'element': <Barracks />, 
+        'title': 'Garrison',
+        'path': '/garrison/',
+        'element': <Garrison />, 
         'order': 3,
-    },
-    {
-        'title': 'Armory',
-        'path': '/armory/',
-        'element': <Armory />, 
-        'order': 4,
     },
     {
         'title': 'Heists',
         'path': '/heists/',
         'element': <Heists />, 
-        'order': 5,
+        'order': 4,
     },
     {
         'title': 'Expeditions',
         'path': '/expeditions/',
         'element': <Expedition />, 
-        'order': 6,
+        'order': 5,
     },
     {
         'title': 'Market',
         'path': '/market/',
         'element': <Market />, 
-        'order': 7,
+        'order': 6,
     },
 
     {

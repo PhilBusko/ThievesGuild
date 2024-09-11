@@ -73,7 +73,7 @@ function Heists(props) {
             url: '/engine/daily-heists',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData)
+                // console.log(responseData)
                 setTower(responseData.tower);
                 setTrial(responseData.trial);
                 setDungeon(responseData.dungeon);

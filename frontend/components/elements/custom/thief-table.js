@@ -2,8 +2,10 @@
 THIEF TABLE
 **************************************************************************************************/
 import { useState } from 'react';
+import { ButtonBase } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles'
+import { DeleteForever } from '@mui/icons-material'; 
 
 import * as ST from '../styled-elements';
 import * as GI from '../../assets/guild-icons';
@@ -60,6 +62,11 @@ const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
     border: `1px solid ${ST.FadedBlue}`,
     borderRadius: '2px',
     background: ST.TableBkgd, 
+}));
+
+const DeleteButton = styled(ButtonBase)(({ theme }) => ({
+    color: 'crimson',
+    fontSize: '120%',
 }));
 
 
@@ -164,6 +171,15 @@ function ThiefTable(props) {
         //     width: 80, headerAlign: 'center', align: 'center',
         //     renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         // },
+        {
+            field: 'delete', headerName: 'Retire', sortable: false,
+            width: 60, headerAlign: 'center', align: 'center',
+            renderCell: (params) => (<>
+                <DeleteButton onClick={() => { props.notifyDelete(params.row); }}>
+                    <DeleteForever></DeleteForever>
+                </DeleteButton>
+            </>),
+        },
     ];
 
 
@@ -174,7 +190,7 @@ function ThiefTable(props) {
             <StyledTable
                 rows={props.dataLs}
                 columns={colDefs}
-                sx={{ width: '770px' }}
+                sx={{ width: '830px' }}
                 rowHeight={58}
                 autoHeight={true}
                 density='compact'            
@@ -196,7 +212,8 @@ function ThiefTable(props) {
 ThiefTable.defaultProps = {
     dataLs: [],
     notifySelect: () => {},
-    notifyTimer: () => { console.log('timer expired'); },
+    notifyTimer: () => {},
+    notifyDelete: () => {},
 };
 
 export default ThiefTable;

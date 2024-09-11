@@ -68,7 +68,7 @@ class ThiefInGuild(JM.Model):
 
 class ItemInGuild(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    ThiefFK = JM.ForeignKey(ThiefInGuild, on_delete=JM.CASCADE, null=True)
+    ThiefFK = JM.ForeignKey(ThiefInGuild, on_delete=JM.SET_NULL, null=True)
     Throne = JM.IntegerField()
     Name = JM.TextField()
     Slot = JM.TextField()

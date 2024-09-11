@@ -32,7 +32,9 @@ engine_url = [
     re_path(r'^thief-details',  NV.ThiefDetails),
     re_path(r'^vault-details',  NV.VaultDetails),
     re_path(r'^change-equip',   NV.ChangeEquip),
-
+    re_path(r'^retire-thief',   NV.RetireThief),
+    re_path(r'^sell-item',      NV.SellItem),
+    
     re_path(r'^daily-heists',   NV.DailyHeists),
     re_path(r'^launch-room',    NV.LaunchRoom),
 

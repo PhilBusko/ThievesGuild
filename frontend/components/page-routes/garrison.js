@@ -1,16 +1,21 @@
 /**************************************************************************************************
 BARRACKS
 **************************************************************************************************/
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Grid, Box, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import AxiosConfig from '../app-main/axios-config';
+import { GlobalContext } from '../app-main/global-store';
 import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
+import MaterialsBar from '../elements/custom/materials-bar';
 import ThiefTable from '../elements/custom/thief-table';
 import ThiefSheet from '../elements/custom/thief-sheet';
+import VaultTable from '../elements/custom/vault-table';
+import ThiefDelete from '../modals/thief-delete';
+import ItemSell from '../modals/item-sell';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -21,7 +26,7 @@ const Broadcast = styled(Box)(({ theme }) => ({
 }));
 
 
-function Barracks(props) {
+function Garrison(props) {
 
 
     // globals
@@ -76,7 +81,7 @@ function Barracks(props) {
     useEffect(() => {
         setErrorLs([]);
         getThiefDetails();
-        setTimeout(getVaultDetails, 100);
+        getVaultDetails();
     }, []);
 
 
@@ -140,23 +145,114 @@ function Barracks(props) {
     }
 
 
+    // retire thief
+
+    const [deleteThiefOpen, setDeleteThiefOpen] = useState(false);
+    const [retireThief, setRetireThief] = useState({});
+
+    const handleThiefOpen = (thiefDx) => {
+        setRetireThief(thiefDx);
+        setDeleteThiefOpen(true);
+    }
+
+    const deleteThief = (thiefDx) => {
+        setErrorLs([]);
+
+        AxiosConfig({
+            method: 'POST',
+            url: '/engine/retire-thief',
+            data: { retireId: thiefDx.id },
+        }).then(responseData => {
+            setSelectedThief({});
+            setSelectedThiefId(null);    
+            getThiefDetails();
+            getVaultDetails();
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        }).finally(() => {
+            setDeleteThiefOpen(false);
+        });
+    }
+
+
+    // sell item
+    
+    const [sellItemOpen, setSellItemOpen] = useState(false);
+    const [saleItem, setSaleItem] = useState({});
+
+    const handleSellOpen = (itemDx) => {
+        // console.log(itemDx)
+        setSaleItem(itemDx);
+        setSellItemOpen(true);
+    }
+
+    const sellItem = (itemDx) => {
+        setErrorLs([]);
+        console.log(itemDx);
+
+        AxiosConfig({
+            method: 'POST',
+            url: '/engine/sell-item',
+            data: { sellId: itemDx.id, storeCost: itemDx.StoreCost },
+        }).then(responseData => {
+            // console.log(responseData);
+            setSelectedThief({});
+            setSelectedThiefId(null);    
+            getThiefDetails();
+            getVaultDetails();
+            guildUpdate();
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        }).finally(() => {
+            setSellItemOpen(false);
+        });
+    }
+
+
+    // guild update
+
+    const { guildStore } = useContext(GlobalContext);
+    const guildUpdate = () => {
+        AxiosConfig({
+            url: '/engine/chosen-guild',
+        }).then(responseData => {
+            if (Object.keys(responseData).length === 0) {
+                guildStore[1](null);
+            }
+            else {
+                guildStore[1](responseData);
+            }
+        }).catch(errorLs => {
+            console.log('GuildUpdate error', errorLs);
+        });
+    }
+
+
     // render
 
     return (
         <PageLayout>
             <ST.GridPage container spacing={'16px'}>
 
-                { message && <Grid item xs={12}>
-                    <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
-                        <Broadcast>
-                            <ST.BaseText>{ message }</ST.BaseText>
-                        </Broadcast>
+                <Grid item xs={12}>
+                    <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                        <ST.TitleGroup>
+                            <ST.TitleText>Garrison</ST.TitleText>
+                        </ST.TitleGroup>
+                        <MaterialsBar />
                     </ST.FlexHorizontal>
-                </Grid> }
 
-                { errorLs.length > 0 && <Grid item xs={12}>
-                    <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
-                </Grid> }
+                    { errorLs.length > 0 &&
+                        <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
+                    }
+                    { message && <Grid item xs={12}>
+                        <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
+                            <Broadcast>
+                                <ST.BaseText>{ message }</ST.BaseText>
+                            </Broadcast>
+                        </ST.FlexHorizontal>
+                    </Grid> }
+                </Grid>
 
                 <ST.GridItemCenter item xs={12} sx={{background: ''}}>
                     <ST.ContentCard elevation={3}> 
@@ -166,13 +262,13 @@ function Barracks(props) {
                                 dataLs={thiefLs}
                                 notifySelect={handleThiefSelected}
                                 notifyTimer={() => { getThiefDetails(); }}
+                                notifyDelete={handleThiefOpen}
                             />
                         </Stack>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12} sx={{background: ''}}>
-
                     <ST.FlexVertical sx={{ justifyContent: 'flex-start' }}>
                         <ST.ContentCard elevation={3} sx={{ }}> 
                             <ST.ContentTitle sx={{ marginBottom: '8px', }}>Troop Locker</ST.ContentTitle>
@@ -185,12 +281,31 @@ function Barracks(props) {
 
                         </ST.ContentCard>
                     </ST.FlexVertical>
+                </ST.GridItemCenter>
 
+                <ST.GridItemCenter item xs={12}>
+                    <ST.ContentCard elevation={3}> 
+                    
+                        <ST.ContentTitle sx={{ marginBottom: '8px', }}>Armory</ST.ContentTitle>
+
+                        <VaultTable
+                            dataLs={vaultLs}
+                            notifySell={handleSellOpen}
+                        />
+
+                    </ST.ContentCard>
                 </ST.GridItemCenter>
 
             </ST.GridPage >
+
+            <ThiefDelete open={ deleteThiefOpen } setOpen={ setDeleteThiefOpen } 
+                thiefDx={ retireThief } notifyDelete={ deleteThief } />
+
+            <ItemSell open={ sellItemOpen } setOpen={ setSellItemOpen } 
+                itemDx={ saleItem } notifySell={ sellItem } />
+
         </PageLayout>
     );
 }
 
-export default Barracks;
+export default Garrison;

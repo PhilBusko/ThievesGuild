@@ -80,6 +80,7 @@ def GetAssetList(guildMd):
         st['iconCode'] = code
         st['bonusLs'] = bonusLs
         st['magicLs'] = magicLs
+        st['StoreCost'] = st['Power'] * GD.POWER_FACTOR
 
         claimant = None
         if st['ThiefFK_id']:

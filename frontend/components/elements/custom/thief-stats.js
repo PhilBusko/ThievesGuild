@@ -16,20 +16,14 @@ const TopMain = styled(Stack)(({ theme }) => ({
 }));
 
 const SeparatorTop = styled('img')(({ theme }) => ({
-    width: '100px',
+    width: '140px',
     height: '6px',
 }));
 
 const SeparatorTraits = styled('img')(({ theme }) => ({
     height: '140px',
-    width: '8px', 
-    margin: '10px 0px 0px 0px',
-}));
-
-const SeparatorSkills = styled('img')(({ theme }) => ({
-    width: '50px',
-    height: '6px',
-    margin: '6px 0px 0px 0px',
+    width: '6px', 
+    margin: '10px 0px 0px 12px',
 }));
 
 const ExperienceBar = styled(LinearProgress)(({ theme }) => ({
@@ -46,14 +40,18 @@ function ThiefStats(props) {
         <ST.FlexVertical sx={{ width: '150px'}}>
 
             <TopMain>
-                <ST.BaseText sx={{fontSize: '210%', margin: '-8px 0px 0px 0px'}}>
-                    {props.infoDx.Name}
-                </ST.BaseText>
+                <ST.FlexHorizontal sx={{justifyContent: 'space-between', alignItems: 'center'}}>
+                    <ST.BaseText sx={{fontSize: '210%', margin: '-8px 0px 0px 0px'}}>
+                        {props.infoDx.Name}
+                    </ST.BaseText>
+                    <ST.BaseText sx={{}}>
+                        {props.infoDx.Power}
+                    </ST.BaseText>
+                </ST.FlexHorizontal>
 
                 <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
                     <ST.BaseText>{props.infoDx.Class}</ST.BaseText>
-                    <ST.FlexHorizontal sx={{
-                            width: '50px', justifyContent: 'flex-end', padding: '0px 16px 0px 0px'}}>
+                    <ST.FlexHorizontal sx={{justifyContent: 'flex-end'}}>
                         <ST.BaseText sx={{marginRight: '4px'}}> { props.infoDx.Level } </ST.BaseText>
                         { props.infoDx.Stars >= 1 && <RC.StarImage src={ RC.StarIcon } /> }
                         { props.infoDx.Stars >= 2 && <RC.StarImage src={ RC.StarIcon } /> }
@@ -78,7 +76,7 @@ function ThiefStats(props) {
                     <ST.BaseText>Cun {props.infoDx.Cunning}</ST.BaseText>
                     <ST.BaseText>Mig {props.infoDx.Might}</ST.BaseText>
                     <ST.BaseText>End {props.infoDx.Endurance}</ST.BaseText>
-                    <ST.BaseText>Hlt {props.infoDx.Health}</ST.BaseText>
+                    <ST.BaseText sx={{marginTop: '10px'}}>Hlt {props.infoDx.Health}</ST.BaseText>
                 </ST.FlexVertical>
                 <SeparatorTraits src={ SeparatorVert } />
 
@@ -86,12 +84,14 @@ function ThiefStats(props) {
                     <ST.BaseText>Att +{props.infoDx.Attack}</ST.BaseText>
                     <ST.BaseText>Dmg {props.infoDx.DisplayDamage}</ST.BaseText>
                     <ST.BaseText>Def {props.infoDx.Defense}</ST.BaseText>
-                    <SeparatorSkills src={ SeparatorHoriz } />
-                    <ST.BaseText>Sab { props.infoDx.Sabotage ? `+${props.infoDx.Sabotage}` : '0' }</ST.BaseText>
+                    <ST.BaseText sx={{marginTop: '10px'}}>
+                        Sab { props.infoDx.Sabotage ? `+${props.infoDx.Sabotage}` : '0' }
+                    </ST.BaseText>
                     <ST.BaseText>Per { props.infoDx.Perceive ? `+${props.infoDx.Perceive}` : '0' }</ST.BaseText>
                     <ST.BaseText>Tra { props.infoDx.Traverse ? `+${props.infoDx.Traverse}` : '0' }</ST.BaseText>
                 </ST.FlexVertical>
             </ST.FlexHorizontal>
+            <SeparatorTop src={ SeparatorHoriz } sx={{marginTop: '8px'}} />
 
         </ST.FlexVertical>
     );
@@ -100,6 +100,5 @@ function ThiefStats(props) {
 ThiefStats.defaultProps = {
     infoDx: {},
 };
-
 
 export default ThiefStats;

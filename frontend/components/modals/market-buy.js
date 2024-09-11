@@ -158,7 +158,7 @@ function MarketBuy(props) {
                             { !props.itemDx.ResourceId.includes('thief') && 
                                 !props.itemDx.ResourceId.includes('material') && <>
                                 <InfoText>
-                                    Lv {props.itemDx.ResourceDx.TotalLv} - Pwr {props.itemDx.Power}
+                                    Lv {props.itemDx.ResourceDx.TotalLv} [{props.itemDx.Power}]
                                 </InfoText>
                                 <InfoText>
                                     {props.itemDx.ResourceDx.Slot},&nbsp;

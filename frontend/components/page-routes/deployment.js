@@ -89,7 +89,7 @@ function Deployment(props) {
             url: '/engine/thief-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData.thiefLs);
+                // console.log(responseData.thiefLs);
                 setThiefLs(responseData.thiefLs);
             }
             else {

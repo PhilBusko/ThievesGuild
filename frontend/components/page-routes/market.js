@@ -157,7 +157,7 @@ function Market(props) {
             data: { 'storeId': storeId },
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData);
+                // console.log(responseData);
                 setModalOpen(false);
                 storeUpdate();  // refresh the bought item
                 guildUpdate();
@@ -201,7 +201,7 @@ function Market(props) {
             data: { 'gems': gems, 'material': material, 'amount': amount,  },
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData);
+                // console.log(responseData);
                 guildUpdate();
             }
             else {

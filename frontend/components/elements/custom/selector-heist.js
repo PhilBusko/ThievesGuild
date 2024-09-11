@@ -159,7 +159,7 @@ function SelectorHeist(props) {
             </RoomWorkspace>
 
             { !props.selectedThief &&
-                <ThiefWorkspace sx={{width: '150px', height: '246px'}}>
+                <ThiefWorkspace sx={{width: '150px', height: '260px'}}>
                     <ST.RegularButton variant='contained' onClick={handleMenu}>
                         <ST.LinkText>Assign<br></br>Thief</ST.LinkText>
                     </ST.RegularButton>
