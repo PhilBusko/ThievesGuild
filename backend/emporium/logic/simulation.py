@@ -3,6 +3,7 @@ SIMULATION HELPER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random, math
 import emporium.models as EM
+import emporium.logic.stage as SG
 
 
 def AttachWargear(baseThief):
@@ -61,23 +62,17 @@ def ApplyRandomLevels(baseThief, numberLevels):
             newThief['Def'] += 1
         if stat == 'end':   
             newThief['End'] += 1
-            newThief['Hlt'] += 4
+            newThief['Hlt'] += 5
 
         if stat == 'att':   newThief['Att'] += 1
         if stat == 'dmg':   newThief['Dmg'] += 1
         if stat == 'def':   newThief['Def'] += 1
-        if stat == 'tra':   newThief['Tra'] += 5
-        if stat == 'sab':   newThief['Sab'] += 5
-        if stat == 'per':   newThief['Per'] += 5
+        if stat == 'tra':   newThief['Tra'] += 3
+        if stat == 'sab':   newThief['Sab'] += 3
+        if stat == 'per':   newThief['Per'] += 3
 
     return newThief
 
-
-def RollDamage(aveDamage):
-    variance = math.floor(aveDamage / 2)
-    if variance > 10: variance = 10
-    roll = random.randint(aveDamage - variance, aveDamage + variance)
-    return roll
 
 def RunBeatCount(thiefConfig, obstacleLs):
     obsPos = 0
@@ -193,7 +188,7 @@ def RunPassTest(thiefConfig, obstacleLs):
                 passed = False
                 effectLs = currentObs['Failure'].split(', ')
                 for ef in effectLs:
-                    if ef == 'wound': wounds += RollDamage(currentObs['Damage'])
+                    if ef == 'wound': wounds += SG.RollDamage(currentObs['Damage'])
                     if ef == 'pass': obsPos += 1
                 if wounds >= thiefConfig['Hlt']: obsPos -= 1
 
@@ -207,7 +202,7 @@ def RunPassTest(thiefConfig, obstacleLs):
 
                 attackResult = random.randint(1, 20) + thiefConfig['Att']
                 if attackResult >= currentObs['Defense']:
-                    enemyWounds += RollDamage(thiefConfig['Dmg'])
+                    enemyWounds += SG.RollDamage(thiefConfig['Dmg'])
                 
                 # print('player attack', wounds, enemyWounds)
 
@@ -216,7 +211,7 @@ def RunPassTest(thiefConfig, obstacleLs):
                 if currentObs['Health'] > enemyWounds:
                     attackResult = random.randint(1, 20) + currentObs['Attack']
                     if attackResult >= thiefConfig['Def']:
-                        wounds += RollDamage(currentObs['Damage'])
+                        wounds += SG.RollDamage(currentObs['Damage'])
 
                 # print('enemy attack', wounds, enemyWounds)
 

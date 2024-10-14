@@ -84,7 +84,7 @@ function StoreResource(props) {
                                 <StarIcon src={ RC.StarIcon } sx={{marginLeft: '-6px'}} /> 
                             }
                             <ST.BaseText sx={{marginLeft: '4px', textWrap: 'nowrap'}}>
-                                - Pwr {props.itemDx.Power}
+                                [{props.itemDx.Power}]
                             </ST.BaseText>
                         </ST.FlexHorizontal>
                         <ST.BaseText sx={{}}>
@@ -94,7 +94,7 @@ function StoreResource(props) {
                     { !props.itemDx.ResourceId.includes('thief') && 
                         !props.itemDx.ResourceId.includes('material') && <>
                         <ST.BaseText sx={{textWrap: 'nowrap'}}>
-                            Lv {props.itemDx.ResourceDx.TotalLv} - Pwr {props.itemDx.Power}
+                            Lv {props.itemDx.ResourceDx.TotalLv} [{props.itemDx.Power}]
                         </ST.BaseText>
                         <ST.BaseText sx={{fontSize: '160%', textWrap: 'nowrap'}}>
                             {props.itemDx.ResourceDx.Slot},&nbsp;

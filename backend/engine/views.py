@@ -30,11 +30,6 @@ def UserAccount(request):
     userMd = request.user
     guildLs = GM.Guild.objects.filter(UserFK=userMd).values()
 
-
-
-
-
-
     if len(guildLs) > 0:
         guildDf = PD.DataFrame(guildLs)
         guildDf = guildDf.drop(['UserFK_id', 'VaultGold', 'VaultGems'], axis=1, errors='ignore')
@@ -49,11 +44,6 @@ def UserAccount(request):
 
     for gd in guildLs:
         gd['TotalPower'] = RS.GetTotalPower(gd['id'])
-
-
-
-
-
 
     userDx = {
         'Name': userMd.user_name,

@@ -301,10 +301,8 @@ def GetOrCreateDungeon(guildMd, currDate):
 
         newStage.BaseRewards = {
             'Gold': rawStage['Gold'],
-            'Gems': rawStage['Gems'],
-            'Wood': rawStage['Wood'],
             'Stone': rawStage['Stone'],
-            'Iron': rawStage['Iron'],
+            'Gems': rawStage['Gems'],
         }
         newStage.RoomRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]

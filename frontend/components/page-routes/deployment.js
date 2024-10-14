@@ -33,8 +33,16 @@ const DeploymentCollapse = styled(ButtonBase)(({ theme }) => ({
     },
 }));
 
+const ObstaclePanel = styled(ST.FlexHorizontal)(({ theme }) => ({
+    width: '900px', 
+    height: '190px', 
+    overflowX: 'scroll', 
+    justifyContent: 'flex-start',
+}));
+
 const ObstacleGroup = styled(ST.FlexVertical)(({ theme }) => ({
-    width: '100px',
+    minWidth: '110px',
+    height: '144px',
     padding: '6px',
     border: `2px solid silver`,
     borderRadius: '6px',
@@ -305,7 +313,7 @@ function Deployment(props) {
 
                 <ST.GridItemCenter item xs={12} lg={12}>
                     <ST.ContentCard elevation={3} sx={{paddingTop: '16px', display: 'inherit', }}> 
-                        <ST.FlexHorizontal sx={{justifyContent: 'flex-start'}}>
+                        <ObstaclePanel>
 
                             { !!selectedRoom && selectedRoom.map((trap, id) => (
                                 <ObstacleGroup key={id} sx={{ background: getObstacleBackground(trap) }}>
@@ -339,7 +347,7 @@ function Deployment(props) {
                                 </ObstacleGroup>
                             ))}
 
-                        </ST.FlexHorizontal>
+                        </ObstaclePanel>
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 

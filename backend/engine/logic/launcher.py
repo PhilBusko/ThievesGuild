@@ -60,7 +60,7 @@ def RunObstacles(thiefMd, obstacleLs):
                 'obstacle': currentObs['Name'],
                 'posCurr': posCurr,
                 'posNext': obsPos,
-                'rollParams':   {'roll': naturalRoll,
+                'rollParams':   {   'roll': naturalRoll,
                                     'traitBonus': traitBonus,
                                     'skillBonus': skillBonus,
                                     'result': currentResult,

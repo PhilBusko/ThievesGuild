@@ -124,9 +124,9 @@ function ThiefEquipment(props) {
 
                                 <InventoryBlock sx={{ width: '100px' }}>
                                     <ST.BaseText>{inv.Name}</ST.BaseText>
-                                    <ST.FlexHorizontal sx={{justifyContent: 'space-between',}}>
+                                    <ST.FlexHorizontal sx={{justifyContent: 'flex-start',}}>
                                         <ST.BaseText sx={{}}>Lv { inv.TotalLv } </ST.BaseText>
-                                        <ST.BaseText sx={{}}>Pwr { inv.Power } </ST.BaseText>
+                                        <ST.BaseText sx={{}}>&nbsp;[{ inv.Power }]</ST.BaseText>
                                     </ST.FlexHorizontal>
                                 </InventoryBlock>
                                 <SeparatorStats src={ SeparatorSilver } />

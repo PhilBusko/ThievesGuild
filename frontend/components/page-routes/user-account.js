@@ -77,7 +77,7 @@ function UserAccount(props) {
         AxiosConfig({
             url: '/engine/user-account',
         }).then(responseData => {
-            console.log(responseData)
+            // console.log(responseData)
             const newInfo = {
                 'Name': responseData.Name,
                 'Unique Id': responseData['Unique Id'],

@@ -433,7 +433,7 @@ def SetThiefTotals(thiefMd):
 
     # set combat 
 
-    thiefMd.Health = 58 + thiefMd.Endurance * 4
+    thiefMd.Health = 70 + thiefMd.Endurance * 5
 
     thiefMd.Attack = (thiefMd.Agility + GetItemCombat(weapon, 'att') + GetItemCombat(armor, 'att') +
                     GetItemCombat(head, 'att') + GetItemCombat(hands, 'att') + 
@@ -475,9 +475,7 @@ def SetThiefTotals(thiefMd):
 
 def CreateNewGuild(user, guildName):
 
-    newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True,
-            'ThroneLevel': 2,
-            })
+    newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True})
     newGuild.save()
 
     thiefNames = CN.CharacterNames()

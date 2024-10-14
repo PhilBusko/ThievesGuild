@@ -10,7 +10,7 @@ import emporium.models as EM
 
 def RollDamage(aveDamage):
     variance = math.floor(aveDamage / 2)
-    if variance > 10: variance = 10
+    if variance > 6: variance = 6
     roll = random.randint(aveDamage - variance, aveDamage + variance)
     return roll
 
@@ -97,8 +97,9 @@ def AssembleRoom(stageType, stageLevel, maxObstacles):
 
     # generate the room randomly
     # then check if it passes certain requirements
+    # increase combat sampling so it can show up more than the min
 
-    potentialLs = ProductionTable(stageLevel,1,1,1,1)
+    potentialLs = ProductionTable(stageLevel,4,1,1,1)
 
     obstacleLs = ObstacleSequence(potentialLs, maxObstacles)
     permitted = CheckPermitted(obstacleLs, stageType, maxObstacles)
@@ -176,33 +177,33 @@ def ObstacleSequence(potentialLs, maxObstacles):
     return obstacleLs
 
 def CheckPermitted(obstacleLs, stageType, maxObstacles):
-    
+
     # get the minimum obstacle types required based on parameters
 
-    if stageType == 'balanced' and maxObstacles <= 9:
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 2}
+    if stageType == 'balanced' and maxObstacles <= 15:
+        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 4}
     elif stageType == 'balanced':
-        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 3}
+        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 5}
         
-    if stageType == 'biased agi' and maxObstacles <= 9:
-        minDx = {'Agi': 3, 'Cun': 0, 'Mig': 0, 'All': 2}
+    if stageType == 'biased agi' and maxObstacles <= 15:
+        minDx = {'Agi': 4, 'Cun': 1, 'Mig': 1, 'All': 4}
     elif stageType == 'biased agi':
-        minDx = {'Agi': 4, 'Cun': 1, 'Mig': 1, 'All': 3}
+        minDx = {'Agi': 5, 'Cun': 1, 'Mig': 1, 'All': 4}
         
-    if stageType == 'biased cun' and maxObstacles <= 9:
-        minDx = {'Agi': 0, 'Cun': 3, 'Mig': 0, 'All': 2}
+    if stageType == 'biased cun' and maxObstacles <= 15:
+        minDx = {'Agi': 1, 'Cun': 4, 'Mig': 1, 'All': 4}
     elif stageType == 'biased cun':
-        minDx = {'Agi': 1, 'Cun': 4, 'Mig': 1, 'All': 3}
+        minDx = {'Agi': 1, 'Cun': 5, 'Mig': 1, 'All': 4}
         
-    if stageType == 'biased mig' and maxObstacles <= 9:
-        minDx = {'Agi': 0, 'Cun': 0, 'Mig': 3, 'All': 2}
+    if stageType == 'biased mig' and maxObstacles <= 15:
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 4, 'All': 4}
     elif stageType == 'biased mig':
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 4, 'All': 3}
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 5, 'All': 4}
 
-    if stageType == 'biased cmb' and maxObstacles <= 9:
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 3}
+    if stageType == 'biased cmb' and maxObstacles <= 15:
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 5}
     elif stageType == 'biased cmb':
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 4}
+        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 6}
 
     # compare the current run with the min and max
 
