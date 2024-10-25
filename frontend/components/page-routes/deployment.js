@@ -41,7 +41,7 @@ const ObstaclePanel = styled(ST.FlexHorizontal)(({ theme }) => ({
 }));
 
 const ObstacleGroup = styled(ST.FlexVertical)(({ theme }) => ({
-    minWidth: '110px',
+    minWidth: '104px',
     height: '144px',
     padding: '6px',
     border: `2px solid silver`,
@@ -261,6 +261,7 @@ function Deployment(props) {
                                 heist={stage.Heist}
                                 roomNumber={1}
                                 roomType={stage.RoomTypes[0]}
+                                power={stage.ThiefPower[0]}
                                 traps={stage.ObstCount[0]}
                                 level={stage.ObstLevels[0]}
                                 thiefChoices={thiefLs}
@@ -275,6 +276,7 @@ function Deployment(props) {
                                 heist={stage.Heist}
                                 roomNumber={2}
                                 roomType={stage.RoomTypes[1]}
+                                power={stage.ThiefPower[1]}
                                 traps={stage.ObstCount[1]}
                                 level={stage.ObstLevels[1]}
                                 thiefChoices={thiefLs}
@@ -289,6 +291,7 @@ function Deployment(props) {
                                 heist={stage.Heist}
                                 roomNumber={3}
                                 roomType={stage.RoomTypes[2]}
+                                power={stage.ThiefPower[2]}
                                 traps={stage.ObstCount[2]}
                                 level={stage.ObstLevels[2]}
                                 thiefChoices={thiefLs}

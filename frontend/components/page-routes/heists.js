@@ -12,6 +12,7 @@ import * as ST from  '../elements/styled-elements';
 import * as RC from '../assets/resource';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import HeistGroup from '../elements/custom/heist-group';
+import LandingDisplay from '../elements/custom/landing-display';
 
 import SeparatorSilver from '../assets/layout/separator-silver-vert.png';
 import TowerTexture from '../assets/layout/texture-tower.jpg'
@@ -27,6 +28,13 @@ const Broadcast = styled(Box)(({ theme }) => ({
     }, 
 }));
 
+const HeistContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
+    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    padding: '0px 0px 10px 0px',
+    borderBottom: `2px solid ${ST.GoldText}`,
+}));
+
 const StageContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
     width: 'fit-content',
     justifyContent: 'flex-start',
@@ -38,16 +46,10 @@ const StageContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
     backgroundRepeat: 'repeat', 
 }));
 
-const HeistContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
-    justifyContent: 'space-around',
-    flexWrap: 'wrap',
-    padding: '0px 0px 10px 0px',
-    borderBottom: `2px solid ${ST.GoldText}`,
-}));
-
 const StageSeparator = styled('img')(({ theme }) => ({
-    height: '70px',
+    height: '96px',
     width: '14px', 
+    padding: '0px 4px',
     // margin: '10px 0px 0px 0px',
 }));
 
@@ -80,11 +82,11 @@ function Heists(props) {
                 setCampaign(responseData.campaign);
             }
             else {
-                setMessage(responseData.message)
+                setMessage(responseData.message);
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to go on your Heists.")
+                setMessage("* You must be logged in to go on your Heists.");
             else
                 setErrorLs(errorLs);
         });
@@ -103,14 +105,6 @@ function Heists(props) {
         if (heistName == 'League Trials') setSelectedHeist(trial);
         if (heistName == 'Dungeon') setSelectedHeist(dungeon);
         if (heistName == 'Campaign') setSelectedHeist(campaign);
-    }
-
-    const getRoomType = (roomCode) => {
-        if (roomCode.includes('agi')) return 'Agility';
-        if (roomCode.includes('cun')) return 'Cunning';
-        if (roomCode.includes('mig')) return 'Might';
-        if (roomCode.includes('cmb')) return 'Guards';
-        return 'Mixed';
     }
 
     const getHeistIcon = (heist) => {
@@ -181,43 +175,49 @@ function Heists(props) {
                     { selectedHeist.length > 0 && selectedHeist.map( (val, idx) => 
                         <StageContainer key={idx} sx={{ backgroundImage: `url(${getHeistIcon(val.Heist)})` }} >
 
-                            <ST.FlexVertical sx={{width: '70px', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{fontSize: '200%', marginTop: '-8px'}}>Stage {val.StageNo}</ST.BaseText>
+                            <ST.FlexVertical sx={{width: '110px', margin: '', padding: ''}}>
+                                <ST.BaseText sx={{fontSize: '220%', marginTop: '-8px'}}>Stage {val.StageNo}</ST.BaseText>
                             </ST.FlexVertical>
                             <StageSeparator src={ SeparatorSilver } />
 
-                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{textDecoration:'underline'}}>Landing I</ST.BaseText>
-                                <ST.BaseText>{getRoomType(val.RoomTypes[0])}</ST.BaseText>
-                                <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
-                                    <ST.BaseText>Challenge: {val.ObstCount[0]} - {val.ObstLevels[0]}</ST.BaseText>
-                                </ST.FlexHorizontal>
-                            </ST.FlexVertical>
+                            <Box sx={{width: '140px', paddingBottom: '8px'}}>
+                                <LandingDisplay
+                                    landingNo={1}
+                                    roomType={val.RoomTypes[0]}
+                                    power={val.ThiefPower[0]}
+                                    obstCount={val.ObstCount[0]}
+                                    obstLevel={val.ObstLevels[0]}
+                                />
+                            </Box>
                             <StageSeparator src={ SeparatorSilver } />
 
                             { !!val.RoomTypes[1] && <>
-                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{textDecoration:'underline'}}>Landing II</ST.BaseText>
-                                <ST.BaseText>{getRoomType(val.RoomTypes[1])}</ST.BaseText>
-                                <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
-                                    <ST.BaseText>Challenge: {val.ObstCount[1]} - {val.ObstLevels[1]}</ST.BaseText>
-                                </ST.FlexHorizontal>
-                            </ST.FlexVertical>
-                            <StageSeparator src={ SeparatorSilver } />
+                                <Box sx={{width: '140px', paddingBottom: '8px'}}>
+                                    <LandingDisplay
+                                        landingNo={2}
+                                        roomType={val.RoomTypes[1]}
+                                        power={val.ThiefPower[1]} 
+                                        obstCount={val.ObstCount[1]}
+                                        obstLevel={val.ObstLevels[1]}
+                                    />
+                                </Box>
+                                <StageSeparator src={ SeparatorSilver } />
                             </>}
 
                             { !!val.RoomTypes[2] && <>
-                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 10px'}}>
-                                <ST.BaseText sx={{textDecoration:'underline'}}>Landing III</ST.BaseText>
-                                <ST.BaseText>{getRoomType(val.RoomTypes[2])}</ST.BaseText>
-                                <ST.FlexHorizontal sx={{justifyContent:'space-between', marginBottom: '10px'}}>
-                                    <ST.BaseText>Challenge: {val.ObstCount[2]} - {val.ObstLevels[2]}</ST.BaseText>
-                                </ST.FlexHorizontal>
-                            </ST.FlexVertical>
-                            <StageSeparator src={ SeparatorSilver } />
+                                <Box sx={{width: '140px', paddingBottom: '8px'}}>
+                                    <LandingDisplay
+                                        landingNo={3}
+                                        roomType={val.RoomTypes[2]}
+                                        power={val.ThiefPower[2]}
+                                        obstCount={val.ObstCount[2]}
+                                        obstLevel={val.ObstLevels[2]}
+                                    />
+                                </Box>
+                                <StageSeparator src={ SeparatorSilver } />
                             </>}
 
-                            <ST.FlexVertical sx={{width: '90px', margin: '0px 10px'}}>
+                            <ST.FlexVertical sx={{width: '100px', margin: '0px 10px'}}>
                                 <ST.RegularButton 
                                     variant='contained' 
                                     onClick={() => {handleStart(val.id)}}

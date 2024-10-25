@@ -151,6 +151,7 @@ function SelectorExpedition(props) {
                         {getExpNumber(props.expeditionNo +1)}
                     </ST.BaseText>
                     <ST.BaseText>{getLongType(props.type)}</ST.BaseText>
+                    <ST.BaseText>Power: {props.power}</ST.BaseText>
                     <ST.BaseText>Level: {props.level}</ST.BaseText>
                     <ST.BaseText>Duration: {props.duration}</ST.BaseText>
                 </ST.FlexVertical>
@@ -170,7 +171,7 @@ function SelectorExpedition(props) {
             }
             { !!props.claimed && 
                 <ThiefWorkspace>
-                    <Box sx={{ width: '150px', height: '246px' }}></Box>
+                    <Box sx={{ width: '150px', height: '260px' }}></Box>
                 </ThiefWorkspace>
             }
 
@@ -283,6 +284,7 @@ function SelectorExpedition(props) {
 SelectorExpedition.defaultProps = {
     expeditionNo: 0,
     type: '',
+    power: 0,
     level: 0,
     duration: '',
 

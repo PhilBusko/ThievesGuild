@@ -435,12 +435,15 @@ def AttachDisplayData(stageLs):
 
     for st in stageLs:
 
+        thiefPower = []
         trapLevels = []
         numberObstacles = []
         roomCount = 0
 
         obstLs = st['ObstaclesR1']
         st['ObstaclesR1'] = AttachObstacleDisplay(obstLs)
+        thiefPower.append(EM.RequiredPower.objects
+            .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
         trapLevels.append(obstLs[0]['Level'])
         numberObstacles.append(len(obstLs))
         roomCount += 1
@@ -448,6 +451,8 @@ def AttachDisplayData(stageLs):
         try:
             obstLs = st['ObstaclesR2']
             st['ObstaclesR2'] = AttachObstacleDisplay(obstLs)
+            thiefPower.append(EM.RequiredPower.objects
+                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
             roomCount += 1
@@ -458,6 +463,8 @@ def AttachDisplayData(stageLs):
         try:
             obstLs = st['ObstaclesR3']
             st['ObstaclesR3'] = AttachObstacleDisplay(obstLs)
+            thiefPower.append(EM.RequiredPower.objects
+                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
             roomCount += 1
@@ -468,6 +475,8 @@ def AttachDisplayData(stageLs):
         try:
             obstLs = st['ObstaclesR4']
             st['ObstaclesR4'] = AttachObstacleDisplay(obstLs)
+            thiefPower.append(EM.RequiredPower.objects
+                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
             roomCount += 1
@@ -478,6 +487,8 @@ def AttachDisplayData(stageLs):
         try:
             obstLs = st['ObstaclesR5']
             st['ObstaclesR5'] = AttachObstacleDisplay(obstLs)
+            thiefPower.append(EM.RequiredPower.objects
+                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
             roomCount += 1
@@ -493,6 +504,7 @@ def AttachDisplayData(stageLs):
             foundOpen = True
         if st['StageRewards']: status = 'complete'
 
+        st['ThiefPower'] = thiefPower
         st['ObstLevels'] = trapLevels
         st['ObstCount'] = numberObstacles
         st['Status'] = status
@@ -578,6 +590,10 @@ def GetExpeditions(guildMd, trunkNow):
             if 'reward2' in ep['Results']:
                 replace = GetReplacement(guildMd, ep['Results']['reward2'])
                 ep['Results']['reward2']['replace'] = replace
+
+        # attach display data
+
+        ep['Power'] = EM.RequiredPower.objects.GetOrNone(Level=ep['Level'], Obstacles=15).RequiredPower
 
     expeditionLs = sorted(expeditionLs, key=lambda d: d['SlotNo'])
     return expeditionLs

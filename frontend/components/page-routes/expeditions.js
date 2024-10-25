@@ -62,7 +62,7 @@ function Expedition(props) {
             url: '/engine/expedition-update',
         }).then(responseData => {
             if (!responseData.message && responseData.expeditions.length > 0) {
-                // console.log(responseData);
+                console.log(responseData);
                 setExpeditionLs(responseData.expeditions);
             }
             else if (!responseData.message && responseData.expeditions.length == 0) {
@@ -70,11 +70,11 @@ function Expedition(props) {
                 setMessage("* Build the Cartographer room to endeavor in Expeditions.");
             }
             else {
-                setMessage(responseData.message)
+                setMessage(responseData.message);
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))
-                setMessage("* You must be logged in to launch your Expeditions.")
+                setMessage("* You must be logged in to launch your Expeditions.");
             else
                 setErrorLs(errorLs);
         });
@@ -225,8 +225,9 @@ function Expedition(props) {
                                 <ST.ContentCard elevation={3} sx={{ }}> 
                                     <SelectorExpedition
                                         expeditionNo={ id }
-                                        level={ ep.Level }
                                         type={ ep.BaseType }
+                                        power={ ep.Power }
+                                        level={ ep.Level }
                                         duration={ ep.Duration }
 
                                         thiefChoices={ thiefLs }

@@ -7,6 +7,7 @@ import { styled } from '@mui/material/styles';
 
 import * as ST from  '../styled-elements';
 import ThiefStats from './thief-stats';
+import LandingDisplay from './landing-display';
 
 import * as GI from '../../assets/guild-icons';
 import SeparatorGold from '../../assets/layout/separator-gold.png';
@@ -151,11 +152,13 @@ function SelectorHeist(props) {
         <SelectContainer>
 
             <RoomWorkspace sx={{ backgroundImage: `url(${getStageBkgd(props.heist)})` }} >
-                <ST.FlexVertical sx={{alignItems: 'flex-start', padding: '0px 4px 2px 4px',}}>
-                    <ST.BaseText sx={{textDecoration: 'underline'}}>{getRoomName(props.roomNumber)}</ST.BaseText>
-                    <ST.BaseText>{getRoomType(props.roomType)}</ST.BaseText>
-                    <ST.BaseText>Challenge: {props.traps} - {props.level}</ST.BaseText>
-                </ST.FlexVertical>
+                <LandingDisplay
+                    landingNo={props.roomNumber}
+                    roomType={props.roomType}
+                    power={props.power}
+                    obstCount={props.traps}
+                    obstLevel={props.level}
+                />
             </RoomWorkspace>
 
             { !props.selectedThief &&
@@ -262,6 +265,7 @@ SelectorHeist.defaultProps = {
     heist: '',
     roomNumber: 0,
     roomType: '',
+    power: 0,
     traps: 0,
     level: 0,
     thiefChoices: [],

@@ -236,3 +236,9 @@ class ExpeditionType(JM.Model):
     SkillThree = JM.TextField()
     objects = DB.BaseManager()
 
+class RequiredPower(JM.Model):
+    World = JM.IntegerField()
+    Level = JM.IntegerField()
+    Obstacles = JM.IntegerField()
+    RequiredPower = JM.IntegerField()
+    objects = DB.BaseManager()
