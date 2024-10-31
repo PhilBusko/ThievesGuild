@@ -37,10 +37,8 @@ def CreateStageRooms(guildMd, heistType, currDate, rawStages):
 
         newStage.BaseRewards = {
             'Gold': st['Gold'],
-            'Gems': st['Gems'],
-            'Wood': st['Wood'],
             'Stone': st['Stone'],
-            'Iron': st['Iron'],
+            'Gems': st['Gems'],
         }
         newStage.RoomRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]

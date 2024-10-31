@@ -1,5 +1,6 @@
 /**************************************************************************************************
 PLAYTHROUGH PAGE
+DEPRECATED
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -11,7 +12,8 @@ import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import SeparatorSilver from '../assets/layout/separator-silver-horiz.png';
-import PixiLanding from '../elements/engine/pixi-landing';
+
+import StageConfig from '../elements/engine/stage-config';
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -26,7 +28,6 @@ const RoomSeparator = styled('img')(({ theme }) => ({
     width: '110px', 
     padding: '10px 0px 0px 8px',
 }));
-
 
 
 function Playthrough(props) {
@@ -47,19 +48,16 @@ function Playthrough(props) {
     const location = useLocation();
 
     useEffect(() => {
-
-        // this is the OnLoad which triggers a room change
-
         if ( !location.state ) {
             navigate('/heists/');
         }
         else {
-            // console.log(location.state.stage);
+            console.log(location.state.stage);
             // console.log(location.state.deployment);  
 
             const newStage = location.state.stage;
             const newDeployment = location.state.deployment;
-            // window.history.replaceState({}, document.title);  // comment out for dev
+            // window.history.replaceState({}, document.title);
 
             setStage(newStage);
             setDeployment(newDeployment);
@@ -82,10 +80,6 @@ function Playthrough(props) {
 
     useEffect(() => {
 
-        // this effect is called when the room changes
-        // get results from server and set off the animations
-        // still need a mechanism to go to next room
-
         // skip before component is initialized
 
         if (roomNo == 0) return;
@@ -102,7 +96,7 @@ function Playthrough(props) {
             data: { 'heist': heist, 'stageNo': stageNo, 'roomNo': roomNo, 'thiefId': thiefAssigned.id },
         }).then(responseData => {
 
-            // console.log(responseData);
+            console.log(responseData);
             setLastResults(responseData);
 
             // display animations
@@ -114,16 +108,26 @@ function Playthrough(props) {
             setActions(responseData.actions);
 
 
+            // go to next room
+
+            // setTimeout(() => {
+
+            //     if (['victory', 'defeat'].includes(responseData.nextStep)) {
+            //         advancePhase();
+            //     }
+
+            //     else {
+            //         console.log('next room', roomNo +1)
+
+            //         setRoomNo(roomNo +1);
+            //     }
+            // }, 2000);
+
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
 
     }, [roomNo]);
-
-
-
-    // go to next page 
-    // should be when user hits button 
 
     const advancePhase = () => {
         navigate('/aftermath/', 
@@ -174,16 +178,16 @@ function Playthrough(props) {
                         <ST.FlexHorizontal sx={{marginBottom: '10px'}}>
                             <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
                         </ST.FlexHorizontal>
-                    }                
-                    { message && <Grid item xs={12}>
-                        <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
-                            <Broadcast>
-                                <ST.BaseText>{ message }</ST.BaseText>
-                            </Broadcast>
-                        </ST.FlexHorizontal>
-                    </Grid> }
+                    }
                 </Grid>
 
+                { message && <Grid item xs={12}>
+                    <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
+                        <Broadcast>
+                            <ST.BaseText>{ message }</ST.BaseText>
+                        </Broadcast>
+                    </ST.FlexHorizontal>
+                </Grid> }
 
                 <ST.GridItemCenter item xs={12} lg={2}>
                     <ST.ContentCard elevation={3} sx={{width: '120px'}}>
@@ -249,17 +253,20 @@ function Playthrough(props) {
                 </ST.GridItemCenter>
 
 
-
                 <ST.GridItemCenter item xs={12} lg={10}>
 
-                    <PixiLanding
-                        width={ 920 }
-                        backgroundType={ stage.Background }
-                        backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[roomNo -1] : 0}
-                        obstacleLs={ obstacles }
-                        actionLs={ actions }
-                        thiefAssigned={ deployment[roomNo -1] }
-                    />
+                    <ST.FlexVertical>
+
+                        <StageConfig
+                            windowSize={ {width: 920, height: 400} }
+                            backgroundType={ stage.Background }
+                            backgroundBias={ !!stage.BackgroundRoomBias ? stage.BackgroundRoomBias[roomNo -1] : 0}
+                            obstacleLs={ obstacles }
+                            actionLs={ actions }
+                            thiefAssigned={ deployment[roomNo -1] }
+                        />
+
+                    </ST.FlexVertical>
 
                 </ST.GridItemCenter>
 

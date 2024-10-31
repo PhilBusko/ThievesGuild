@@ -69,7 +69,7 @@ def StageBackground(lastBackground):
         potential.remove(lastBackground)
     except:
         pass
-    chosen = random.choice(potential)
+    chosen = 'college' #random.choice(potential)
     return chosen
 
 def RandomRoomType(prevType):

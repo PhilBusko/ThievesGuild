@@ -69,7 +69,7 @@ def RunObstacles(thiefMd, obstacleLs):
                                     'difficulty': currentObs['Difficulty'],
                                 },
                 'reward': reward,
-                'woundsRoll': woundsRoll,
+                'woundsAction': woundsRoll,
                 'woundsTotal': thiefWounds,
             })
 
@@ -133,7 +133,7 @@ def RunObstacles(thiefMd, obstacleLs):
                 'posNext': obsPos,
                 'rollParams': rollParamLs,
                 'reward': reward,
-                'woundsCombat': woundsCombat,
+                'woundsAction': woundsCombat,
                 'woundsTotal': thiefWounds,
             })
 

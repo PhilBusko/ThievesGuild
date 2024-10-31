@@ -20,9 +20,8 @@ const Broadcast = styled(Box)(({ theme }) => ({
     },
 }));
 
+
 function Castle(props) {
-
-
 
 
     
@@ -84,9 +83,6 @@ function Castle(props) {
                         </Grid> 
                     }
                 </Grid>
-
-
-
 
 
                 <ST.GridItemCenter item xs={12} lg={4}>
