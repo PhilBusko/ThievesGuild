@@ -70,7 +70,7 @@ function Deployment(props) {
             navigate('/heists/');
         }
         else {
-            // console.log(location.state.stage);
+            console.log(location.state.stage);
             setStage(location.state.stage);
             window.history.replaceState({}, document.title);
         }

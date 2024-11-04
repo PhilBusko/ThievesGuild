@@ -265,7 +265,7 @@ function Playthrough(props) {
                     <ST.FlexVertical>
                         <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
                             onClick={ advancePhase }
-                            disabled={ !forwardEnabled }
+                            // disabled={ !forwardEnabled }
                         >
                             <ST.LinkText>Forward</ST.LinkText>
                         </ST.RegularButton>

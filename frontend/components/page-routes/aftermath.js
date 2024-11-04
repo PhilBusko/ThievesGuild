@@ -113,7 +113,6 @@ function Aftermath(props) {
         }
         else {
             console.log(location.state);  
-
             setNextStep(location.state.nextStep);
 
             let heist = `${getTitle(location.state.heist)} - Stage ${location.state.stageNo}`;

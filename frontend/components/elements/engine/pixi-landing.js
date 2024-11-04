@@ -434,6 +434,7 @@ function PixiLanding(props) {
         // does't need to be called, just declaring interval triggers it
 
         let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
+        if (!actionDx) return;
 
         if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
             animateCombat(actionDx);
