@@ -355,7 +355,7 @@ def LaunchRoom(request):
     userMd = request.user
     heist = request.data.get('heist') 
     stageNo = request.data.get('stageNo')
-    roomNo = request.data.get('roomNo')         # 1 based
+    landingNo = request.data.get('landingNo')         # 1 based
     thiefId = request.data.get('thiefId')
 
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
@@ -363,20 +363,20 @@ def LaunchRoom(request):
     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
 
     obstacleLs = stageMd.ObstaclesR1
-    if roomNo == 2: obstacleLs = stageMd.ObstaclesR2
-    if roomNo == 3: obstacleLs = stageMd.ObstaclesR3
-    if roomNo == 4: obstacleLs = stageMd.ObstaclesR4
-    if roomNo == 5: obstacleLs = stageMd.ObstaclesR5
+    if landingNo == 2: obstacleLs = stageMd.ObstaclesR2
+    if landingNo == 3: obstacleLs = stageMd.ObstaclesR3
+    if landingNo == 4: obstacleLs = stageMd.ObstaclesR4
+    if landingNo == 5: obstacleLs = stageMd.ObstaclesR5
 
     results = LH.RunObstacles(thiefMd, obstacleLs)
     results = LH.AttachCombatDisplay(results)
 
-    thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, roomNo, stageMd, obstacleLs, results)
+    thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, landingNo, stageMd, obstacleLs, results)
 
     roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
 
     resultDx = {
-        'roomNo': roomNo,
+        'landingNo': landingNo,
         'actions': results,
         'nextStep': nextStep,
         'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,

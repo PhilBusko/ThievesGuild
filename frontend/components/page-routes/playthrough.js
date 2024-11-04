@@ -23,10 +23,9 @@ const Broadcast = styled(Box)(({ theme }) => ({
 
 const RoomSeparator = styled('img')(({ theme }) => ({
     height: '12px',
-    width: '110px', 
-    padding: '10px 0px 0px 8px',
+    width: '130px', 
+    padding: '6px 0px 6px 0px',
 }));
-
 
 
 function Playthrough(props) {
@@ -43,19 +42,20 @@ function Playthrough(props) {
 
     const [stage, setStage] = useState({});
     const [deployment, setDeployment] = useState([]);
-    const [roomNo, setRoomNo] = useState(0);
+    const [landingNo, setLandingNo] = useState(0);
+    const [forwardEnabled, setForwardEnabled] = useState(false);
     const location = useLocation();
 
     useEffect(() => {
 
-        // this is the OnLoad which triggers a room change
+        // this is the OnLoad which also triggers a room change
 
         if ( !location.state ) {
             navigate('/heists/');
         }
         else {
-            // console.log(location.state.stage);
-            // console.log(location.state.deployment);  
+            console.log(location.state.stage);
+            console.log(location.state.deployment);  
 
             const newStage = location.state.stage;
             const newDeployment = location.state.deployment;
@@ -64,12 +64,14 @@ function Playthrough(props) {
             setStage(newStage);
             setDeployment(newDeployment);
 
+            // landings may already be finished
+
             var nextRoom = 1;
             if (newStage.RoomRewards[3])        nextRoom = 5;
             else if (newStage.RoomRewards[2])   nextRoom = 4;
             else if (newStage.RoomRewards[1])   nextRoom = 3;
             else if (newStage.RoomRewards[0])   nextRoom = 2;
-            setRoomNo(nextRoom);
+            setLandingNo(nextRoom);
         }
     }, []);
 
@@ -84,22 +86,21 @@ function Playthrough(props) {
 
         // this effect is called when the room changes
         // get results from server and set off the animations
-        // still need a mechanism to go to next room
 
-        // skip before component is initialized
+        // skip before state is initialized
 
-        if (roomNo == 0) return;
+        if (landingNo == 0) return;
 
         // server call for room results
 
         const heist = stage.Heist;
         const stageNo = stage.StageNo;
-        let thiefAssigned = deployment[roomNo -1];
+        let thiefAssigned = deployment[landingNo -1];
 
         AxiosConfig({
             method: 'POST',     
             url: '/engine/launch-room',
-            data: { 'heist': heist, 'stageNo': stageNo, 'roomNo': roomNo, 'thiefId': thiefAssigned.id },
+            data: { 'heist': heist, 'stageNo': stageNo, 'landingNo': landingNo, 'thiefId': thiefAssigned.id },
         }).then(responseData => {
 
             // console.log(responseData);
@@ -107,34 +108,40 @@ function Playthrough(props) {
 
             // display animations
 
-            if (roomNo == 1) setObstacles(stage.ObstaclesR1);
-            if (roomNo == 2) setObstacles(stage.ObstaclesR2);
-            if (roomNo == 3) setObstacles(stage.ObstaclesR3);
+            if (landingNo == 1) setObstacles(stage.ObstaclesR1);
+            if (landingNo == 2) setObstacles(stage.ObstaclesR2);
+            if (landingNo == 3) setObstacles(stage.ObstaclesR3);
 
             setActions(responseData.actions);
-
 
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
 
-    }, [roomNo]);
+    }, [landingNo]);
 
 
-
-    // go to next page 
-    // should be when user hits button 
+    // go to next scene
+    // should be when user hits button
 
     const advancePhase = () => {
-        navigate('/aftermath/', 
-            {state: {
-                nextStep: lastResults.nextStep,
-                heist: stage.Heist,
-                stageNo: stage.StageNo,
-                assignments: lastResults.assignments, 
-                fullRewards: lastResults.fullRewards,
-            }}
-        );
+
+        if (landingNo < stage.NumberRooms) {
+            setLandingNo(landingNo + 1);
+            setForwardEnabled(false);
+        }
+
+        else {
+            navigate('/aftermath/', 
+                {state: {
+                    nextStep: lastResults.nextStep,
+                    heist: stage.Heist,
+                    stageNo: stage.StageNo,
+                    assignments: lastResults.assignments, 
+                    fullRewards: lastResults.fullRewards,
+                }}
+            );
+        }
     }
 
 
@@ -147,6 +154,15 @@ function Playthrough(props) {
         if (heist.includes('dungeon')) return 'Dungeon';
         if (heist.includes('campaign')) return 'Campaign';
         return 'Gothic Tower';
+    }
+
+    const getLandingTitle = (landingNum) => {
+        if (landingNum == 1) return 'Landing I';
+        if (landingNum == 2) return 'Landing II';
+        if (landingNum == 3) return 'Landing III';
+        if (landingNum == 4) return 'Landing IV';
+        if (landingNum == 5) return 'Landing V';
+        return 'none';
     }
 
     const getRoomType = (roomCode) => {
@@ -184,97 +200,77 @@ function Playthrough(props) {
                     </Grid> }
                 </Grid>
 
-
                 <ST.GridItemCenter item xs={12} lg={2}>
-                    <ST.ContentCard elevation={3} sx={{width: '120px'}}>
+                    <ST.ContentCard elevation={3} sx={{ padding: '8px' }}>
 
-                        { Object.keys(stage).length != 0 && !!stage.RoomTypes[0] && <>
-                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                <ST.BaseHighlight sx={{}}>Landing I</ST.BaseHighlight>
-                                <ST.BaseText>
-                                    {getRoomType(stage.RoomTypes[0])}: {stage.ObstCount[0]} - {stage.ObstLevels[0]}
-                                </ST.BaseText>
-                                <ST.BaseText>{ deployment[0].Name }</ST.BaseText>
-                                { roomNo == 1 &&
-                                    <ST.BaseText sx={{color: 'lime',}}> In Play </ST.BaseText>
-                                }
-                                { roomNo > 1 &&
-                                    <ST.BaseText> Complete </ST.BaseText>
-                                }
-                            </ST.FlexVertical>
-                            { stage.NumberRooms > 1 && <RoomSeparator src={ SeparatorSilver }/> }
-                        </>}
+                    { Object.keys(stage).length > 0 && stage.RoomTypes.map((rtp, idx) => (
+                        <Box key={idx} >
 
-                        { Object.keys(stage).length != 0 && !!stage.RoomTypes[1] && <>
-                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Landing II</ST.BaseHighlight>
-                                <ST.BaseText>
-                                    {getRoomType(stage.RoomTypes[1])}: {stage.ObstCount[1]} - {stage.ObstLevels[1]}
-                                </ST.BaseText>
-                                <ST.BaseText>{ deployment[1].Name }</ST.BaseText>
-                                { roomNo < 2 &&
-                                    <ST.BaseText> Unexplored </ST.BaseText>
-                                }
-                                { roomNo == 2 &&
-                                    <ST.BaseText sx={{color: 'lime',}}> In Play </ST.BaseText>
-                                }
-                                { roomNo > 2 &&
-                                    <ST.BaseText> Complete </ST.BaseText>
-                                }
-                            </ST.FlexVertical>
-                            { stage.NumberRooms > 2 && <RoomSeparator src={ SeparatorSilver }/> }
-                        </>}
+                            { !!rtp && <ST.FlexVertical>
+                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>
+                                    { getLandingTitle(idx+1) }
+                                </ST.BaseHighlight>
 
-                        { Object.keys(stage).length != 0 && !!stage.RoomTypes[2] && <>
-                            <ST.FlexVertical sx={{alignItems:'flex-start', margin: '0px 8px'}}>
-                                <ST.BaseHighlight sx={{ marginTop: '-8px' }}>Landing III</ST.BaseHighlight>
-                                <ST.BaseText>
-                                    {getRoomType(stage.RoomTypes[2])}: {stage.ObstCount[2]} - {stage.ObstLevels[2]}
-                                </ST.BaseText>
-                                <ST.BaseText>{ deployment[2].Name }</ST.BaseText>
-                                { roomNo < 3 &&
-                                    <ST.BaseText> Unexplored </ST.BaseText>
+                                <ST.FlexHorizontal>
+
+                                    <ST.FlexVertical sx={{width: '64px'}}>
+                                        <ST.BaseText>{ getRoomType(stage.RoomTypes[idx]) }</ST.BaseText>
+                                        <ST.BaseText>
+                                            {stage.ObstCount[idx]} - {stage.ObstLevels[idx]}
+                                        </ST.BaseText>
+                                        <ST.BaseText>[{ stage.ThiefPower[idx] }]</ST.BaseText>
+                                    </ST.FlexVertical>
+
+                                    <ST.FlexVertical sx={{width: '64px'}}>
+                                        <ST.BaseText>{ deployment[idx].Class }</ST.BaseText>
+                                        <ST.BaseText>{ deployment[idx].Name }</ST.BaseText>
+                                        <ST.BaseText>[{ deployment[idx].Power }]</ST.BaseText>
+                                    </ST.FlexVertical>
+
+                                </ST.FlexHorizontal>
+
+                                { landingNo < idx+1 &&
+                                    <ST.BaseText sx={{color: 'MediumPurple'}}> Unexplored </ST.BaseText>
                                 }
-                                { roomNo == 3 &&
-                                    <ST.BaseText sx={{color: 'lime',}}> In Play </ST.BaseText>
+                                { landingNo == idx+1 &&
+                                    <ST.BaseText sx={{color: 'lime'}}> In Play </ST.BaseText>
                                 }
-                                { roomNo > 3 &&
-                                    <ST.BaseText> Complete </ST.BaseText>
+                                { landingNo > idx+1 &&
+                                    <ST.BaseText sx={{color: 'crimson'}}> Complete </ST.BaseText>
                                 }
-                            </ST.FlexVertical>
-                            { stage.NumberRooms > 3 && <RoomSeparator src={ SeparatorSilver }/> }
-                        </>}
+                                { stage.NumberRooms > idx+1 && <RoomSeparator src={ SeparatorSilver }/> }
+                            </ST.FlexVertical>}
+
+                        </Box>
+                    ))}
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>
 
-
-
                 <ST.GridItemCenter item xs={12} lg={10}>
 
                     <PixiLanding
-                        width={ 920 }
+                        width={ 1000 }
                         backgroundType={ stage.Background }
-                        backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[roomNo -1] : 0}
+                        backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[landingNo -1] : 0}
                         obstacleLs={ obstacles }
                         actionLs={ actions }
-                        thiefAssigned={ deployment[roomNo -1] }
+                        thiefAssigned={ deployment[landingNo -1] }
+                        setForward={ setForwardEnabled }
                     />
 
                 </ST.GridItemCenter>
-
 
                 <ST.GridItemCenter item xs={12}>
                     <ST.FlexVertical>
                         <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
                             onClick={ advancePhase }
-                            disabled={ lastResults.nextStep == 'next-room' }
+                            disabled={ !forwardEnabled }
                         >
                             <ST.LinkText>Forward</ST.LinkText>
                         </ST.RegularButton>
                     </ST.FlexVertical>
                 </ST.GridItemCenter>
-
 
             </ST.GridPage >
         </PageLayout>

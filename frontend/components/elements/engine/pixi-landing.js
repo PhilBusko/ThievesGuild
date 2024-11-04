@@ -8,10 +8,6 @@ import { styled } from '@mui/material/styles';
 import { Stage, Container, Sprite, Graphics, Text } from '@pixi/react';
 import { TextStyle } from 'pixi.js';
 import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
-import * as PIXI from 'pixi.js';
-
-
-import * as ST from  '../styled-elements';
 import useInterval from '../engine/use-interval';
 
 import BkgdArmory from '../../assets/stage/bkgd-armory.png';
@@ -39,6 +35,7 @@ import TrapSwarm from '../../assets/stage/trap-swarm.png';
 import TrapGargoyle from '../../assets/stage/trap-gargoyle.png';
 import TrapSewer from '../../assets/stage/trap-sewer.png';
 import TrapIdol from '../../assets/stage/trap-idol.png';
+import ExitMat from '../../assets/stage/exit-mat.png';
 
 
 const OBSTACLE_SPACE = 360;
@@ -59,6 +56,7 @@ const spriteTemplates = [
     { name: 'Gargoyle',         image: TrapGargoyle, xPos: 190, yPos: 120,  width: 140, height: 140 },
     { name: 'Sewer Grate',      image: TrapSewer, xPos: 170, yPos: 260,     width: 170, height: 170 },
     { name: 'Idol',             image: TrapIdol, xPos: 205, yPos: 235,      width: 120, height: 120 },
+    { name: 'Exit Mat',         image: ExitMat, xPos: 190, yPos: 282,       width: 120, height: 120 },
 
     { name: 'Warden',           image: EnemyWarden, xPos: 170, yPos: 148,   width: 200, height: 200 },
     { name: 'Vanguard',         image: EnemyVanguard, xPos: 175, yPos: 172, width: 180, height: 180 },
@@ -123,8 +121,8 @@ function PixiLanding(props) {
     // obstacles go greyscale, action result remains at health bar position
 
     const [staticSprites, setStaticSprites] = useState([]);
-    const [damageResults, setDamageResults] = useState([]);
-    const [rewardResults, setRewardResults] = useState([]);
+    const [damageStatic, setDamageStatic] = useState([]);
+    const [rewardStatic, setRewardStatic] = useState([]);
     const [animPos, setAnimPos] = useState(null);   // one per action
 
     const getRewardText = (rawTx) => {
@@ -145,17 +143,19 @@ function PixiLanding(props) {
 
             let imageDx = spriteTemplates.filter(sp => sp.name == obs.Name)[0];
             let colorMatrix = new ColorMatrixFilter();
-            colorMatrix.greyscale(0.5);
+            colorMatrix.greyscale(0.4);
 
-            spriteLs.push({
-                name: obs.Name,
-                image: imageDx.image,
-                filter: animPos <= idx ? {} : colorMatrix,
-                xPos: idx * OBSTACLE_SPACE + imageDx.xPos,
-                yPos: imageDx.yPos,
-                width: imageDx.width,
-                height: imageDx.height,
-            });
+            if (idx != animPos) {
+                spriteLs.push({
+                    name: obs.Name,
+                    image: imageDx.image,
+                    filter: animPos <= idx ? {} : colorMatrix,
+                    xPos: idx * OBSTACLE_SPACE + imageDx.xPos,
+                    yPos: imageDx.yPos,
+                    width: imageDx.width,
+                    height: imageDx.height,
+                });
+            }
 
             if (['Balcony', 'Secret Passage', 'Sewer Grate'].includes(obs.Name)) {
                 spriteLs.push({
@@ -168,6 +168,17 @@ function PixiLanding(props) {
                     height: imageDx.height,
                 });    
             }
+        });
+
+        let imageDx = spriteTemplates.filter(sp => sp.name == 'Exit Mat')[0];
+        spriteLs.push({
+            name: 'Exit Mat',
+            image: imageDx.image,
+            filter: {},
+            xPos: props.obstacleLs.length * OBSTACLE_SPACE + imageDx.xPos,
+            yPos: imageDx.yPos,
+            width: imageDx.width,
+            height: imageDx.height,
         });
         setStaticSprites(spriteLs);
 
@@ -198,7 +209,7 @@ function PixiLanding(props) {
                 });
             }
         });
-        setDamageResults(damageLs);
+        setDamageStatic(damageLs);
 
         let rewardLs = [];
         props.actionLs.forEach((act, idx) => {
@@ -219,10 +230,9 @@ function PixiLanding(props) {
                 });
             }
         });
-        setRewardResults(rewardLs);
+        setRewardStatic(rewardLs);
 
     }, [props.obstacleLs, animPos]);
-
 
 
     // handle animations
@@ -231,14 +241,25 @@ function PixiLanding(props) {
     const wrapperRef = useRef(null);
     const [thiefStatus, setThiefStatus] = useState('');
     const [enemyStatus, setEnemyStatus] = useState('');
-    const [leftTextStatus, setLeftTextStatus] = useState('');
-    const [rightTextStatus, setRightTextStatus] = useState('');
+    const [combatPos, setCombatPos] = useState(null);
+
+    const [rightRollStatus, setRightRollStatus] = useState('');
+    const [leftRollStatus, setLeftRollStatus] = useState('');
+    const [leftResultsStatus, setLeftResultsStatus] = useState('');
 
     const [animThief, setAnimThief] = useState({});
-    const [displayHealth, setDisplayHealth] = useState(0);    
-    const [leftTopText, setLeftTopText] = useState('');
-    const [leftBottomText, setLeftBottomText] = useState('');
-    const [rightText, setRightText] = useState('');
+    const [animObstacle, setAnimObstacle] = useState(null);
+    const [animObstFilter, setAnimObstFilter] = useState({});
+    const [thiefHealth, setThiefHealth] = useState(0); 
+    const [enemyHealth, setEnemyHealth] = useState(null); 
+    const [enemyMaxHlt, setEnemyMaxHlt] = useState(null); 
+
+    const [rightRollTx, setRightRollTx] = useState('');
+    const [leftRollTx, setLeftRollTx] = useState('');
+    const [damageResults, setDamageResults] = useState('');
+    const [rewardResults, setRewardResults] = useState('');
+    const [rightRollStyle, setRightRollStyle] = useState(null);
+    const [leftRollStyle, setLeftRollStyle] = useState(null);
 
 
     const passMultiStyle = new TextStyle({
@@ -277,24 +298,12 @@ function PixiLanding(props) {
         strokeThickness: 2,
     });
 
-    const getMultiStyle = () => {
-
-        if (animPos == null) return null;
-
-        let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
-
-        if (!!actionDx && actionDx.rollParams.result >= actionDx.rollParams.difficulty)
-            return passMultiStyle;
-
-        else
-            return failMultiStyle;
-    }
-
     const getSingleStyle = () => {
 
         if (animPos == null) return null;
 
         let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
+        if (actionDx == null) return null;
 
         if (!!actionDx && actionDx.rollParams.result >= actionDx.rollParams.difficulty)
             return passSingleStyle;
@@ -302,7 +311,6 @@ function PixiLanding(props) {
         else
             return failSingleStyle;
     }
-
 
 
     useEffect(() => {
@@ -314,7 +322,7 @@ function PixiLanding(props) {
 
         console.log(props.obstacleLs);
         console.log(props.actionLs);
-        console.log(props.thiefAssigned);
+        // console.log(props.thiefAssigned);
 
         setAnimPos(0);
 
@@ -326,13 +334,21 @@ function PixiLanding(props) {
         // this effect starts the animations of 1 action
 
         if (animPos == null) return;
-        console.log('anim', animPos);
-        
-        var imageDx = spriteTemplates.filter(sp => sp.name == props.thiefAssigned.Class)[0];
+        // console.log('anim', animPos);
+
         var actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
+        if (actionDx == null) {
+            setCombatPos(null);
+            setAnimObstacle(null);
+            setEnemyHealth(null);
+            setEnemyMaxHlt(null);
+            return;
+        }
         var prevActionDx = props.actionLs.filter(ct => ct.posCurr == animPos -1)[0];
 
         // set the same thief position to start each action
+
+        var imageDx = spriteTemplates.filter(sp => sp.name == props.thiefAssigned.Class)[0];
 
         var thiefDx = {
             image: imageDx.image,
@@ -342,6 +358,7 @@ function PixiLanding(props) {
             height: imageDx.height,
             rotate: 0,
             alpha: 1,
+            filter: {},
         };
         setAnimThief(thiefDx);
 
@@ -357,19 +374,50 @@ function PixiLanding(props) {
                 prevActionDx = props.actionLs.filter(ct => ct.posCurr == animPos -2)[0];
             startHealth = (props.thiefAssigned.Health - prevActionDx.woundsTotal) / props.thiefAssigned.Health * 100;
         }
-        setDisplayHealth(startHealth);
+        setThiefHealth(startHealth);
+
+
+        // make the current obstacle animatable
+
+        imageDx = spriteTemplates.filter(sp => sp.name == actionDx.obstacle)[0];
+        var obstDx = {
+            isTrap: !['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle),
+            image: imageDx.image,
+            xPos: actionDx.posCurr * OBSTACLE_SPACE + imageDx.xPos,
+            yPos: imageDx.yPos,
+            width: imageDx.width,
+            height: imageDx.height,
+            rotate: 0,
+        };
+        setAnimObstacle(obstDx);
+        setAnimObstFilter({});
+
+        if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) {
+            setCombatPos(0);
+            setEnemyHealth(100);
+            let obst = props.obstacleLs[animPos];
+            setEnemyMaxHlt(obst.Health);
+        }
+        else {
+            setCombatPos(null);
+            setEnemyHealth(null);
+            setEnemyMaxHlt(null);
+        }
 
         // reset text displays
 
-        setLeftTopText('');
-        setRightText('');
-        setLeftBottomText('');
+        setRightRollTx('');
+        setLeftRollTx('');
+        setDamageResults('');
+        setRewardResults('');
 
         // set the starting animations for each target
 
-        setThiefStatus('pause1 0');         // pause tip untip forward skip-forward
-        setRightTextStatus('pause1 0');     // pause display
-        setLeftTextStatus('pause1 0');
+        setThiefStatus('pause1 1');
+        setEnemyStatus('pause1 1');
+        setRightRollStatus('pause1 1');
+        setLeftRollStatus('pause1 1');
+        setLeftResultsStatus('pause1 1');
 
         // scroll to the obstacle's position
 
@@ -386,6 +434,50 @@ function PixiLanding(props) {
         // does't need to be called, just declaring interval triggers it
 
         let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
+
+        if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
+            animateCombat(actionDx);
+        else
+            animateTrap(actionDx);
+
+
+        if (thiefHealth <= 0 && !thiefStatus.includes('defeat')) {
+            setThiefStatus('defeat 0');
+            setRightRollStatus('defeat 0');
+        }
+        if (thiefStatus.includes('defeat')) {
+            let newThief = Object.assign({}, animThief);
+            let colorMatrix = new ColorMatrixFilter();
+            colorMatrix.greyscale(0.4);
+            newThief.filter = colorMatrix;
+            setAnimThief(newThief);
+            props.setForward(true);
+        }
+
+
+        // advance to next action
+        // too late to check for defeat, thief has moved to next position
+
+        if (thiefStatus == 'forward 45' || thiefStatus == 'skip-end 0') {
+            var nextPos = actionDx.posNext;
+
+            if (nextPos < props.obstacleLs.length) {
+                // console.log('setting nextpos', nextPos)
+                setAnimPos(nextPos);
+            }
+
+            else {
+                // console.log('anim pos victory');
+                setAnimPos(nextPos);
+                props.setForward(true);
+                setThiefStatus('victory 0');
+            }
+        }
+
+    }, 50);    // 10 fps
+
+
+    const animateTrap = (actionDx) => {
 
         // update the thief's animation status
 
@@ -469,59 +561,62 @@ function PixiLanding(props) {
         setAnimThief(newThief);
 
 
-
         // display the right text
 
-        currLs = rightTextStatus.split(' ');
+        currLs = rightRollStatus.split(' ');
         status = currLs[0];
         currTick = parseInt(currLs[1]) +1;
         newStatus = `${status} ${currTick}`;
-        setRightTextStatus(newStatus);
+        setRightRollStatus(newStatus);
 
-        if (rightTextStatus == 'pause1 15' ) setRightTextStatus('display 0');
-        if (rightTextStatus == 'display 80') setRightTextStatus('pause2 0');
+        if (rightRollStatus == 'pause1 15' ) setRightRollStatus('display 0');
+        if (rightRollStatus == 'display 50') setRightRollStatus('pause2 0');
 
-
-        let newText = null;
-
-        if (rightTextStatus.includes('pause')) {
-            newText = null;
+        if (rightRollStatus.includes('pause')) {
+            setRightRollTx(null);
         }
-        if (rightTextStatus.includes('display')) {
-            newText = `Roll ${actionDx.rollParams.roll}\n`;
+        if (rightRollStatus.includes('display')) {
+            let newText = `Roll ${actionDx.rollParams.roll}\n`;
             newText += `${actionDx.rollParams.trait} +${actionDx.rollParams.traitBonus}\n`;
             newText += `${actionDx.rollParams.skill} +${actionDx.rollParams.skillBonus}\n`;
             newText += `-> ${actionDx.rollParams.result} vs ${actionDx.rollParams.difficulty}\n`;
+            setRightRollTx(newText);
+
+            setRightRollStyle(actionDx.rollParams.result >= actionDx.rollParams.difficulty ? 
+                passMultiStyle : failMultiStyle);
         }
-        
-        setRightText(newText);
+        if (rightRollStatus == 'display 7') {
+            let colorMatrix = new ColorMatrixFilter();
+            colorMatrix.greyscale(0.4);
+            setAnimObstFilter(colorMatrix);
+        }
 
-        
 
-        // display the left results text
+        // display the results text
 
-        currLs = leftTextStatus.split(' ');
+        currLs = leftResultsStatus.split(' ');
         status = currLs[0];
         currTick = parseInt(currLs[1]) +1;
         newStatus = `${status} ${currTick}`;
-        setLeftTextStatus(newStatus);
+        setLeftResultsStatus(newStatus);
 
-        if (leftTextStatus == 'pause1 20' ) setLeftTextStatus('display 0');
-        if (leftTextStatus == 'display 80') setLeftTextStatus('pause2 0');
+        if (leftResultsStatus == 'pause1 20' ) setLeftResultsStatus('display 0');
+        if (leftResultsStatus == 'display 45') setLeftResultsStatus('pause2 0');
 
 
-        if (leftTextStatus.includes('pause')) {
-            setLeftTopText(null);
-            setLeftBottomText(null);
+        if (leftResultsStatus.includes('pause')) {
+            setDamageResults(null);
+            setRewardResults(null);
         }
-        if (leftTextStatus.includes('display')) {
+        if (leftResultsStatus.includes('display')) {
 
             if (!!actionDx.woundsAction)
-                setLeftTopText(`${actionDx.woundsAction} damage`);
+                setDamageResults(`${actionDx.woundsAction} damage`);
             else
-                setLeftTopText(null);
+                setDamageResults(null);
 
             if (!!actionDx.reward) {
+                let newText = '';
                 if (actionDx.reward.includes('xp'))
                     newText = `${actionDx.reward.split(' ')[1]} exp\n`;
                 if (actionDx.reward.includes('heal'))
@@ -530,54 +625,176 @@ function PixiLanding(props) {
                     newText = `${actionDx.reward.split(' ')[1]} gold\n`;
                 if (actionDx.reward.includes('gems'))
                     newText = `${actionDx.reward.split(' ')[1]} gems\n`;
-
-                setLeftBottomText(newText);
+                setRewardResults(newText);
             }
             else
-                setLeftBottomText(null);
+                setRewardResults(null);
 
             if (!actionDx.woundsAction && !actionDx.reward)
-                setLeftBottomText('no effects');
+                setRewardResults('no effects');
 
             // update the health bar
 
-            let displayHealth = 
+            let newHealth = 
                 (props.thiefAssigned.Health - actionDx.woundsTotal) / props.thiefAssigned.Health * 100;
-            setDisplayHealth(displayHealth);
+            if (newHealth < 0) newHealth = 0;
+            setThiefHealth(newHealth);
+        }
+    }
+
+
+    const animateCombat = (actionDx) => {
+
+        let currAttack = actionDx.rollParams[combatPos];
+
+        const resetStatuses = () => {
+            setCombatPos(null);
+            setThiefStatus('end-combat 1');
+            setEnemyStatus('end-combat 1');
+            setRightRollStatus('stop 1');
+            setLeftRollStatus('stop 1');
         }
 
 
+        // update the thief's animation status
 
-        // advance to next action
+        let currLs = thiefStatus.split(' ');
+        let status = currLs[0];
+        let currTick = parseInt(currLs[1]) +1;
+        let newStatus = `${status} ${currTick}`;
+        setThiefStatus(newStatus);
 
-        if (thiefStatus == 'forward 45' || thiefStatus == 'skip-end 0') {
-            var nextPos = actionDx.posNext;
-
-
-            if (nextPos > animPos && nextPos < 14) {
-                setAnimPos(nextPos);
+        if (thiefStatus == 'pause1 10' )        setThiefStatus('ftip 1');
+        if (thiefStatus == 'ftip 5')            setThiefStatus('untip 1');
+        if (thiefStatus == 'untip 5')           setThiefStatus('pause-attack 1');
+        if (thiefStatus == 'pause-attack 11')   {
+            if (combatPos +1 < actionDx.rollParams.length) {
+                setCombatPos(combatPos +1);
             }
-
-            else if (animPos == props.obstacleLs.length) {
-                console.log('anim pos complete');
-
-                setThiefStatus('pause 0');
-            }
-
             else {
-                console.log('anim pos stopped', nextPos);
-
-                setThiefStatus('pause 0');
+                resetStatuses();
+                return;
             }
         }
+        if (thiefStatus == 'pause-attack 30')   setThiefStatus('ftip 1');
+        if (thiefStatus == 'end-combat 5')      setThiefStatus('forward 1');
 
-    }, 100);    // 10 fps
 
-    
+        let newThief = Object.assign({}, animThief);
+        if (thiefStatus.includes('ftip')) {
+            newThief.rotate += 0.05;
+        }
+        if (thiefStatus.includes('untip')) {
+            newThief.rotate -= 0.05;
+        }
+        if (thiefStatus.includes('forward')) {
+            newThief.xPos += 8;
+        }
+        setAnimThief(newThief);
+
+        // display the right text
+
+        currLs = rightRollStatus.split(' ');
+        status = currLs[0];
+        currTick = parseInt(currLs[1]) +1;
+        newStatus = `${status} ${currTick}`;
+        setRightRollStatus(newStatus);
+
+        if (rightRollStatus == 'pause1 15' ) setRightRollStatus('display 1');
+        if (rightRollStatus == 'display 15') setRightRollStatus('pause2 1');
+        if (rightRollStatus == 'pause2 25') setRightRollStatus('display 1');
+
+        if (['pause2 1', 'stop 1'].includes(rightRollStatus)) {
+            setRightRollTx(null);
+        }
+        if (rightRollStatus == 'display 1') {
+            currAttack = actionDx.rollParams[combatPos];
+            let newText = `Roll ${currAttack.roll}\n`;
+            newText += `Att +${currAttack.attack}\n`;
+            newText += `${currAttack.result} vs ${currAttack.defense}\n`;
+            newText += currAttack.woundsRoll > 0 ? `-> ${currAttack.woundsRoll} damage` : '-> miss';
+            setRightRollTx(newText);
+
+            setRightRollStyle(currAttack.woundsRoll > 0 ? passMultiStyle : failMultiStyle)
+
+            let damagePerc = currAttack.woundsRoll / enemyMaxHlt * 100;
+            let newHltPerc = enemyHealth - damagePerc;
+            if (newHltPerc < 0) newHltPerc = 0;
+            setEnemyHealth(newHltPerc);
+        }
+        if (rightRollStatus == 'display 1' && combatPos == actionDx.rollParams.length -1) {
+            let colorMatrix = new ColorMatrixFilter();
+            colorMatrix.greyscale(0.4);
+            setAnimObstFilter(colorMatrix);
+        }
+
+        // update the enemy's animation
+
+        currLs = enemyStatus.split(' ');
+        status = currLs[0];
+        currTick = parseInt(currLs[1]) +1;
+        newStatus = `${status} ${currTick}`;
+        setEnemyStatus(newStatus);
+
+        if (enemyStatus == 'pause1 30' )        setEnemyStatus('ftip 1');
+        if (enemyStatus == 'ftip 5')            setEnemyStatus('untip 1');
+        if (enemyStatus == 'untip 5')           setEnemyStatus('pause-attack 1');
+        if (enemyStatus == 'pause-attack 11')   {
+            if (combatPos +1 < actionDx.rollParams.length) {
+                setCombatPos(combatPos +1);
+            }
+            else {
+                resetStatuses();
+                return;
+            }
+        }
+        if (enemyStatus == 'pause-attack 30')   setEnemyStatus('ftip 1');
+
+        let newEnemy = Object.assign({}, animObstacle);
+        if (enemyStatus.includes('ftip')) {
+            newEnemy.rotate -= 0.05;
+        }
+        if (enemyStatus.includes('untip')) {
+            newEnemy.rotate += 0.05;
+        }
+        setAnimObstacle(newEnemy);
+
+        // display the left text
+
+        currLs = leftRollStatus.split(' ');
+        status = currLs[0];
+        currTick = parseInt(currLs[1]) +1;
+        newStatus = `${status} ${currTick}`;
+        setLeftRollStatus(newStatus);
+
+        if (leftRollStatus == 'pause1 10' ) setLeftRollStatus('pause2 1');
+        if (leftRollStatus == 'pause2 25' ) setLeftRollStatus('display 1');
+        if (leftRollStatus == 'display 15') setLeftRollStatus('pause2 1');
+
+        if (['pause2 1', 'stop 1'].includes(leftRollStatus)) {
+            setLeftRollTx(null);
+        }
+        if (leftRollStatus == 'display 1') {
+            currAttack = actionDx.rollParams[combatPos];
+            let newText = `Roll ${currAttack.roll}\n`;
+            newText += `Att +${currAttack.attack}\n`;
+            newText += `${currAttack.result} vs ${currAttack.defense}\n`;
+            newText += currAttack.woundsRoll > 0 ? `-> ${currAttack.woundsRoll} damage` : '-> miss';
+            setLeftRollTx(newText);
+
+            setLeftRollStyle(currAttack.woundsRoll == 0 ? passMultiStyle : failMultiStyle)
+
+            let damagePerc = currAttack.woundsRoll / props.thiefAssigned.Health * 100;
+            let newHltPerc = thiefHealth - damagePerc;
+            if (newHltPerc < 0) newHltPerc = 0;
+            setThiefHealth(newHltPerc);
+        }
+    }
+
 
     // render
     // second sprite is needed to continue background for longer landings
-    // TODO: rendering line that separates each obstacles' space
+    // z-index is set by display order, not z-index prop
 
     return (<>
         <StageWrapper sx={{ width: props.width, height: '420px',}} ref={wrapperRef} >
@@ -598,8 +815,7 @@ function PixiLanding(props) {
                         />
                     </Container>
                 ))}
-
-                { damageResults.length > 0 && damageResults.map((act, id) => (
+                { damageStatic.length > 0 && damageStatic.map((act, id) => (
                     <Container key={id} >
                         <Text 
                             text={ act.text }
@@ -609,8 +825,7 @@ function PixiLanding(props) {
                         />
                     </Container>
                 ))}
-
-                { rewardResults.length > 0 && rewardResults.map((act, id) => (
+                { rewardStatic.length > 0 && rewardStatic.map((act, id) => (
                     <Container key={id} >
                         <Text 
                             text={ act.text }
@@ -622,76 +837,82 @@ function PixiLanding(props) {
                 ))}
 
 
+                { !!animObstacle && 
+                    <Sprite
+                        image={ animObstacle.image }
+                        x={ animObstacle.xPos + animObstacle.width /2 }
+                        y={ animObstacle.yPos + animObstacle.height }
+                        width={ animObstacle.width }
+                        height={ animObstacle.height }
+                        filters={ [animObstFilter] }
+                        anchor={ [0.5, 1] }
+                        rotation={ animObstacle.rotate }
+                    />
+                }
                 <Sprite
                     image={ animThief.image }
                     x={ animThief.xPos + animThief.width /2 }  // setting anchor moves the origin
                     y={ animThief.yPos + animThief.height }
                     width={ animThief.width }
                     height={ animThief.height }
+                    filters={ [animThief.filter] }
                     anchor={ [0.5, 1] }
                     rotation={ animThief.rotate }
                     alpha={ animThief.alpha }
-                    zIndex={ 1 }
                 />
 
+
                 <Text 
-                    text={ rightText }
+                    text={ rightRollTx }
                     x={ animPos * OBSTACLE_SPACE + 205 }
                     y={ 16 }
-                    style={ getMultiStyle() } 
+                    style={ rightRollStyle } 
                 />
-
                 <Text 
-                    text={ leftTopText }
+                    text={ leftRollTx }
+                    x={ animPos * OBSTACLE_SPACE + 50 }
+                    y={ 16 }
+                    style={ leftRollStyle } 
+                />
+                <Text 
+                    text={ damageResults }
                     x={ animPos * OBSTACLE_SPACE + 40 }
                     y={ 66 }
                     style={ getSingleStyle() } 
                 />
-
                 <Text 
-                    text={ leftBottomText }
+                    text={ rewardResults }
                     x={ animPos * OBSTACLE_SPACE + 44 }
                     y={ 102 }
                     style={ getSingleStyle() } 
                 />
 
 
-                { props.obstacleLs.length > 0 && props.obstacleLs.map((obs, id) => (
-                    <Container key={id} >
-
-                        <Graphics
-                            draw={(g) => {
-                                g.clear();
-                                g.lineStyle(2, 0x000000);
-                                g.moveTo((id+1) * OBSTACLE_SPACE, 0);
-                                g.lineTo((id+1) * OBSTACLE_SPACE, 400);
-                            }}
-                        />
-
-                        <Graphics
-                            draw={(g) => {
-                                g.clear();
-                                g.lineStyle(2, 0x000000);
-                                g.moveTo((id+2) * OBSTACLE_SPACE, 0);
-                                g.lineTo((id+2) * OBSTACLE_SPACE, 400);
-                            }}
-                        />
-
-                    </Container>
-                ))}
+                {/* <Text 
+                    text={ combatPos }
+                    x={ animPos * OBSTACLE_SPACE + 210 }
+                    y={ 160 }
+                    style={ passSingleStyle } 
+                /> */}
 
             </Stage>
 
+            { !!animObstacle && !animObstacle.isTrap &&
+                <HealthWrapper sx={{ top: 358, left: 58 + animObstacle.xPos }} >
+                    <HealthProgress 
+                        variant='determinate' 
+                        value={ enemyHealth || 0 }
+                    />
+                </HealthWrapper>
+            }
             <HealthWrapper sx={{
                 top: 358, left: 58 + animThief.xPos,
                 display: thiefStatus.includes('fade-out') ? 'none' : 'block',
             }} >
-
                 <HealthProgress 
                     variant='determinate' 
-                    value={ displayHealth || 100 }
+                    value={ thiefHealth || 0 }
                 />
-
             </HealthWrapper>
 
         </StageWrapper>
@@ -705,6 +926,7 @@ PixiLanding.defaultProps = {
     obstacleLs: [],         // all obstacles
     actionLs: [],           // only obstacles with actions
     thiefAssigned: {},
+    setForward: () => {},
 };
 
 export default PixiLanding;
