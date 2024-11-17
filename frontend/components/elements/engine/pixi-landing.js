@@ -38,9 +38,13 @@ import TrapIdol from '../../assets/stage/trap-idol.png';
 import ExitMat from '../../assets/stage/exit-mat.png';
 
 
+// const ThiefBurglar = require('../../assets/stage/thief-burglar.png');
+
+
+
 const OBSTACLE_SPACE = 360;
 const spriteTemplates = [
-    { name: 'Burglar',          image: ThiefBurglar, xPos: 0, yPos: 178,    width: 170, height: 170 },
+    { name: 'Burglar',          image: ThiefBurglar, xPos: 0, yPos: 178,    width: 190, height: 170 },
     { name: 'Scoundrel',        image: ThiefScoundrel, xPos: 0, yPos: 175,  width: 170, height: 170 },
     { name: 'Ruffian',          image: ThiefRuffian, xPos: 0, yPos: 175,    width: 175, height: 175 },
 
@@ -115,6 +119,15 @@ function PixiLanding(props) {
         background.fullWidth = (props.obstacleLs.length +1) * OBSTACLE_SPACE;
         setBackgroundDx(background);
     }, [props.backgroundType, props.obstacleLs]);
+
+
+    const stageRef = useRef(null);
+
+    useEffect(() => {
+        if (stageRef.current) {
+            stageRef.current.backgroundColor = 0x00000000; // Transparent background
+        }
+    }, []);
 
 
     // handle static sprites
@@ -362,6 +375,8 @@ function PixiLanding(props) {
         };
         setAnimThief(thiefDx);
 
+        console.log( imageDx.image )
+
         // set the health based on previous action
         // health will change when thief untips
 
@@ -429,53 +444,53 @@ function PixiLanding(props) {
     }, [animPos]);
 
 
-    const intervalRef = useInterval(() => {
+    // const intervalRef = useInterval(() => {
 
-        // does't need to be called, just declaring interval triggers it
+    //     // does't need to be called, just declaring interval triggers it
 
-        let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
-        if (!actionDx) return;
+    //     let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
+    //     if (!actionDx) return;
 
-        if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
-            animateCombat(actionDx);
-        else
-            animateTrap(actionDx);
-
-
-        if (thiefHealth <= 0 && !thiefStatus.includes('defeat')) {
-            setThiefStatus('defeat 0');
-            setRightRollStatus('defeat 0');
-        }
-        if (thiefStatus.includes('defeat')) {
-            let newThief = Object.assign({}, animThief);
-            let colorMatrix = new ColorMatrixFilter();
-            colorMatrix.greyscale(0.4);
-            newThief.filter = colorMatrix;
-            setAnimThief(newThief);
-            props.setForward(true);
-        }
+    //     if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
+    //         animateCombat(actionDx);
+    //     else
+    //         animateTrap(actionDx);
 
 
-        // advance to next action
-        // too late to check for defeat, thief has moved to next position
+    //     if (thiefHealth <= 0 && !thiefStatus.includes('defeat')) {
+    //         setThiefStatus('defeat 0');
+    //         setRightRollStatus('defeat 0');
+    //     }
+    //     if (thiefStatus.includes('defeat')) {
+    //         let newThief = Object.assign({}, animThief);
+    //         let colorMatrix = new ColorMatrixFilter();
+    //         colorMatrix.greyscale(0.4);
+    //         newThief.filter = colorMatrix;
+    //         setAnimThief(newThief);
+    //         props.setForward(true);
+    //     }
 
-        if (thiefStatus == 'forward 45' || thiefStatus == 'skip-end 0') {
-            var nextPos = actionDx.posNext;
 
-            if (nextPos < props.obstacleLs.length) {
-                // console.log('setting nextpos', nextPos)
-                setAnimPos(nextPos);
-            }
+    //     // advance to next action
+    //     // too late to check for defeat, thief has moved to next position
 
-            else {
-                // console.log('anim pos victory');
-                setAnimPos(nextPos);
-                props.setForward(true);
-                setThiefStatus('victory 0');
-            }
-        }
+    //     if (thiefStatus == 'forward 45' || thiefStatus == 'skip-end 0') {
+    //         var nextPos = actionDx.posNext;
 
-    }, 50);    // 10 fps
+    //         if (nextPos < props.obstacleLs.length) {
+    //             // console.log('setting nextpos', nextPos)
+    //             setAnimPos(nextPos);
+    //         }
+
+    //         else {
+    //             // console.log('anim pos victory');
+    //             setAnimPos(nextPos);
+    //             props.setForward(true);
+    //             setThiefStatus('victory 0');
+    //         }
+    //     }
+
+    // }, 50);    // 10 fps
 
 
     const animateTrap = (actionDx) => {
@@ -794,17 +809,17 @@ function PixiLanding(props) {
 
 
     // render
-    // second sprite is needed to continue background for longer landings
     // z-index is set by display order, not z-index prop
+    // set the background outside the stage so it doesn't overload
 
     return (<>
         <StageWrapper sx={{ width: props.width, height: '420px',}} ref={wrapperRef} >
-            <Stage width={backgroundDx.fullWidth} height={backgroundDx.height}>
+            <Stage width={ 600 } height={backgroundDx.height} ref={stageRef}>
 
-                <Sprite image={backgroundDx.image} x={backgroundDx.bias}/>
-                <Sprite image={backgroundDx.image} x={backgroundDx.width + backgroundDx.bias}/>
+                {/* <Sprite image={backgroundDx.image} x={backgroundDx.bias}/>
+                <Sprite image={backgroundDx.image} x={backgroundDx.width + backgroundDx.bias}/> */}
 
-                { staticSprites.length > 0 && staticSprites.map((obs, id) => (
+                {/* { staticSprites.length > 0 && staticSprites.map((obs, id) => (
                     <Container key={id} >
                         <Sprite
                             image={ obs.image }
@@ -836,9 +851,9 @@ function PixiLanding(props) {
                         />
                     </Container>
                 ))}
+ */}
 
-
-                { !!animObstacle && 
+                {/* { !!animObstacle && 
                     <Sprite
                         image={ animObstacle.image }
                         x={ animObstacle.xPos + animObstacle.width /2 }
@@ -849,7 +864,7 @@ function PixiLanding(props) {
                         anchor={ [0.5, 1] }
                         rotation={ animObstacle.rotate }
                     />
-                }
+                } */}
                 <Sprite
                     image={ animThief.image }
                     x={ animThief.xPos + animThief.width /2 }  // setting anchor moves the origin

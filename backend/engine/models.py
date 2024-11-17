@@ -23,6 +23,7 @@ class Guild(JM.Model):
     VaultGold = JM.IntegerField(default=0)
     VaultStone = JM.IntegerField(default=0)
     VaultGems = JM.IntegerField(default=10)
+    LastHeist = JM.TextField(default='tower')              # tower, trial, dungeon, campaign
     DungeonCheck = JM.DateField(null=True)
 
     objects = DB.BaseManager()
