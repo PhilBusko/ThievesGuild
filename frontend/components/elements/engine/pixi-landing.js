@@ -806,7 +806,7 @@ function PixiLanding(props) {
     // z-index is set by display order, not z-index prop
 
     return (<>
-        <StageWrapper sx={{ width: props.width, height: '420px',}} ref={wrapperRef} >
+        <StageWrapper sx={{ width: props.width, height: '422px',}} ref={wrapperRef} >
             <Stage 
                 width={ backgroundDx != null ? backgroundDx.width : 0 } 
                 height={ backgroundDx != null ? backgroundDx.height : 0}
