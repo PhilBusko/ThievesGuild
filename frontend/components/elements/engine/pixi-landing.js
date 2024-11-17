@@ -272,8 +272,8 @@ function PixiLanding(props) {
 
 
     const passMultiStyle = new TextStyle({
-        fontFamily: 'started by a mouse',
-        fontSize: '370%',
+        fontFamily: 'Started by a Mouse',
+        fontSize: '38px',
         lineHeight: 30,
         fill: 'mediumblue',
         stroke: 'aqua',
@@ -282,7 +282,7 @@ function PixiLanding(props) {
 
     const failMultiStyle = new TextStyle({
         fontFamily: 'started by a mouse',
-        fontSize: '370%',
+        fontSize: '38px',
         lineHeight: 30,
         fill: 'darkred',
         stroke: 'white',
@@ -291,7 +291,7 @@ function PixiLanding(props) {
 
     const passSingleStyle = new TextStyle({
         fontFamily: 'started by a mouse',
-        fontSize: '370%',
+        fontSize: '38px',
         lineHeight: 42,
         fill: 'mediumblue',
         stroke: 'aqua',
@@ -300,7 +300,7 @@ function PixiLanding(props) {
 
     const failSingleStyle = new TextStyle({
         fontFamily: 'started by a mouse',
-        fontSize: '370%',
+        fontSize: '38px',
         lineHeight: 42,
         fill: 'darkred',
         stroke: 'white',
