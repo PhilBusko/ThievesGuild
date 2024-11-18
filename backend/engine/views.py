@@ -344,9 +344,23 @@ def DailyHeists(request):
         'trial': trial,
         'dungeon': dungeon,
         'campaign': campaign,
+        'lastHeist': guildMd.LastHeist,
         'message': None,
     }
     return Response(responseDx)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def SetLastHeist(request):
+
+    userMd = request.user
+    heist = request.data.get('heist')
+
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    guildMd.LastHeist = heist
+    guildMd.save()
+
+    return Response({'success': True})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -427,7 +441,7 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, 19) #runResults)
+            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 

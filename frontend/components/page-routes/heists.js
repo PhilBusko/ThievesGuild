@@ -69,17 +69,21 @@ function Heists(props) {
     const [dungeon, setDungeon] = useState([]);
     const [campaign, setCampaign] = useState([]);
 
+    const [selectedHeistTx, setSelectedHeistTx] = useState(null);
+    const [selectedHeist, setSelectedHeist] = useState([]);
+
     useEffect(() => {
         setErrorLs([]);
         AxiosConfig({
             url: '/engine/daily-heists',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData)
+                // console.log(responseData);
                 setTower(responseData.tower);
                 setTrial(responseData.trial);
                 setDungeon(responseData.dungeon);
                 setCampaign(responseData.campaign);
+                setSelectedHeistTx(responseData.lastHeist);
             }
             else {
                 setMessage(responseData.message);
@@ -92,34 +96,48 @@ function Heists(props) {
         });
     }, []);
 
+
     // choose a heist
 
-    const [selectedHeist, setSelectedHeist] = useState([]);
-
     useEffect(() => {
-        //console.log(selectedHeist);
-    }, [selectedHeist]);
+        nextSelected(selectedHeistTx);
+    }, [selectedHeistTx]);
+
+    const nextSelected = (heistName) => {
+        if (heistName == 'tower')       setSelectedHeist(tower);
+        if (heistName == 'trial')       setSelectedHeist(trial);
+        if (heistName == 'dungeon')     setSelectedHeist(dungeon);
+        if (heistName == 'campaign')    setSelectedHeist(campaign);
+    };
 
     const handleHeist = (heistName) => {
-        if (heistName == 'Gothic Tower') setSelectedHeist(tower);
-        if (heistName == 'League Trials') setSelectedHeist(trial);
-        if (heistName == 'Dungeon') setSelectedHeist(dungeon);
-        if (heistName == 'Campaign') setSelectedHeist(campaign);
-    }
+
+        nextSelected(heistName);
+
+        AxiosConfig({
+            method: 'POST',     
+            url: '/engine/set-heist',
+            data: { 'heist': heistName, },
+        }).then(responseData => {
+            console.log(responseData);
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        });
+    };
 
     const getHeistIcon = (heist) => {
         if (heist.includes('trial')) return TrialTexture;
         if (heist.includes('dungeon')) return DungeonTexture;
         if (heist.includes('campaign')) return CampaignTexture;
         return TowerTexture;
-    }
+    };
 
     // start heist
 
     const handleStart = (startId) => {
         const stage = selectedHeist.filter((item) => item.id == startId)[0];
         navigate('/deployment/', {state: {stage: stage}});
-    }
+    };
 
     // render
 
@@ -132,24 +150,28 @@ function Heists(props) {
                         <HeistGroup
                             buttonImage={RC.TowerHeist}
                             title={ 'Gothic Tower' }
+                            titleCode={ 'tower' }
                             infoTx={['Refreshes daily', 'Rewards are 1x']}
                             notifyHeist={ handleHeist }
                         />
                         <HeistGroup
                             buttonImage={RC.TrialHeist}
                             title={ 'League Trials' }
+                            titleCode={ 'trial' }
                             infoTx={['Refreshes daily', 'Rewards are 2x']}
                             notifyHeist={ handleHeist }
                         />
                         { dungeon.length > 0 && <HeistGroup
                             buttonImage={RC.DungeonHeist}
                             title={ 'Dungeon' }
+                            titleCode={ 'dungeon' }
                             infoTx={['Rare event', 'Rewards are 3x']}
                             notifyHeist={ handleHeist }
                         /> }
                         <HeistGroup
                             buttonImage={RC.CampaignHeist}
                             title={ 'Campaign' }
+                            titleCode={ 'campaign' }
                             infoTx={['One-time stages', 
                                 'Allows to advance the Throne Room', 'Rewards are 4x']}
                             notifyHeist={ handleHeist }

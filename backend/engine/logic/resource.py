@@ -217,7 +217,7 @@ def GetRoomMax(guildMd):
     return throneMd.MaxRoomCount
 
 def GetExpeditionCount(guildMd):
-    count = 3 #0
+    count = 0
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
     for rm in roomLs:

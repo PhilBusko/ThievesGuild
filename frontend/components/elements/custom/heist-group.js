@@ -71,7 +71,7 @@ function HeistGroup(props) {
 
     return (
         <HeistWrapper>
-            <HeistButton onClick={() => { props.notifyHeist(props.title); }}>
+            <HeistButton onClick={() => { props.notifyHeist(props.titleCode); }}>
                 <HeistImage src={props.buttonImage} />
             </HeistButton>
             <HeistBox>
@@ -106,6 +106,7 @@ function HeistGroup(props) {
 HeistGroup.defaultProps = {
     buttonImage: {},
     title: '',
+    titleCode: '',
     infoTx: [],
     notifyHeist: () => {},
 };
