@@ -64,7 +64,7 @@ function Playthrough(props) {
             setStage(newStage);
             setDeployment(newDeployment);
 
-            // landings may already be finished
+            // some landings may already be finished
 
             var nextRoom = 1;
             if (newStage.RoomRewards[3])        nextRoom = 5;

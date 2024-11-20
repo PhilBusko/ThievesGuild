@@ -441,16 +441,14 @@ function PixiLanding(props) {
         // abort when the state isn't initialized, just like useEffect
 
         if (animPos == null || staticSprites.length == 0 || 
-            animThief == null || animObstacle == null)
+            animThief == null) {
+            // console.log('interval abort', animPos, staticSprites.length, animThief != null, animObstacle != null);
             return;
+        }
 
         // play the animation based on the obstacle type
 
         let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
-        if (!actionDx) {
-            // console.log('interval exiting', animPos)
-            return;
-        }
 
         if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
             animateCombat(actionDx);
@@ -490,7 +488,7 @@ function PixiLanding(props) {
             }
         }
 
-        // console.log('interval', animPos, 'action', actionDx.obstacle, '| thief', animThief.xPos, )
+        // console.log('interval', animPos, 'action', actionDx.obstacle, )
     }, props.speed);
 
 
@@ -815,8 +813,7 @@ function PixiLanding(props) {
     return (<>
         <StageWrapper sx={{ width: props.width, height: '422px',}} ref={wrapperRef} >
             {   props.obstacleLs.length > 0 && backgroundDx != null && 
-                staticSprites.length > 0 && animPos != null &&
-                animObstacle != null && animThief != null && 
+                staticSprites.length > 0 && animThief != null && 
             <Stage 
                 width={ (props.obstacleLs.length +1) * OBSTACLE_SPACE } 
                 height={ backgroundDx.height}
@@ -827,9 +824,10 @@ function PixiLanding(props) {
                     <Sprite image={backgroundDx.image} x={backgroundDx.width + backgroundDx.bias}/>
                 </Container>
 
-                { staticSprites.map((obs, id) => (
-                    <Container key={id} >
+                <Container>
+                    { staticSprites.map((obs, id) => (
                         <Sprite
+                            key={ id }
                             image={ obs.image }
                             filters={ [obs.filter] }
                             x={ obs.xPos }
@@ -837,40 +835,40 @@ function PixiLanding(props) {
                             width={ obs.width }
                             height={ obs.height }
                         />
-                    </Container>
-                ))}
-                { damageStatic.length > 0 && damageStatic.map((act, id) => (
-                    <Container key={id} >
+                    ))}
+                    { damageStatic.length > 0 && damageStatic.map((act, id) => (
                         <Text 
+                            key={ id }
                             text={ act.text }
                             x={ act.xPos }
                             y={ act.yPos }
                             style={ failSingleStyle }
                         />
-                    </Container>
-                ))}
-                { rewardStatic.length > 0 && rewardStatic.map((act, id) => (
-                    <Container key={id} >
+                    ))}
+                    { rewardStatic.length > 0 && rewardStatic.map((act, id) => (
                         <Text 
+                            key={ id }
                             text={ act.text }
                             x={ act.xPos }
                             y={ act.yPos }
                             style={ passSingleStyle } 
                         />
-                    </Container>
-                ))}
+                    ))}
+                </Container>
 
                 <Container>
-                    <Sprite
-                        image={ animObstacle.image }
-                        x={ animObstacle.xPos + animObstacle.width /2 }
-                        y={ animObstacle.yPos + animObstacle.height }
-                        width={ animObstacle.width }
-                        height={ animObstacle.height }
-                        filters={ [animObstFilter || {}] }
-                        anchor={ [0.5, 1] }
-                        rotation={ animObstacle.rotate }
-                    />
+                    { animObstacle != null && 
+                        <Sprite
+                            image={ animObstacle.image }
+                            x={ animObstacle.xPos + animObstacle.width /2 }
+                            y={ animObstacle.yPos + animObstacle.height }
+                            width={ animObstacle.width }
+                            height={ animObstacle.height }
+                            filters={ [animObstFilter || {}] }
+                            anchor={ [0.5, 1] }
+                            rotation={ animObstacle.rotate }
+                        />
+                    }
                     <Sprite
                         image={ animThief.image }
                         x={ animThief.xPos + animThief.width /2 }  // setting anchor moves the origin
@@ -884,30 +882,32 @@ function PixiLanding(props) {
                     />
                 </Container>
 
-                <Text 
-                    text={ rightRollTx }
-                    x={ animPos * OBSTACLE_SPACE + 205 }
-                    y={ 16 }
-                    style={ rightRollStyle } 
-                />
-                <Text 
-                    text={ leftRollTx }
-                    x={ animPos * OBSTACLE_SPACE + 50 }
-                    y={ 16 }
-                    style={ leftRollStyle } 
-                />
-                <Text 
-                    text={ damageResults }
-                    x={ animPos * OBSTACLE_SPACE + 40 }
-                    y={ 66 }
-                    style={ getSingleStyle() } 
-                />
-                <Text 
-                    text={ rewardResults }
-                    x={ animPos * OBSTACLE_SPACE + 44 }
-                    y={ 102 }
-                    style={ getSingleStyle() } 
-                />
+                <Container>
+                    <Text 
+                        text={ rightRollTx }
+                        x={ animPos * OBSTACLE_SPACE + 205 }
+                        y={ 16 }
+                        style={ rightRollStyle } 
+                    />
+                    <Text 
+                        text={ leftRollTx }
+                        x={ animPos * OBSTACLE_SPACE + 50 }
+                        y={ 16 }
+                        style={ leftRollStyle } 
+                    />
+                    <Text 
+                        text={ damageResults }
+                        x={ animPos * OBSTACLE_SPACE + 40 }
+                        y={ 66 }
+                        style={ getSingleStyle() } 
+                    />
+                    <Text 
+                        text={ rewardResults }
+                        x={ animPos * OBSTACLE_SPACE + 44 }
+                        y={ 102 }
+                        style={ getSingleStyle() } 
+                    />
+                </Container>
 
             </Stage>
             }
