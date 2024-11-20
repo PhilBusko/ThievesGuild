@@ -104,7 +104,7 @@ const HealthProgress = styled(LinearProgress)(({ theme }) => ({
 function PixiLanding(props) {
 
 
-    // handle background 
+    // handle background
 
     const [backgroundDx, setBackgroundDx] = useState(null);
 
@@ -115,15 +115,6 @@ function PixiLanding(props) {
         background.fullWidth = (props.obstacleLs.length +1) * OBSTACLE_SPACE;
         setBackgroundDx(background);
     }, [props.backgroundType, props.obstacleLs]);
-
-
-    const stageRef = useRef(null);
-
-    useEffect(() => {
-        if (stageRef.current) {
-            stageRef.current.backgroundColor = 0x00000000; // Transparent background
-        }
-    }, []);
 
 
     // handle static sprites
@@ -146,6 +137,9 @@ function PixiLanding(props) {
     }
 
     useEffect(() => {
+
+        if (props.obstacleLs.length == 0 || animPos == null)
+            return;
 
         let spriteLs = [];
         props.obstacleLs.forEach((obs, idx) => {
@@ -258,7 +252,7 @@ function PixiLanding(props) {
 
     const [animThief, setAnimThief] = useState(null);
     const [animObstacle, setAnimObstacle] = useState(null);
-    const [animObstFilter, setAnimObstFilter] = useState(null);
+    const [animObstFilter, setAnimObstFilter] = useState({});
     const [thiefHealth, setThiefHealth] = useState(0); 
     const [enemyHealth, setEnemyHealth] = useState(null); 
     const [enemyMaxHlt, setEnemyMaxHlt] = useState(null); 
@@ -329,8 +323,8 @@ function PixiLanding(props) {
         if (props.actionLs.length == 0)
             return;
 
-        console.log(props.obstacleLs);
-        console.log(props.actionLs);
+        // console.log(props.obstacleLs);
+        // console.log(props.actionLs);
         // console.log(props.thiefAssigned);
 
         setAnimPos(0);
@@ -342,8 +336,9 @@ function PixiLanding(props) {
 
         // this effect starts the animations of 1 action
 
-        if (animPos == null) return;
-        // console.log('anim', animPos);
+        if (animPos == null) {
+            return;
+        }
 
         var actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
         if (actionDx == null) {
@@ -358,7 +353,6 @@ function PixiLanding(props) {
         // set the same thief position to start each action
 
         var imageDx = spriteTemplates.filter(sp => sp.name == props.thiefAssigned.Class)[0];
-
         var thiefDx = {
             image: imageDx.image,
             xPos: actionDx.posCurr * OBSTACLE_SPACE + imageDx.xPos,
@@ -375,8 +369,9 @@ function PixiLanding(props) {
         // health will change when thief untips
 
         var startHealth;
-        if (animPos == 0)
+        if (animPos == 0) {
             startHealth = 100;
+        }
         else {
             var prevActionDx = props.actionLs.filter(ct => ct.posCurr == animPos -1)[0];
             if (!prevActionDx)
@@ -384,7 +379,6 @@ function PixiLanding(props) {
             startHealth = (props.thiefAssigned.Health - prevActionDx.woundsTotal) / props.thiefAssigned.Health * 100;
         }
         setThiefHealth(startHealth);
-
 
         // make the current obstacle animatable
 
@@ -435,25 +429,38 @@ function PixiLanding(props) {
             behavior: 'smooth', 
         });
 
+        // console.log('action', actionDx.obstacle, '| thief', thiefDx.xPos, 
+        //     '| obstacle', obstDx.xPos, '| health', startHealth)
+
     }, [animPos]);
 
 
     const intervalRef = useInterval(() => {
 
         // does't need to be called, just declaring interval triggers it
+        // abort when the state isn't initialized, just like useEffect
+
+        if (animPos == null || staticSprites.length == 0 || 
+            animThief == null || animObstacle == null)
+            return;
+
+        // play the animation based on the obstacle type
 
         let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
-        if (!actionDx) return;
+        if (!actionDx) {
+            // console.log('interval exiting', animPos)
+            return;
+        }
 
         if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
             animateCombat(actionDx);
         else
             animateTrap(actionDx);
 
+        // check the thief health for defeat
 
         if (thiefHealth <= 0 && !thiefStatus.includes('defeat')) {
             setThiefStatus('defeat 0');
-            setRightRollStatus('defeat 0');
         }
         if (thiefStatus.includes('defeat')) {
             let newThief = Object.assign({}, animThief);
@@ -463,7 +470,6 @@ function PixiLanding(props) {
             setAnimThief(newThief);
             props.setForward(true);
         }
-
 
         // advance to next action
         // too late to check for defeat, thief has moved to next position
@@ -484,7 +490,8 @@ function PixiLanding(props) {
             }
         }
 
-    }, 50);    // 10 fps
+        // console.log('interval', animPos, 'action', actionDx.obstacle, '| thief', animThief.xPos, )
+    }, props.speed);
 
 
     const animateTrap = (actionDx) => {
@@ -807,17 +814,20 @@ function PixiLanding(props) {
 
     return (<>
         <StageWrapper sx={{ width: props.width, height: '422px',}} ref={wrapperRef} >
+            {   props.obstacleLs.length > 0 && backgroundDx != null && 
+                staticSprites.length > 0 && animPos != null &&
+                animObstacle != null && animThief != null && 
             <Stage 
-                width={ backgroundDx != null ? backgroundDx.width : 0 } 
-                height={ backgroundDx != null ? backgroundDx.height : 0}
+                width={ (props.obstacleLs.length +1) * OBSTACLE_SPACE } 
+                height={ backgroundDx.height}
             >
 
-                { backgroundDx != null && <>
+                <Container>
                     <Sprite image={backgroundDx.image} x={backgroundDx.bias}/>
                     <Sprite image={backgroundDx.image} x={backgroundDx.width + backgroundDx.bias}/>
-                </>}
+                </Container>
 
-                { staticSprites.length > 0 && staticSprites.map((obs, id) => (
+                { staticSprites.map((obs, id) => (
                     <Container key={id} >
                         <Sprite
                             image={ obs.image }
@@ -850,20 +860,17 @@ function PixiLanding(props) {
                     </Container>
                 ))}
 
-
-                { !!animObstacle && 
+                <Container>
                     <Sprite
                         image={ animObstacle.image }
                         x={ animObstacle.xPos + animObstacle.width /2 }
                         y={ animObstacle.yPos + animObstacle.height }
                         width={ animObstacle.width }
                         height={ animObstacle.height }
-                        filters={ [animObstFilter] }
+                        filters={ [animObstFilter || {}] }
                         anchor={ [0.5, 1] }
                         rotation={ animObstacle.rotate }
                     />
-                }
-                { animThief != null &&
                     <Sprite
                         image={ animThief.image }
                         x={ animThief.xPos + animThief.width /2 }  // setting anchor moves the origin
@@ -875,8 +882,7 @@ function PixiLanding(props) {
                         rotation={ animThief.rotate }
                         alpha={ animThief.alpha }
                     />
-                }
-
+                </Container>
 
                 <Text 
                     text={ rightRollTx }
@@ -903,35 +909,30 @@ function PixiLanding(props) {
                     style={ getSingleStyle() } 
                 />
 
-
-                {/* <Text 
-                    text={ combatPos }
-                    x={ animPos * OBSTACLE_SPACE + 210 }
-                    y={ 160 }
-                    style={ passSingleStyle } 
-                /> */}
-
             </Stage>
+            }
 
-            { !!animObstacle && !animObstacle.isTrap &&
-                <HealthWrapper sx={{ top: 358, left: 58 + animObstacle.xPos }} >
-                    <HealthProgress 
-                        variant='determinate' 
-                        value={ enemyHealth || 0 }
-                    />
-                </HealthWrapper>
-            }
-            { animThief != null && 
-                <HealthWrapper sx={{
-                    top: 358, left: 58 + animThief.xPos,
-                    display: thiefStatus.includes('fade-out') ? 'none' : 'block',
-                }} >
-                    <HealthProgress 
-                        variant='determinate' 
-                        value={ thiefHealth || 0 }
-                    />
-                </HealthWrapper>
-            }
+            <Box>
+                { !!animObstacle && !animObstacle.isTrap &&
+                    <HealthWrapper sx={{ top: 358, left: 58 + animObstacle.xPos }} >
+                        <HealthProgress 
+                            variant='determinate' 
+                            value={ enemyHealth || 0 }
+                        />
+                    </HealthWrapper>
+                }
+                { animThief != null && 
+                    <HealthWrapper sx={{
+                        top: 358, left: 58 + animThief.xPos,
+                        display: thiefStatus.includes('fade-out') ? 'none' : 'block',
+                    }} >
+                        <HealthProgress 
+                            variant='determinate' 
+                            value={ thiefHealth || 0 }
+                        />
+                    </HealthWrapper>
+                }
+            </Box>
 
         </StageWrapper>
     </>);
@@ -944,6 +945,7 @@ PixiLanding.defaultProps = {
     obstacleLs: [],         // all obstacles
     actionLs: [],           // only obstacles with actions
     thiefAssigned: {},
+    speed: 100,
     setForward: () => {},
 };
 

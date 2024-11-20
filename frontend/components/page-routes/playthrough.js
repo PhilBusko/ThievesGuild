@@ -54,8 +54,8 @@ function Playthrough(props) {
             navigate('/heists/');
         }
         else {
-            console.log(location.state.stage);
-            console.log(location.state.deployment);  
+            // console.log(location.state.stage);
+            // console.log(location.state.deployment);  
 
             const newStage = location.state.stage;
             const newDeployment = location.state.deployment;
@@ -84,14 +84,14 @@ function Playthrough(props) {
 
     useEffect(() => {
 
-        // this effect is called when the room changes
+        // this effect is called when the landing changes
         // get results from server and set off the animations
 
         // skip before state is initialized
 
         if (landingNo == 0) return;
 
-        // server call for room results
+        // server call for landing results
 
         const heist = stage.Heist;
         const stageNo = stage.StageNo;
@@ -119,6 +119,20 @@ function Playthrough(props) {
         });
 
     }, [landingNo]);
+
+
+    // set the auto battle speed
+
+    const SPEED1 = 100;
+    const SPEED2 = 50;
+    const SPEED3 = 15;
+    const [battleSpeed, setBattleSpeed] = useState(SPEED1);       // microsec per animation frame
+
+    const changeSpeed = () => {
+        if (battleSpeed == SPEED1)      setBattleSpeed(SPEED2);
+        if (battleSpeed == SPEED2)      setBattleSpeed(SPEED3);
+        if (battleSpeed == SPEED3)      setBattleSpeed(SPEED1);
+    }
 
 
     // go to next scene
@@ -248,27 +262,43 @@ function Playthrough(props) {
                 </ST.GridItemCenter>
 
                 <ST.GridItemCenter item xs={12} lg={10}>
+                    <ST.FlexVertical sx={{ 
+                        background: ST.TableBkgd, width: '100%', 
+                        paddingBottom: '10px', borderRadius: '6px',
+                        justifyContent: 'start',
+                    }}>
 
-                    <PixiLanding
-                        width={ 1000 }
-                        backgroundType={ stage.Background }
-                        backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[landingNo -1] : 0}
-                        obstacleLs={ obstacles }
-                        actionLs={ actions }
-                        thiefAssigned={ deployment[landingNo -1] }
-                        setForward={ setForwardEnabled }
-                    />
+                        <PixiLanding
+                            width={ 930 }
+                            backgroundType={ stage.Background }
+                            backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[landingNo -1] : 0}
+                            obstacleLs={ obstacles }
+                            actionLs={ actions }
+                            thiefAssigned={ deployment[landingNo -1] }
+                            speed={ battleSpeed }
+                            setForward={ setForwardEnabled }
+                        />
 
-                </ST.GridItemCenter>
+                        <ST.FlexHorizontal sx={{ justifyContent: 'space-evenly', }}>
+                            <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
+                                onClick={ changeSpeed }
+                                disabled={ !!forwardEnabled }
+                            >
+                                <ST.LinkText>
+                                    {battleSpeed == SPEED1 && 'Speed 1x'}
+                                    {battleSpeed == SPEED2 && 'Speed 2x'}
+                                    {battleSpeed == SPEED3 && 'Speed 4x'}
+                                </ST.LinkText>
+                            </ST.RegularButton>
+                            <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
+                                onClick={ advancePhase }
+                                disabled={ !forwardEnabled }
+                            >
+                                <ST.LinkText>Forward</ST.LinkText>
+                            </ST.RegularButton>
 
-                <ST.GridItemCenter item xs={12}>
-                    <ST.FlexVertical>
-                        <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
-                            onClick={ advancePhase }
-                            // disabled={ !forwardEnabled }
-                        >
-                            <ST.LinkText>Forward</ST.LinkText>
-                        </ST.RegularButton>
+                        </ST.FlexHorizontal>
+
                     </ST.FlexVertical>
                 </ST.GridItemCenter>
 
