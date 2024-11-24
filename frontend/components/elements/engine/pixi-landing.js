@@ -450,6 +450,9 @@ function PixiLanding(props) {
 
         let actionDx = props.actionLs.filter(ct => ct.posCurr == animPos)[0];
 
+        if (actionDx == null)
+            return;
+
         if (['Vanguard', 'Sorcerer', 'Warden'].includes(actionDx.obstacle)) 
             animateCombat(actionDx);
         else

@@ -42,24 +42,24 @@ function Playthrough(props) {
 
     const [stage, setStage] = useState({});
     const [deployment, setDeployment] = useState([]);
-    const [landingNo, setLandingNo] = useState(0);
+    const [landingIdx, setLandingIdx] = useState(null);
     const [forwardEnabled, setForwardEnabled] = useState(false);
     const location = useLocation();
 
     useEffect(() => {
 
-        // this is the OnLoad which also triggers a room change
+        // this is the OnLoad which also triggers the landing change
 
         if ( !location.state ) {
             navigate('/heists/');
         }
         else {
-            // console.log(location.state.stage);
-            // console.log(location.state.deployment);  
+            console.log(location.state.stage);
+            console.log(location.state.deployment);  
 
             const newStage = location.state.stage;
             const newDeployment = location.state.deployment;
-            // window.history.replaceState({}, document.title);  // comment out for dev
+            window.history.replaceState({}, document.title);  // comment out for dev
 
             setStage(newStage);
             setDeployment(newDeployment);
@@ -67,18 +67,18 @@ function Playthrough(props) {
             // some landings may already be finished
 
             var nextRoom = 1;
-            if (newStage.RoomRewards[3])        nextRoom = 5;
-            else if (newStage.RoomRewards[2])   nextRoom = 4;
-            else if (newStage.RoomRewards[1])   nextRoom = 3;
-            else if (newStage.RoomRewards[0])   nextRoom = 2;
-            setLandingNo(nextRoom);
+            if (newStage.LandingRewards[3])        nextRoom = 5;
+            else if (newStage.LandingRewards[2])   nextRoom = 4;
+            else if (newStage.LandingRewards[1])   nextRoom = 3;
+            else if (newStage.LandingRewards[0])   nextRoom = 2;
+            setLandingIdx(nextRoom);
         }
     }, []);
 
 
     // stage canvas engine
 
-    const [lastResults, setLastResults] = useState({});
+    // const [lastResults, setLastResults] = useState({});
     const [obstacles, setObstacles] = useState([]);
     const [actions, setActions] = useState([]);
 
@@ -89,28 +89,32 @@ function Playthrough(props) {
 
         // skip before state is initialized
 
-        if (landingNo == 0) return;
+        if (landingIdx == null) return;
 
         // server call for landing results
 
         const heist = stage.Heist;
         const stageNo = stage.StageNo;
-        let thiefAssigned = deployment[landingNo -1];
 
         AxiosConfig({
             method: 'POST',     
-            url: '/engine/launch-room',
-            data: { 'heist': heist, 'stageNo': stageNo, 'landingNo': landingNo, 'thiefId': thiefAssigned.id },
+            url: '/engine/launch-landing',
+            data: { 
+                'heist': heist, 
+                'stageNo': stageNo, 
+                'landingIdx': landingIdx, 
+                'thieves': deployment,
+            },
         }).then(responseData => {
 
             // console.log(responseData);
-            setLastResults(responseData);
+            // setLastResults(responseData);
 
             // display animations
 
-            if (landingNo == 1) setObstacles(stage.ObstaclesR1);
-            if (landingNo == 2) setObstacles(stage.ObstaclesR2);
-            if (landingNo == 3) setObstacles(stage.ObstaclesR3);
+            if (landingIdx == 0) setObstacles(stage.ObstaclesR1);
+            if (landingIdx == 1) setObstacles(stage.ObstaclesR2);
+            if (landingIdx == 2) setObstacles(stage.ObstaclesR3);
 
             setActions(responseData.actions);
 
@@ -118,7 +122,7 @@ function Playthrough(props) {
             setErrorLs(errorLs);
         });
 
-    }, [landingNo]);
+    }, [landingIdx]);
 
 
     // set the auto battle speed
@@ -140,19 +144,19 @@ function Playthrough(props) {
 
     const advancePhase = () => {
 
-        if (landingNo < stage.NumberRooms) {
-            setLandingNo(landingNo + 1);
+        if (landingIdx < stage.NumberRooms) {
+            setLandingIdx(landingIdx + 1);
             setForwardEnabled(false);
         }
 
         else {
             navigate('/aftermath/', 
                 {state: {
-                    nextStep: lastResults.nextStep,
-                    heist: stage.Heist,
-                    stageNo: stage.StageNo,
-                    assignments: lastResults.assignments, 
-                    fullRewards: lastResults.fullRewards,
+                    // nextStep: lastResults.nextStep,
+                    // heist: stage.Heist,
+                    // stageNo: stage.StageNo,
+                    // assignments: lastResults.assignments, 
+                    // fullRewards: lastResults.fullRewards,
                 }}
             );
         }
@@ -217,7 +221,7 @@ function Playthrough(props) {
                 <ST.GridItemCenter item xs={12} lg={2}>
                     <ST.ContentCard elevation={3} sx={{ padding: '8px' }}>
 
-                    { Object.keys(stage).length > 0 && stage.RoomTypes.map((rtp, idx) => (
+                    { Object.keys(stage).length > 0 && stage.LandingTypes.map((rtp, idx) => (
                         <Box key={idx} >
 
                             { !!rtp && <ST.FlexVertical>
@@ -228,11 +232,11 @@ function Playthrough(props) {
                                 <ST.FlexHorizontal>
 
                                     <ST.FlexVertical sx={{width: '64px'}}>
-                                        <ST.BaseText>{ getRoomType(stage.RoomTypes[idx]) }</ST.BaseText>
+                                        <ST.BaseText>{ getRoomType(stage.LandingTypes[idx]) }</ST.BaseText>
                                         <ST.BaseText>
                                             {stage.ObstCount[idx]} - {stage.ObstLevels[idx]}
                                         </ST.BaseText>
-                                        <ST.BaseText>[{ stage.ThiefPower[idx] }]</ST.BaseText>
+                                        <ST.BaseText>[{ stage.MinPower[idx] }]</ST.BaseText>
                                     </ST.FlexVertical>
 
                                     <ST.FlexVertical sx={{width: '64px'}}>
@@ -243,13 +247,13 @@ function Playthrough(props) {
 
                                 </ST.FlexHorizontal>
 
-                                { landingNo < idx+1 &&
+                                { landingIdx < idx+1 &&
                                     <ST.BaseText sx={{color: 'MediumPurple'}}> Unexplored </ST.BaseText>
                                 }
-                                { landingNo == idx+1 &&
+                                { landingIdx == idx+1 &&
                                     <ST.BaseText sx={{color: 'lime'}}> In Play </ST.BaseText>
                                 }
-                                { landingNo > idx+1 &&
+                                { landingIdx > idx+1 &&
                                     <ST.BaseText sx={{color: 'crimson'}}> Complete </ST.BaseText>
                                 }
                                 { stage.NumberRooms > idx+1 && <RoomSeparator src={ SeparatorSilver }/> }
@@ -271,10 +275,10 @@ function Playthrough(props) {
                         <PixiLanding
                             width={ 930 }
                             backgroundType={ stage.Background }
-                            backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[landingNo -1] : 0}
+                            backgroundBias={ !!stage.BackgroundBias ? stage.BackgroundBias[landingIdx -1] : 0}
                             obstacleLs={ obstacles }
                             actionLs={ actions }
-                            thiefAssigned={ deployment[landingNo -1] }
+                            thiefAssigned={ deployment[landingIdx -1] }
                             speed={ battleSpeed }
                             setForward={ setForwardEnabled }
                         />

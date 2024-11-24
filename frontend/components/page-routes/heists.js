@@ -62,6 +62,7 @@ function Heists(props) {
     const [errorLs, setErrorLs] = useState([]);
     const navigate = useNavigate();  
 
+
     // heists data
 
     const [tower, setTower] = useState([]);
@@ -78,7 +79,7 @@ function Heists(props) {
             url: '/engine/daily-heists',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData);
+                console.log(responseData);
                 setTower(responseData.tower);
                 setTrial(responseData.trial);
                 setDungeon(responseData.dungeon);
@@ -119,7 +120,7 @@ function Heists(props) {
             url: '/engine/set-heist',
             data: { 'heist': heistName, },
         }).then(responseData => {
-            console.log(responseData);
+            // console.log(responseData);
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
@@ -132,12 +133,14 @@ function Heists(props) {
         return TowerTexture;
     };
 
+
     // start heist
 
     const handleStart = (startId) => {
         const stage = selectedHeist.filter((item) => item.id == startId)[0];
         navigate('/deployment/', {state: {stage: stage}});
     };
+
 
     // render
 
@@ -205,20 +208,20 @@ function Heists(props) {
                             <Box sx={{width: '140px', paddingBottom: '8px'}}>
                                 <LandingDisplay
                                     landingNo={1}
-                                    roomType={val.RoomTypes[0]}
-                                    power={val.ThiefPower[0]}
+                                    roomType={val.LandingTypes[0]}
+                                    power={val.MinPower[0]}
                                     obstCount={val.ObstCount[0]}
                                     obstLevel={val.ObstLevels[0]}
                                 />
                             </Box>
                             <StageSeparator src={ SeparatorSilver } />
 
-                            { !!val.RoomTypes[1] && <>
+                            { !!val.LandingTypes[1] && <>
                                 <Box sx={{width: '140px', paddingBottom: '8px'}}>
                                     <LandingDisplay
                                         landingNo={2}
-                                        roomType={val.RoomTypes[1]}
-                                        power={val.ThiefPower[1]} 
+                                        roomType={val.LandingTypes[1]}
+                                        power={val.MinPower[1]} 
                                         obstCount={val.ObstCount[1]}
                                         obstLevel={val.ObstLevels[1]}
                                     />
@@ -226,12 +229,12 @@ function Heists(props) {
                                 <StageSeparator src={ SeparatorSilver } />
                             </>}
 
-                            { !!val.RoomTypes[2] && <>
+                            { !!val.LandingTypes[2] && <>
                                 <Box sx={{width: '140px', paddingBottom: '8px'}}>
                                     <LandingDisplay
                                         landingNo={3}
-                                        roomType={val.RoomTypes[2]}
-                                        power={val.ThiefPower[2]}
+                                        roomType={val.LandingTypes[2]}
+                                        power={val.MinPower[2]}
                                         obstCount={val.ObstCount[2]}
                                         obstLevel={val.ObstLevels[2]}
                                     />

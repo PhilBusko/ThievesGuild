@@ -3,6 +3,7 @@ EMPORIUM STAGE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random, math
 import pandas as PD
+from django.utils import timezone
 
 import app_proj.notebooks as NT
 import emporium.models as EM
@@ -72,24 +73,36 @@ def StageBackground(lastBackground):
     chosen = random.choice(potential)
     return chosen
 
-def RandomRoomType(prevType):
-    potential = [
-        'balanced', 'balanced', 'balanced', 'balanced',
-        'biased agi', 'biased cun', 'biased mig', 'biased cmb'
-    ]
-    chosen = random.choice(potential)
-    if 'biased' in prevType and 'biased' in chosen:   
-        chosen = 'balanced'
+def LandingType(heist, prevType, prevTypeLs):
 
-    return chosen
-
-def RandomBiasedType(previous=[]):
-    potential = ['biased agi', 'biased cun', 'biased mig', 'biased cmb']
-    prevFix = previous if len(previous) < len(potential) else []
-
-    chosen = random.choice(potential)
-    while chosen in prevFix:
+    if heist == 'tower' or heist == 'campaign':
+        potential = [
+            'balanced', 'balanced', 'balanced',
+            'biased agi', 'biased cun', 'biased mig', 'biased cmb',
+        ]
         chosen = random.choice(potential)
+        if 'biased' in prevType and 'biased' in chosen:   
+            chosen = 'balanced'
+
+    if heist == 'trial':
+        trunkNow = timezone.now().replace(microsecond=0)
+        dayOfWeek = 'monday'
+        if trunkNow.weekday() == 1:   dayOfWeek = 'tuesday'
+        if trunkNow.weekday() == 2:   dayOfWeek = 'wednesday'
+        if trunkNow.weekday() == 3:   dayOfWeek = 'thursday'
+        if trunkNow.weekday() == 4:   dayOfWeek = 'friday'
+        if trunkNow.weekday() == 5:   dayOfWeek = 'saturday'
+        if trunkNow.weekday() == 6:   dayOfWeek = 'sunday'
+        trialDay = EM.TrialDay.objects.GetOrNone(WeekDay=dayOfWeek)
+        chosen = f"biased {trialDay.StageType}"
+
+    if heist == 'dungeon':
+        potential = ['biased agi', 'biased cun', 'biased mig', 'biased cmb']
+        prevFix = prevTypeLs if len(prevTypeLs) < len(potential) else []
+        chosen = random.choice(potential)
+        while chosen in prevFix:
+            chosen = random.choice(potential)
+        prevTypeLs.append(chosen)
 
     return chosen
 

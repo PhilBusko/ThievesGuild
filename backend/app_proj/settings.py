@@ -143,7 +143,7 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'EST'
-USE_I18N = True
+TIME_ZONE = 'America/New_York'  # EST
 USE_TZ = True
+USE_I18N = True
 

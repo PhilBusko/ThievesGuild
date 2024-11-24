@@ -107,31 +107,32 @@ class ItemUnlocked(JM.Model):
 
 class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    Heist = JM.TextField()                          # tower, trial, dungeon, campaign
     CreateDate = JM.DateField(default=now)
-    Heist = JM.TextField()              # tower, trial, dungeon, campaign
-    ThroneLevel = JM.IntegerField()     # the currently generated level
+    ThroneLevel = JM.IntegerField()                 # the currently generated level
     StageNo = JM.IntegerField()
+    StageQueue = JM.BooleanField(default=False)
 
-    RoomTypes = JM.JSONField()          # ['balanced', null, null]
+    LandingTypes = JM.JSONField()                   # ['balanced', null, null]
     Background = JM.TextField()
     BackgroundBias = JM.JSONField()
 
-    BaseRewards = JM.JSONField()
-    RoomRewards = JM.JSONField()            # flag for room complete
-    Assignments = JM.JSONField()
-    StageRewards = JM.JSONField(null=True)  # flag for stage complete
+    ObstaclesL1 = JM.JSONField()
+    ObstaclesL2 = JM.JSONField(null=True)
+    ObstaclesL3 = JM.JSONField(null=True)
+    ObstaclesL4 = JM.JSONField(null=True)
+    ObstaclesL5 = JM.JSONField(null=True)
 
-    ObstaclesR1 = JM.JSONField()
-    ObstaclesR2 = JM.JSONField(null=True)
-    ObstaclesR3 = JM.JSONField(null=True)
-    ObstaclesR4 = JM.JSONField(null=True)
-    ObstaclesR5 = JM.JSONField(null=True)
+    Assignments = JM.JSONField(null=True)
+    BaseRewards = JM.JSONField()
+    LandingRewards = JM.JSONField(null=True)        # flag for landing complete
+    StageRewards = JM.JSONField(null=True)          # flag for stage complete
 
     objects = DB.BaseManager()
     def __str__(self): 
-        msg = f"GuildStage {str(self.StageNo).zfill(2)} {len(json.loads(self.ObstaclesR1))} "
-        msg += f"{len(json.loads(self.ObstaclesR2)) if self.ObstaclesR2 else 0} "
-        msg += f"{len(json.loads(self.ObstaclesR3)) if self.ObstaclesR3 else 0} "
+        msg = f"GuildStage {str(self.StageNo).zfill(2)} {len(json.loads(self.ObstaclesL1))} "
+        msg += f"{len(json.loads(self.ObstaclesL2)) if self.ObstaclesL2 else 0} "
+        msg += f"{len(json.loads(self.ObstaclesL3)) if self.ObstaclesL3 else 0} "
         return msg
 
 class GuildExpedition(JM.Model):

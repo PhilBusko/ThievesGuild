@@ -20,9 +20,10 @@ def BackgroundBias():
     chosen = random.choice(potential)
     return chosen
 
-def CreateStageRooms(guildMd, heistType, currDate, rawStages):
+def CreateStageLandings(guildMd, heistType, currDate, rawStages):
 
     lastType = ''
+    lastTypeLs = []
     lastBackground = ''
 
     for st in rawStages:
@@ -33,14 +34,14 @@ def CreateStageRooms(guildMd, heistType, currDate, rawStages):
         newStage.Heist = heistType
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
-        newStage.RoomTypes = []
+        newStage.LandingTypes = []
 
         newStage.BaseRewards = {
             'Gold': st['Gold'],
             'Stone': st['Stone'],
             'Gems': st['Gems'],
         }
-        newStage.RoomRewards = [None, None, None, None, None]
+        newStage.LandingRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]
 
         background = ST.StageBackground(lastBackground)
@@ -48,65 +49,65 @@ def CreateStageRooms(guildMd, heistType, currDate, rawStages):
         newStage.Background = background
         newStage.BackgroundBias = []
 
-        # room 1 
+        # landing 1 
 
-        roomType = ST.RandomRoomType(lastType)
-        lastType = roomType
-        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
-        newStage.RoomTypes.append(roomType)
+        landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+        lastType = landingType
+        obstacles = ST.AssembleRoom(landingType, st['LevelLnd1'], st['ObstaclesL1'])
+        newStage.LandingTypes.append(landingType)
         newStage.BackgroundBias.append(BackgroundBias())
-        newStage.ObstaclesR1 = obstacles
+        newStage.ObstaclesL1 = obstacles
 
-        # room 2
+        # landing 2
 
-        if st['LevelR2']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
-            newStage.RoomTypes.append(roomType)
+        if st['LevelLnd2']:
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            lastType = landingType
+            obstacles = ST.AssembleRoom(landingType, st['LevelLnd2'], st['ObstaclesL2'])
+            newStage.LandingTypes.append(landingType)
             newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR2 = obstacles
+            newStage.ObstaclesL2 = obstacles
         else:
-            newStage.RoomTypes.append(None)
+            newStage.LandingTypes.append(None)
             newStage.BackgroundBias.append(None)
 
-        # room 3 
+        # landing 3 
 
-        if st['LevelR3']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
-            newStage.RoomTypes.append(roomType)
+        if st['LevelLnd3']:
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            lastType = landingType
+            obstacles = ST.AssembleRoom(landingType, st['LevelLnd3'], st['ObstaclesL3'])
+            newStage.LandingTypes.append(landingType)
             newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR3 = obstacles
+            newStage.ObstaclesL3 = obstacles
         else:
-            newStage.RoomTypes.append(None)
+            newStage.LandingTypes.append(None)
             newStage.BackgroundBias.append(None)
 
-        # room 4
+        # landing 4
 
-        if st['LevelR4']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR4'], st['ObstaclesR4'])
-            newStage.RoomTypes.append(roomType)
+        if st['LevelLnd4']:
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            lastType = landingType
+            obstacles = ST.AssembleRoom(landingType, st['LevelLnd4'], st['ObstaclesL4'])
+            newStage.LandingTypes.append(landingType)
             newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR4 = obstacles
+            newStage.ObstaclesL4 = obstacles
         else:
-            newStage.RoomTypes.append(None)
+            newStage.LandingTypes.append(None)
             newStage.BackgroundBias.append(None)
 
-        # room 5
+        # landing 5
 
-        if st['LevelR5']:
-            roomType = ST.RandomRoomType(lastType)
-            lastType = roomType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR5'], st['ObstaclesR5'])
-            newStage.RoomTypes.append(roomType)
+        if st['LevelLnd5']:
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            lastType = landingType
+            obstacles = ST.AssembleRoom(landingType, st['LevelLnd5'], st['ObstaclesL5'])
+            newStage.LandingTypes.append(landingType)
             newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR5 = obstacles
+            newStage.ObstaclesL5 = obstacles
         else:
-            newStage.RoomTypes.append(None)
+            newStage.LandingTypes.append(None)
             newStage.BackgroundBias.append(None)
 
         newStage.save()
@@ -121,7 +122,6 @@ def GetOrCreateTower(guildMd, currDate):
 
     if checkStages:
         stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
         stageLs = NT.DataframeToDicts(stageDf)
         return stageLs
 
@@ -129,13 +129,12 @@ def GetOrCreateTower(guildMd, currDate):
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').delete()
     rawStages = list(EM.GothicTower.objects.filter(Throne=guildMd.ThroneLevel).values())
-    CreateStageRooms(guildMd, 'tower', currDate, rawStages)
+    CreateStageLandings(guildMd, 'tower', currDate, rawStages)
 
-    # dev can create duplicate stages
+    # return the stages just created
 
     newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').values()
     stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
     stageLs = NT.DataframeToDicts(stageDf)
 
     return stageLs
@@ -150,115 +149,19 @@ def GetOrCreateTrial(guildMd, currDate):
 
     if checkStages:
         stageDf = PD.DataFrame(checkStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-        stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
         stageLs = NT.DataframeToDicts(stageDf)
         return stageLs
 
-    # get room type based on day of week
-
-    trunkNow = timezone.now().replace(microsecond=0)
-    dayOfWeek = 'monday'
-    if trunkNow.weekday() == 1:   dayOfWeek = 'tuesday'
-    if trunkNow.weekday() == 2:   dayOfWeek = 'wednesday'
-    if trunkNow.weekday() == 3:   dayOfWeek = 'thursday'
-    if trunkNow.weekday() == 4:   dayOfWeek = 'friday'
-    if trunkNow.weekday() == 5:   dayOfWeek = 'saturday'
-    if trunkNow.weekday() == 6:   dayOfWeek = 'sunday'
-
-    trialDay = EM.TrialDay.objects.GetOrNone(WeekDay=dayOfWeek)
-    dailyType = f"biased {trialDay.StageType}"
-
-    # create stages for daily update
+    # create during daily update
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').delete()
     rawStages = list(EM.LeagueTrial.objects.filter(Throne=guildMd.ThroneLevel).values())
-    for st in rawStages:
+    CreateStageLandings(guildMd, 'trial', currDate, rawStages)
 
-        newStage = GM.GuildStage()
-        newStage.GuildFK = guildMd
-        newStage.ThroneLevel = guildMd.ThroneLevel
-        newStage.Heist = 'trial'
-        newStage.StageNo = st['StageNo']
-        newStage.CreateDate = currDate
-        newStage.RoomTypes = []
-
-        newStage.BaseRewards = {
-            'Gold': st['Gold'],
-            'Gems': st['Gems'],
-            'Wood': st['Wood'],
-            'Stone': st['Stone'],
-            'Iron': st['Iron'],
-        }
-        newStage.RoomRewards = [None, None, None, None, None]
-        newStage.Assignments = [None, None, None, None, None]
-
-        background = ST.StageBackground('')
-        newStage.Background = background
-        newStage.BackgroundBias = []
-
-        # room 1 
-
-        roomType = dailyType
-        obstacles = ST.AssembleRoom(roomType, st['LevelR1'], st['ObstaclesR1'])
-        newStage.RoomTypes.append(roomType)
-        newStage.BackgroundBias.append(BackgroundBias())
-        newStage.ObstaclesR1 = obstacles
-
-        # room 2
-
-        if st['LevelR2']:
-            roomType = dailyType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR2'], st['ObstaclesR2'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR2 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        # room 3 
-
-        if st['LevelR3']:
-            roomType = dailyType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR3'], st['ObstaclesR3'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR3 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        # room 4
-
-        if st['LevelR4']:
-            roomType = dailyType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR4'], st['ObstaclesR4'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR4 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        # room 5
-
-        if st['LevelR5']:
-            roomType = dailyType
-            obstacles = ST.AssembleRoom(roomType, st['LevelR5'], st['ObstaclesR5'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR5 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        newStage.save()
-
-    # dev can create duplicate stages
+    # return the stages just created
 
     newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').values()
     stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
-    stageDf = stageDf.drop_duplicates(subset=['StageNo']).sort_values('StageNo')
     stageLs = NT.DataframeToDicts(stageDf)
 
     return stageLs
@@ -284,93 +187,9 @@ def GetOrCreateDungeon(guildMd, currDate):
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').delete()
     result = random.randint(1, 20)
 
-    if result > 10:
-        rawStage = EM.Dungeon.objects.filter(Throne=guildMd.ThroneLevel).values()[0]
-
-        previousTypes = []
-
-        newStage = GM.GuildStage()
-        newStage.GuildFK = guildMd
-        newStage.ThroneLevel = guildMd.ThroneLevel
-        newStage.Heist = 'dungeon'
-        newStage.StageNo = 1
-        newStage.CreateDate = currDate
-        newStage.RoomTypes = []
-
-        newStage.BaseRewards = {
-            'Gold': rawStage['Gold'],
-            'Stone': rawStage['Stone'],
-            'Gems': rawStage['Gems'],
-        }
-        newStage.RoomRewards = [None, None, None, None, None]
-        newStage.Assignments = [None, None, None, None, None]
-
-        background = ST.StageBackground(None)
-        newStage.Background = background
-        newStage.BackgroundBias = []
-
-        # room 1 
-
-        roomType = ST.RandomBiasedType(previousTypes)
-        previousTypes.append(roomType)
-        obstacles = ST.AssembleRoom(roomType, rawStage['LevelR1'], rawStage['ObstaclesR1'])
-        newStage.RoomTypes.append(roomType)
-        newStage.BackgroundBias.append(BackgroundBias())
-        newStage.ObstaclesR1 = obstacles
-
-        # room 2
-
-        if rawStage['LevelR2']:
-            roomType = ST.RandomBiasedType(previousTypes)
-            previousTypes.append(roomType)
-            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR2'], rawStage['ObstaclesR2'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR2 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        # room 3 
-
-        if rawStage['LevelR3']:
-            roomType = ST.RandomBiasedType(previousTypes)
-            previousTypes.append(roomType)
-            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR3'], rawStage['ObstaclesR3'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR3 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        # room 4
-
-        if rawStage['LevelR4']:
-            roomType = ST.RandomBiasedType(previousTypes)
-            previousTypes.append(roomType)
-            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR4'], rawStage['ObstaclesR4'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR4 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        # room 5
-
-        if rawStage['LevelR5']:
-            roomType = ST.RandomBiasedType(previousTypes)
-            previousTypes.append(roomType)
-            obstacles = ST.AssembleRoom(roomType, rawStage['LevelR5'], rawStage['ObstaclesR5'])
-            newStage.RoomTypes.append(roomType)
-            newStage.BackgroundBias.append(BackgroundBias())
-            newStage.ObstaclesR5 = obstacles
-        else:
-            newStage.RoomTypes.append(None)
-            newStage.BackgroundBias.append(None)
-
-        newStage.save()
+    if result > 1:
+        rawStages = list(EM.Dungeon.objects.filter(Throne=guildMd.ThroneLevel).values())
+        CreateStageLandings(guildMd, 'dungeon', currDate, rawStages)
 
     # return the dungeon, if present today
 
@@ -384,7 +203,7 @@ def GetOrCreateDungeon(guildMd, currDate):
 
 def GetOrCreateCampaign(guildMd, currDate):
 
-    # check for existing campaign level stages
+    # check for existing campaign stages
 
     checkStages = GM.GuildStage.objects.filter(
         GuildFK=guildMd, Heist='campaign', ThroneLevel=guildMd.CampaignWorld
@@ -395,13 +214,13 @@ def GetOrCreateCampaign(guildMd, currDate):
         stageLs = NT.DataframeToDicts(stageDf)
         return stageLs
 
-    # create during daily update
+    # create during world update
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').delete()
     rawStages = list(EM.Campaign.objects.filter(World=guildMd.CampaignWorld).values())
-    CreateStageRooms(guildMd, 'campaign', currDate, rawStages)
+    CreateStageLandings(guildMd, 'campaign', currDate, rawStages)
 
-    # dev can create duplicate stages
+    # return campaign
 
     newStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').values()
     stageDf = PD.DataFrame(newStages).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
@@ -433,23 +252,23 @@ def AttachDisplayData(stageLs):
 
     for st in stageLs:
 
-        thiefPower = []
+        minPower = []
         trapLevels = []
         numberObstacles = []
         roomCount = 0
 
-        obstLs = st['ObstaclesR1']
-        st['ObstaclesR1'] = AttachObstacleDisplay(obstLs)
-        thiefPower.append(EM.RequiredPower.objects
+        obstLs = st['ObstaclesL1']
+        st['ObstaclesL1'] = AttachObstacleDisplay(obstLs)
+        minPower.append(EM.RequiredPower.objects
             .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
         trapLevels.append(obstLs[0]['Level'])
         numberObstacles.append(len(obstLs))
         roomCount += 1
 
         try:
-            obstLs = st['ObstaclesR2']
-            st['ObstaclesR2'] = AttachObstacleDisplay(obstLs)
-            thiefPower.append(EM.RequiredPower.objects
+            obstLs = st['ObstaclesL2']
+            st['ObstaclesL2'] = AttachObstacleDisplay(obstLs)
+            minPower.append(EM.RequiredPower.objects
                 .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
@@ -459,9 +278,9 @@ def AttachDisplayData(stageLs):
             numberObstacles.append(None)
 
         try:
-            obstLs = st['ObstaclesR3']
-            st['ObstaclesR3'] = AttachObstacleDisplay(obstLs)
-            thiefPower.append(EM.RequiredPower.objects
+            obstLs = st['ObstaclesL3']
+            st['ObstaclesL3'] = AttachObstacleDisplay(obstLs)
+            minPower.append(EM.RequiredPower.objects
                 .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
@@ -471,9 +290,9 @@ def AttachDisplayData(stageLs):
             numberObstacles.append(None)
 
         try:
-            obstLs = st['ObstaclesR4']
-            st['ObstaclesR4'] = AttachObstacleDisplay(obstLs)
-            thiefPower.append(EM.RequiredPower.objects
+            obstLs = st['ObstaclesL4']
+            st['ObstaclesL4'] = AttachObstacleDisplay(obstLs)
+            minPower.append(EM.RequiredPower.objects
                 .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
@@ -483,9 +302,9 @@ def AttachDisplayData(stageLs):
             numberObstacles.append(None)
 
         try:
-            obstLs = st['ObstaclesR5']
-            st['ObstaclesR5'] = AttachObstacleDisplay(obstLs)
-            thiefPower.append(EM.RequiredPower.objects
+            obstLs = st['ObstaclesL5']
+            st['ObstaclesL5'] = AttachObstacleDisplay(obstLs)
+            minPower.append(EM.RequiredPower.objects
                 .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
             trapLevels.append(obstLs[0]['Level'])
             numberObstacles.append(len(obstLs))
@@ -502,7 +321,7 @@ def AttachDisplayData(stageLs):
             foundOpen = True
         if st['StageRewards']: status = 'complete'
 
-        st['ThiefPower'] = thiefPower
+        st['MinPower'] = minPower
         st['ObstLevels'] = trapLevels
         st['ObstCount'] = numberObstacles
         st['Status'] = status

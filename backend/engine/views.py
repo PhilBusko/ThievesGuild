@@ -362,43 +362,102 @@ def SetLastHeist(request):
 
     return Response({'success': True})
 
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def LaunchRoom(request):
+def LaunchLanding(request):
 
     userMd = request.user
     heist = request.data.get('heist') 
     stageNo = request.data.get('stageNo')
-    landingNo = request.data.get('landingNo')         # 1 based
+    landingIdx = request.data.get('landingIdx')
     thiefId = request.data.get('thiefId')
+
+
+    # check for queued landing
+
+
+
+
+    # launch a new landing
 
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
     stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
 
-    obstacleLs = stageMd.ObstaclesR1
-    if landingNo == 2: obstacleLs = stageMd.ObstaclesR2
-    if landingNo == 3: obstacleLs = stageMd.ObstaclesR3
-    if landingNo == 4: obstacleLs = stageMd.ObstaclesR4
-    if landingNo == 5: obstacleLs = stageMd.ObstaclesR5
+    obstacleLs = stageMd.ObstaclesL1
+    if landingIdx == 1: obstacleLs = stageMd.ObstaclesL2
+    if landingIdx == 2: obstacleLs = stageMd.ObstaclesL3
+    if landingIdx == 3: obstacleLs = stageMd.ObstaclesL4
+    if landingIdx == 4: obstacleLs = stageMd.ObstaclesL5
 
-    results = LH.RunObstacles(thiefMd, obstacleLs)
-    results = LH.AttachCombatDisplay(results)
+    # results = LH.RunObstacles(thiefMd, obstacleLs)
+    # results = LH.AttachCombatDisplay(results)
 
-    thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, landingNo, stageMd, obstacleLs, results)
+    # thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, landingIdx, stageMd, obstacleLs, results)
 
-    roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
+    # roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
 
-    resultDx = {
-        'landingNo': landingNo,
-        'actions': results,
-        'nextStep': nextStep,
-        'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,
-        'roomRewards': roomRewards,
-        'stageRewards': stageRewards,
-        'fullRewards': fullRewards,
-    }
+    # resultDx = {
+    #     'landingIdx': landingIdx,
+    #     'actions': results,
+    #     'nextStep': nextStep,
+    #     'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,
+    #     'roomRewards': roomRewards,
+    #     'stageRewards': stageRewards,
+    #     'fullRewards': fullRewards,
+    # }
     return Response(resultDx)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def FinishLanding(request):
+
+    pass
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def LaunchRoom(request):
+
+#     userMd = request.user
+#     heist = request.data.get('heist') 
+#     stageNo = request.data.get('stageNo')
+#     landingIdx = request.data.get('landingIdx')         # 1 based
+#     thiefId = request.data.get('thiefId')
+
+#     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+#     stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
+#     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
+
+#     obstacleLs = stageMd.ObstaclesL1
+#     if landingIdx == 2: obstacleLs = stageMd.ObstaclesL2
+#     if landingIdx == 3: obstacleLs = stageMd.ObstaclesL3
+#     if landingIdx == 4: obstacleLs = stageMd.ObstaclesL4
+#     if landingIdx == 5: obstacleLs = stageMd.ObstaclesL5
+
+#     results = LH.RunObstacles(thiefMd, obstacleLs)
+#     results = LH.AttachCombatDisplay(results)
+
+#     thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, landingIdx, stageMd, obstacleLs, results)
+
+#     roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
+
+#     resultDx = {
+#         'landingIdx': landingIdx,
+#         'actions': results,
+#         'nextStep': nextStep,
+#         'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,
+#         'roomRewards': roomRewards,
+#         'stageRewards': stageRewards,
+#         'fullRewards': fullRewards,
+#     }
+#     return Response(resultDx)
+
+
 
 
 @api_view(['GET'])

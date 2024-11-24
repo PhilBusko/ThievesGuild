@@ -111,41 +111,41 @@ function Deployment(props) {
         });
     }, []);
 
-    const [thiefR1, setThiefR1] = useState(null);
-    const [thiefR2, setThiefR2] = useState(null);
-    const [thiefR3, setThiefR3] = useState(null);
-    const [thiefR4, setThiefR4] = useState(null);
-    const [thiefR5, setThiefR5] = useState(null);
+    const [thiefL1, setThiefL1] = useState(null);
+    const [thiefL2, setThiefL2] = useState(null);
+    const [thiefL3, setThiefL3] = useState(null);
+    const [thiefL4, setThiefL4] = useState(null);
+    const [thiefL5, setThiefL5] = useState(null);
     const [isFulfilled, setIsFulfilled] = useState(false);
 
     const handleThiefChoice = (roomNo, thiefDx) => {
-        if (!!thiefR1 && !!thiefDx && thiefR1.id == thiefDx.id) setThiefR1(null);
-        if (!!thiefR2 && !!thiefDx && thiefR2.id == thiefDx.id) setThiefR2(null);
-        if (!!thiefR3 && !!thiefDx && thiefR3.id == thiefDx.id) setThiefR3(null);
-        if (!!thiefR4 && !!thiefDx && thiefR4.id == thiefDx.id) setThiefR4(null);
-        if (!!thiefR5 && !!thiefDx && thiefR5.id == thiefDx.id) setThiefR5(null);
+        if (!!thiefL1 && !!thiefDx && thiefL1.id == thiefDx.id) setThiefL1(null);
+        if (!!thiefL2 && !!thiefDx && thiefL2.id == thiefDx.id) setThiefL2(null);
+        if (!!thiefL3 && !!thiefDx && thiefL3.id == thiefDx.id) setThiefL3(null);
+        if (!!thiefL4 && !!thiefDx && thiefL4.id == thiefDx.id) setThiefL4(null);
+        if (!!thiefL5 && !!thiefDx && thiefL5.id == thiefDx.id) setThiefL5(null);
 
-        if (roomNo == 1) setThiefR1(thiefDx);
-        if (roomNo == 2) setThiefR2(thiefDx);
-        if (roomNo == 3) setThiefR3(thiefDx);
-        if (roomNo == 4) setThiefR4(thiefDx);
-        if (roomNo == 5) setThiefR5(thiefDx);
+        if (roomNo == 1) setThiefL1(thiefDx);
+        if (roomNo == 2) setThiefL2(thiefDx);
+        if (roomNo == 3) setThiefL3(thiefDx);
+        if (roomNo == 4) setThiefL4(thiefDx);
+        if (roomNo == 5) setThiefL5(thiefDx);
     }
 
     useEffect(() => {
         var thievesAssigned = 0;
-        if (!!thiefR1) thievesAssigned += 1;
-        if (!!thiefR2) thievesAssigned += 1;
-        if (!!thiefR3) thievesAssigned += 1;
-        if (!!thiefR4) thievesAssigned += 1;
-        if (!!thiefR5) thievesAssigned += 1;
+        if (!!thiefL1) thievesAssigned += 1;
+        if (!!thiefL2) thievesAssigned += 1;
+        if (!!thiefL3) thievesAssigned += 1;
+        if (!!thiefL4) thievesAssigned += 1;
+        if (!!thiefL5) thievesAssigned += 1;
 
         if (thievesAssigned == stage.NumberRooms)
             setIsFulfilled(true);
         else 
             setIsFulfilled(false);
 
-    }, [thiefR1, thiefR2, thiefR3, thiefR4, thiefR5]);
+    }, [thiefL1, thiefL2, thiefL3, thiefL4, thiefL5]);
 
 
     // choose room to see
@@ -154,24 +154,24 @@ function Deployment(props) {
     const [selectedRoomNo, setSelectedRoomNo] = useState(0);
 
     useEffect(() => {
-        const newRoom = stage.ObstaclesR1;
+        const newRoom = stage.ObstaclesL1;
         setSelectedRoom(newRoom);
         setSelectedRoomNo(1);
     }, [stage]);
 
     const handleTraps = (roomNo) => {
         var newRoom = '';
-        if (roomNo == 1) newRoom = stage.ObstaclesR1;
-        if (roomNo == 2) newRoom = stage.ObstaclesR2;
-        if (roomNo == 3) newRoom = stage.ObstaclesR3;
-        if (roomNo == 4) newRoom = stage.ObstaclesR4;
-        if (roomNo == 5) newRoom = stage.ObstaclesR5;
+        if (roomNo == 1) newRoom = stage.ObstaclesL1;
+        if (roomNo == 2) newRoom = stage.ObstaclesL2;
+        if (roomNo == 3) newRoom = stage.ObstaclesL3;
+        if (roomNo == 4) newRoom = stage.ObstaclesL4;
+        if (roomNo == 5) newRoom = stage.ObstaclesL5;
         setSelectedRoom(newRoom);
         setSelectedRoomNo(roomNo);
     }
 
     const handleLaunch = () => {
-        const thiefDeployment = [thiefR1, thiefR2, thiefR3, thiefR4, thiefR5];
+        const thiefDeployment = [thiefL1, thiefL2, thiefL3, thiefL4, thiefL5];
 
         navigate(
             '/playthrough/', 
@@ -185,7 +185,6 @@ function Deployment(props) {
     const getTitle = (heist) => {
         if (!heist) return 'initial';
         if (heist.includes('trial')) return 'League Trials';
-        if (heist.includes('raid')) return 'Burglary Raid';
         if (heist.includes('dungeon')) return 'Dungeon';
         if (heist.includes('campaign')) return 'Campaign';
         return 'Gothic Tower';
@@ -260,42 +259,42 @@ function Deployment(props) {
                             <SelectorHeist
                                 heist={stage.Heist}
                                 roomNumber={1}
-                                roomType={stage.RoomTypes[0]}
-                                power={stage.ThiefPower[0]}
+                                roomType={stage.LandingTypes[0]}
+                                power={stage.MinPower[0]}
                                 traps={stage.ObstCount[0]}
                                 level={stage.ObstLevels[0]}
                                 thiefChoices={thiefLs}
-                                selectedThief={thiefR1}
+                                selectedThief={thiefL1}
                                 selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
 
-                            {Object.keys(stage).length != 0 && !!stage.RoomTypes[1] && 
+                            {Object.keys(stage).length != 0 && !!stage.LandingTypes[1] && 
                             <SelectorHeist
                                 heist={stage.Heist}
                                 roomNumber={2}
-                                roomType={stage.RoomTypes[1]}
-                                power={stage.ThiefPower[1]}
+                                roomType={stage.LandingTypes[1]}
+                                power={stage.MinPower[1]}
                                 traps={stage.ObstCount[1]}
                                 level={stage.ObstLevels[1]}
                                 thiefChoices={thiefLs}
-                                selectedThief={thiefR2}
+                                selectedThief={thiefL2}
                                 selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
 
-                            {Object.keys(stage).length != 0 && !!stage.RoomTypes[2] && 
+                            {Object.keys(stage).length != 0 && !!stage.LandingTypes[2] && 
                             <SelectorHeist
                                 heist={stage.Heist}
                                 roomNumber={3}
-                                roomType={stage.RoomTypes[2]}
-                                power={stage.ThiefPower[2]}
+                                roomType={stage.LandingTypes[2]}
+                                power={stage.MinPower[2]}
                                 traps={stage.ObstCount[2]}
                                 level={stage.ObstLevels[2]}
                                 thiefChoices={thiefLs}
-                                selectedThief={thiefR3}
+                                selectedThief={thiefL3}
                                 selectedRoom={selectedRoomNo}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
