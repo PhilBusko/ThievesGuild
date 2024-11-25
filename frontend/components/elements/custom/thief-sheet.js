@@ -99,42 +99,42 @@ function ThiefSheet(props) {
                         equipmentInfo={props.infoDx.weapon}
                         inventoryDisplay={filteredWeapons}
                         thiefName={props.infoDx.Name}
-                        equipDisabled={ props.infoDx.Status == 'Exploring' }
+                        equipDisabled={ ['Looting', 'Exploring'].includes(props.infoDx.Status) }
                         notifyEquip={props.notifyEquip}
                     />
                     <ThiefEquipment 
                         equipmentInfo={props.infoDx.armor}
                         inventoryDisplay={filteredArmor}
                         thiefName={props.infoDx.Name}
-                        equipDisabled={ props.infoDx.Status == 'Exploring' }
+                        equipDisabled={ ['Looting', 'Exploring'].includes(props.infoDx.Status) }
                         notifyEquip={props.notifyEquip}
                     />
                     <ThiefEquipment 
                         equipmentInfo={props.infoDx.head}
                         inventoryDisplay={filteredHead}
                         thiefName={props.infoDx.Name}
-                        equipDisabled={ props.infoDx.Status == 'Exploring' }
+                        equipDisabled={ ['Looting', 'Exploring'].includes(props.infoDx.Status) }
                         notifyEquip={props.notifyEquip}
                     />
                     <ThiefEquipment 
                         equipmentInfo={props.infoDx.hands}
                         inventoryDisplay={filteredHands}
                         thiefName={props.infoDx.Name}
-                        equipDisabled={ props.infoDx.Status == 'Exploring' }
+                        equipDisabled={ ['Looting', 'Exploring'].includes(props.infoDx.Status) }
                         notifyEquip={props.notifyEquip}
                     />
                     <ThiefEquipment 
                         equipmentInfo={props.infoDx.feet}
                         inventoryDisplay={filteredFeet}
                         thiefName={props.infoDx.Name}
-                        equipDisabled={ props.infoDx.Status == 'Exploring' }
+                        equipDisabled={ ['Looting', 'Exploring'].includes(props.infoDx.Status) }
                         notifyEquip={props.notifyEquip}
                     />
                     <ThiefEquipment 
                         equipmentInfo={props.infoDx.back}
                         inventoryDisplay={filteredBack}
                         thiefName={props.infoDx.Name}
-                        equipDisabled={ props.infoDx.Status == 'Exploring' }
+                        equipDisabled={ ['Looting', 'Exploring'].includes(props.infoDx.Status) }
                         notifyEquip={props.notifyEquip}
                     />
                 </EquipmentPanel>

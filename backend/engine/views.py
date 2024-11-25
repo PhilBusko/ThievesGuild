@@ -369,29 +369,43 @@ def SetLastHeist(request):
 @permission_classes([IsAuthenticated])
 def LaunchLanding(request):
 
-    userMd = request.user
     heist = request.data.get('heist') 
     stageNo = request.data.get('stageNo')
     landingIdx = request.data.get('landingIdx')
-    thiefId = request.data.get('thiefId')
+    thieves = request.data.get('thieves')
+    thieves = [x['id'] for x in thieves if x]
 
-
-    # check for queued landing
-
-
-
-
-    # launch a new landing
-
+    userMd = request.user
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
-    stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
-    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
 
-    obstacleLs = stageMd.ObstaclesL1
-    if landingIdx == 1: obstacleLs = stageMd.ObstaclesL2
-    if landingIdx == 2: obstacleLs = stageMd.ObstaclesL3
-    if landingIdx == 3: obstacleLs = stageMd.ObstaclesL4
-    if landingIdx == 4: obstacleLs = stageMd.ObstaclesL5
+    # if no queue, queue the stage
+
+    queueStage = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, StageQueue=True)
+
+    if not queueStage:
+
+        stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
+        stageMd.StageQueue = True
+        stageMd.Assignments = thieves
+        stageMd.save()
+
+        for th in thieves:
+            thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=th)
+            thiefMd.Status = 'Looting'
+            thiefMd.save()
+
+
+    # play the queue
+
+
+    # stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
+    # thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
+
+    # obstacleLs = stageMd.ObstaclesL1
+    # if landingIdx == 1: obstacleLs = stageMd.ObstaclesL2
+    # if landingIdx == 2: obstacleLs = stageMd.ObstaclesL3
+    # if landingIdx == 3: obstacleLs = stageMd.ObstaclesL4
+    # if landingIdx == 4: obstacleLs = stageMd.ObstaclesL5
 
     # results = LH.RunObstacles(thiefMd, obstacleLs)
     # results = LH.AttachCombatDisplay(results)
@@ -400,7 +414,7 @@ def LaunchLanding(request):
 
     # roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
 
-    # resultDx = {
+    resultDx = {}
     #     'landingIdx': landingIdx,
     #     'actions': results,
     #     'nextStep': nextStep,

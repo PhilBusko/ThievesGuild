@@ -133,7 +133,7 @@ function ThiefTable(props) {
             sortable: true, sortingOrder: ['asc', 'desc'],
             width: 130, headerAlign: 'center', align: 'center',
             renderCell: (params) => (<>
-                { params.row.Status == 'Ready' && 
+                { ['Ready', 'Looting'].includes(params.row.Status) && 
                     <ST.BaseText> { params.value } </ST.BaseText>
                 }
                 { ['Wounded', 'Knocked Out'].includes(params.row.Status) && <>

@@ -60,7 +60,7 @@ class ThiefInGuild(JM.Model):
     Perceive = JM.IntegerField(null=True)
     Traverse = JM.IntegerField(null=True)
 
-    Status = JM.TextField(default='Ready')      # Ready < 50% (Fatigued), Wounded < 99%, Knocked Out 100%, Training
+    Status = JM.TextField(default='Ready')      # Ready, Looting, Wounded, Knocked Out, Exploring, Training
     CooldownExpire = JM.DateTimeField(null=True)
     # Position = JM.TextField(default='Available')
 
@@ -123,7 +123,7 @@ class GuildStage(JM.Model):
     ObstaclesL4 = JM.JSONField(null=True)
     ObstaclesL5 = JM.JSONField(null=True)
 
-    Assignments = JM.JSONField(null=True)
+    Assignments = JM.JSONField(null=True)           # ids of thieves assigned to each landing
     BaseRewards = JM.JSONField()
     LandingRewards = JM.JSONField(null=True)        # flag for landing complete
     StageRewards = JM.JSONField(null=True)          # flag for stage complete

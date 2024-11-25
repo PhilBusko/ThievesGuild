@@ -169,7 +169,7 @@ function ThiefEquipment(props) {
                     { props.equipDisabled && 
                         <GothMenuItem onClick={ null }>
                             <MenuWrapper sx={{ padding: '0px 0px 10px 0px', margin: '0px 0px -1px 0px',  }}>
-                                <ST.BaseText >Requisitions unavailable during expedition.</ST.BaseText>
+                                <ST.BaseText >Requisitions currently unavailable.</ST.BaseText>
                             </MenuWrapper>
                         </GothMenuItem>
                     }
