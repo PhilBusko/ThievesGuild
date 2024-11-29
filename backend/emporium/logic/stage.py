@@ -52,9 +52,9 @@ def GetHealAmount(obsLevel):
 
 def GetStageRewards(rewards):
 
-    gold = RollReward(rewards['Gold'])
-    stone = RollReward(rewards['Stone'])
-    gems = RollReward(rewards['Gems'])
+    gold = RollReward(rewards['gold'])
+    stone = RollReward(rewards['stone'])
+    gems = RollReward(rewards['gems'])
 
     resourceDx = {
         'gold': gold,

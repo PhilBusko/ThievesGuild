@@ -910,7 +910,7 @@ function PixiLanding(props) {
                         y={ 102 }
                         style={ getSingleStyle() } 
                     />
-                </Container>
+                </Container> 
 
             </Stage>
             }

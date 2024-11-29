@@ -52,14 +52,14 @@ function GlobalProvider(props) {
         const refreshToken = TK.retrieveRefreshToken();
 
         if (!refreshToken) {
-            console.log('onload: no refresh token');
+            // console.log('onload: no refresh token');
             const newUser = {'name': '', 'status': 'guest'}
             setUserDx(newUser);
             TK.wipeTokens();
             return;
         }
 
-        console.log('onload: refresh token found')
+        // console.log('onload: refresh token found')
         AxiosConfig({
             method: 'POST',
             url: '/auth/token-refresh',

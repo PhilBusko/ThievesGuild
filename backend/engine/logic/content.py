@@ -37,12 +37,13 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
         newStage.LandingTypes = []
 
         newStage.BaseRewards = {
-            'Gold': st['Gold'],
-            'Stone': st['Stone'],
-            'Gems': st['Gems'],
+            'gold': st['Gold'],
+            'stone': st['Stone'],
+            'gems': st['Gems'],
         }
         newStage.LandingRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]
+        newStage.Actions = [None, None, None, None, None]
 
         background = ST.StageBackground(lastBackground)
         lastBackground = background
@@ -228,6 +229,7 @@ def GetOrCreateCampaign(guildMd, currDate):
 
     return stageLs
 
+
 def AttachObstacleDisplay(obstacleLs):
 
     for ob in obstacleLs:
@@ -246,74 +248,78 @@ def AttachObstacleDisplay(obstacleLs):
 
     return obstacleLs
 
+def GetStageDisplay(pStage):
+
+    minPower = []
+    trapLevels = []
+    numberObstacles = []
+    roomCount = 0
+
+    obstLs = pStage['ObstaclesL1']
+    pStage['ObstaclesL1'] = AttachObstacleDisplay(obstLs)
+    minPower.append(EM.RequiredPower.objects
+        .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
+    trapLevels.append(obstLs[0]['Level'])
+    numberObstacles.append(len(obstLs))
+    roomCount += 1
+
+    try:
+        obstLs = pStage['ObstaclesL2']
+        pStage['ObstaclesL2'] = AttachObstacleDisplay(obstLs)
+        minPower.append(EM.RequiredPower.objects
+            .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
+        trapLevels.append(obstLs[0]['Level'])
+        numberObstacles.append(len(obstLs))
+        roomCount += 1
+    except:
+        trapLevels.append(None)
+        numberObstacles.append(None)
+
+    try:
+        obstLs = pStage['ObstaclesL3']
+        pStage['ObstaclesL3'] = AttachObstacleDisplay(obstLs)
+        minPower.append(EM.RequiredPower.objects
+            .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
+        trapLevels.append(obstLs[0]['Level'])
+        numberObstacles.append(len(obstLs))
+        roomCount += 1
+    except:
+        trapLevels.append(None)
+        numberObstacles.append(None)
+
+    try:
+        obstLs = pStage['ObstaclesL4']
+        pStage['ObstaclesL4'] = AttachObstacleDisplay(obstLs)
+        minPower.append(EM.RequiredPower.objects
+            .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
+        trapLevels.append(obstLs[0]['Level'])
+        numberObstacles.append(len(obstLs))
+        roomCount += 1
+    except:
+        trapLevels.append(None)
+        numberObstacles.append(None)
+
+    try:
+        obstLs = pStage['ObstaclesL5']
+        pStage['ObstaclesL5'] = AttachObstacleDisplay(obstLs)
+        minPower.append(EM.RequiredPower.objects
+            .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
+        trapLevels.append(obstLs[0]['Level'])
+        numberObstacles.append(len(obstLs))
+        roomCount += 1
+    except:
+        trapLevels.append(None)
+        numberObstacles.append(None)
+
+    return minPower, trapLevels, numberObstacles, roomCount
+
 def AttachDisplayData(stageLs):
 
     foundOpen = False       # status: complete, open, blocked
 
     for st in stageLs:
 
-        minPower = []
-        trapLevels = []
-        numberObstacles = []
-        roomCount = 0
-
-        obstLs = st['ObstaclesL1']
-        st['ObstaclesL1'] = AttachObstacleDisplay(obstLs)
-        minPower.append(EM.RequiredPower.objects
-            .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
-        trapLevels.append(obstLs[0]['Level'])
-        numberObstacles.append(len(obstLs))
-        roomCount += 1
-
-        try:
-            obstLs = st['ObstaclesL2']
-            st['ObstaclesL2'] = AttachObstacleDisplay(obstLs)
-            minPower.append(EM.RequiredPower.objects
-                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
-            trapLevels.append(obstLs[0]['Level'])
-            numberObstacles.append(len(obstLs))
-            roomCount += 1
-        except:
-            trapLevels.append(None)
-            numberObstacles.append(None)
-
-        try:
-            obstLs = st['ObstaclesL3']
-            st['ObstaclesL3'] = AttachObstacleDisplay(obstLs)
-            minPower.append(EM.RequiredPower.objects
-                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
-            trapLevels.append(obstLs[0]['Level'])
-            numberObstacles.append(len(obstLs))
-            roomCount += 1
-        except:
-            trapLevels.append(None)
-            numberObstacles.append(None)
-
-        try:
-            obstLs = st['ObstaclesL4']
-            st['ObstaclesL4'] = AttachObstacleDisplay(obstLs)
-            minPower.append(EM.RequiredPower.objects
-                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
-            trapLevels.append(obstLs[0]['Level'])
-            numberObstacles.append(len(obstLs))
-            roomCount += 1
-        except:
-            trapLevels.append(None)
-            numberObstacles.append(None)
-
-        try:
-            obstLs = st['ObstaclesL5']
-            st['ObstaclesL5'] = AttachObstacleDisplay(obstLs)
-            minPower.append(EM.RequiredPower.objects
-                .GetOrNone(Level=obstLs[0]['Level'], Obstacles=len(obstLs)).RequiredPower)
-            trapLevels.append(obstLs[0]['Level'])
-            numberObstacles.append(len(obstLs))
-            roomCount += 1
-        except:
-            trapLevels.append(None)
-            numberObstacles.append(None)
-
-        # get the status
+        minPower, trapLevels, numberObstacles, roomCount = GetStageDisplay(st)
 
         status = 'blocked'
         if not st['StageRewards'] and not foundOpen:
@@ -324,8 +330,8 @@ def AttachDisplayData(stageLs):
         st['MinPower'] = minPower
         st['ObstLevels'] = trapLevels
         st['ObstCount'] = numberObstacles
-        st['Status'] = status
         st['NumberRooms'] = roomCount
+        st['Status'] = status
 
     return stageLs
 

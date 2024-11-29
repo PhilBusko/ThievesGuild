@@ -362,18 +362,14 @@ def SetLastHeist(request):
 
     return Response({'success': True})
 
-
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def LaunchLanding(request):
 
     heist = request.data.get('heist') 
     stageNo = request.data.get('stageNo')
-    landingIdx = request.data.get('landingIdx')
     thieves = request.data.get('thieves')
-    thieves = [x['id'] for x in thieves if x]
+    thieves = [x['id'] if x else None for x in thieves]
 
     userMd = request.user
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
@@ -390,88 +386,140 @@ def LaunchLanding(request):
         stageMd.save()
 
         for th in thieves:
+            if not th: continue
             thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=th)
             thiefMd.Status = 'Looting'
             thiefMd.save()
 
+        queueStage = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, StageQueue=True)
 
     # play the queue
 
+    for nt in range(0, 5):
 
-    # stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
-    # thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
+        if queueStage.LandingTypes[nt] and not queueStage.Actions[nt]:
 
-    # obstacleLs = stageMd.ObstaclesL1
-    # if landingIdx == 1: obstacleLs = stageMd.ObstaclesL2
-    # if landingIdx == 2: obstacleLs = stageMd.ObstaclesL3
-    # if landingIdx == 3: obstacleLs = stageMd.ObstaclesL4
-    # if landingIdx == 4: obstacleLs = stageMd.ObstaclesL5
+            thiefId = queueStage.Assignments[nt]
+            thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
 
-    # results = LH.RunObstacles(thiefMd, obstacleLs)
-    # results = LH.AttachCombatDisplay(results)
+            obstacleLs = queueStage.ObstaclesL1
+            if nt == 1: obstacleLs = queueStage.ObstaclesL2
+            if nt == 2: obstacleLs = queueStage.ObstaclesL3
+            if nt == 3: obstacleLs = queueStage.ObstaclesL4
+            if nt == 4: obstacleLs = queueStage.ObstaclesL5
 
-    # thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, landingIdx, stageMd, obstacleLs, results)
+            actions = LH.RunObstacles(thiefMd, obstacleLs)
+            queueStage.Actions[nt] = actions
+            queueStage.save()
 
-    # roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
+        if queueStage.LandingTypes[nt] and not queueStage.LandingRewards[nt]:
+            landingIdx = nt
+            break
 
-    resultDx = {}
-    #     'landingIdx': landingIdx,
-    #     'actions': results,
-    #     'nextStep': nextStep,
-    #     'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,
-    #     'roomRewards': roomRewards,
-    #     'stageRewards': stageRewards,
-    #     'fullRewards': fullRewards,
-    # }
+    # additional stage display data
+
+    stageDx = queueStage.__dict__
+    stageDx.pop('_state')
+
+    minPower, trapLevels, numberObstacles, roomCount = CT.GetStageDisplay(stageDx)
+    stageDx['MinPower'] = minPower
+    stageDx['ObstLevels'] = trapLevels
+    stageDx['ObstCount'] = numberObstacles
+    stageDx['NumberRooms'] = roomCount
+
+    assigned = []
+    for thId in stageDx['Assignments']:
+        if not thId:
+            assigned.append( None )
+        else:
+            thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thId)
+            thiefDx = thiefMd.__dict__
+            dropCols = ['_state', 'GuildFK_id', 'BasePower', 'CooldownExpire',
+                        'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
+                        'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd', ]
+            for dp in dropCols:
+                thiefDx.pop(dp)
+            assigned.append( thiefDx )
+
+    resultDx = {
+        'stage': stageDx,
+        'assigned': assigned,
+        'landingIdx': landingIdx,
+        'actions': queueStage.Actions[landingIdx],
+    }
     return Response(resultDx)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def FinishLanding(request):
 
-    pass
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
+    queueStage = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, StageQueue=True)
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def LaunchRoom(request):
+    for nt in range(0, 5):
+        if queueStage.LandingTypes[nt] and not queueStage.LandingRewards[nt]:
+            landingIdx = nt
+            break
 
-#     userMd = request.user
-#     heist = request.data.get('heist') 
-#     stageNo = request.data.get('stageNo')
-#     landingIdx = request.data.get('landingIdx')         # 1 based
-#     thiefId = request.data.get('thiefId')
+    actions = queueStage.Actions[landingIdx]
 
-#     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
-#     stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
-#     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)    
+    # procesing results is complicated
+    # on defeat apply the rewards immediately
+    # on win apply the results when the stage is complete
 
-#     obstacleLs = stageMd.ObstaclesL1
-#     if landingIdx == 2: obstacleLs = stageMd.ObstaclesL2
-#     if landingIdx == 3: obstacleLs = stageMd.ObstaclesL3
-#     if landingIdx == 4: obstacleLs = stageMd.ObstaclesL4
-#     if landingIdx == 5: obstacleLs = stageMd.ObstaclesL5
+    # check for landing defeat
 
-#     results = LH.RunObstacles(thiefMd, obstacleLs)
-#     results = LH.AttachCombatDisplay(results)
+    if actions[-1]['posNext'] == actions[-1]['posCurr']:
 
-#     thiefDx, nextStep, stageRewards = LH.RunResults(guildMd, thiefMd, landingIdx, stageMd, obstacleLs, results)
+        assigned = LH.ThiefResults(queueStage)
+        fullRewards = LH.DefeatMaterialResults(queueStage, guildMd)
 
-#     roomRewards, fullRewards = LH.AttachDisplayData(stageMd.RoomRewards, stageRewards)
+        queueStage.Assignments = [None, None, None, None, None]
+        queueStage.Actions = [None, None, None, None, None]
+        queueStage.StageQueue = False
+        queueStage.save()
 
-#     resultDx = {
-#         'landingIdx': landingIdx,
-#         'actions': results,
-#         'nextStep': nextStep,
-#         'assignments': [thiefDx] if nextStep == 'defeat' else stageMd.Assignments,
-#         'roomRewards': roomRewards,
-#         'stageRewards': stageRewards,
-#         'fullRewards': fullRewards,
-#     }
-#     return Response(resultDx)
+        resultDx = {
+            'nextScene': 'defeat',
+            'heist': queueStage.Heist,
+            'stageNo': queueStage.StageNo,
+            'assigned': assigned,
+            'fullRewards': fullRewards,
+        }
+        return Response(resultDx)
 
+    # check for win and end of stage
 
+    elif landingIdx == 4 or queueStage.LandingTypes[landingIdx +1] == None:
+
+        assigned = LH.ThiefResults(queueStage)
+        fullRewards = LH.VictoryMaterialResults(queueStage, guildMd)
+
+        queueStage.StageQueue = False
+        queueStage.save()
+
+        resultDx = {
+            'nextScene': 'victory',
+            'heist': queueStage.Heist,
+            'stageNo': queueStage.StageNo,
+            'assigned': assigned,
+            'fullRewards': fullRewards,
+        }
+        return Response(resultDx)
+
+    # check for win and go to next landing
+
+    else:
+        rewards = LH.GetLandingRewards(actions)
+        queueStage.LandingRewards[landingIdx] = rewards
+        queueStage.save()
+
+        resultDx = {
+            'nextScene': 'next-landing',
+        }
+        return Response(resultDx)
 
 
 @api_view(['GET'])
@@ -692,7 +740,7 @@ def BuyMarket(request):
         storeMd.Bought = True
         storeMd.save()
 
-    # add an item to the vault
+    # add item to the vault
 
     else:
         resourceMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=storeMd.ResourceId)

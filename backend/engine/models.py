@@ -109,13 +109,13 @@ class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Heist = JM.TextField()                          # tower, trial, dungeon, campaign
     CreateDate = JM.DateField(default=now)
-    ThroneLevel = JM.IntegerField()                 # the currently generated level
+    ThroneLevel = JM.IntegerField()
     StageNo = JM.IntegerField()
-    StageQueue = JM.BooleanField(default=False)
 
     LandingTypes = JM.JSONField()                   # ['balanced', null, null]
     Background = JM.TextField()
     BackgroundBias = JM.JSONField()
+    BaseRewards = JM.JSONField()                    # target values copied from raw stage
 
     ObstaclesL1 = JM.JSONField()
     ObstaclesL2 = JM.JSONField(null=True)
@@ -123,10 +123,11 @@ class GuildStage(JM.Model):
     ObstaclesL4 = JM.JSONField(null=True)
     ObstaclesL5 = JM.JSONField(null=True)
 
+    LandingRewards = JM.JSONField(null=True)        # flag for landing won
+    StageRewards = JM.JSONField(null=True)          # flag for stage won
+    StageQueue = JM.BooleanField(default=False)
     Assignments = JM.JSONField(null=True)           # ids of thieves assigned to each landing
-    BaseRewards = JM.JSONField()
-    LandingRewards = JM.JSONField(null=True)        # flag for landing complete
-    StageRewards = JM.JSONField(null=True)          # flag for stage complete
+    Actions = JM.JSONField(null=True)               # persist the same actions regardless of reloads
 
     objects = DB.BaseManager()
     def __str__(self): 

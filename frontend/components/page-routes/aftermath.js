@@ -102,7 +102,7 @@ function Aftermath(props) {
 
     // results info
 
-    const [nextStep, setNextStep] = useState([]);
+    const [nextScene, setNextScene] = useState([]);
     const [heistTx, setHeistTx] = useState('');
     const [assignments, setAssignments] = useState([]);
     const [fullRewards, setFullRewards] = useState([]);
@@ -113,7 +113,7 @@ function Aftermath(props) {
         }
         else {
             console.log(location.state);  
-            setNextStep(location.state.nextStep);
+            setNextScene(location.state.nextScene);
 
             let heist = `${getTitle(location.state.heist)} - Stage ${location.state.stageNo}`;
             setHeistTx(heist);
@@ -123,7 +123,7 @@ function Aftermath(props) {
             setAssignments(assign);
 
             setFullRewards(location.state.fullRewards);
-            window.history.replaceState({}, document.title);
+            // window.history.replaceState({}, document.title);
 
             setTimeout(() => {
                 guildUpdate();
@@ -195,14 +195,14 @@ function Aftermath(props) {
                     </ST.FlexHorizontal>
 
                     <ST.FlexHorizontal>
-                        { nextStep == 'victory' &&
+                        { nextScene == 'victory' &&
                             <ST.FlexHorizontal>
                                 <ResultImage src={RC.VictoryIcon} sx={{marginRight: '30px'}}/>
                                 <AfterMathTitle sx={{color: 'gold'}}>VICTORY</AfterMathTitle>
                                 <ResultImage src={RC.VictoryIcon} sx={{marginLeft: '30px'}}/>
                             </ST.FlexHorizontal>
                         }
-                        { nextStep == 'defeat' &&
+                        { nextScene == 'defeat' &&
                             <ST.FlexHorizontal>
                                 <ResultImage src={RC.DefeatIcon} sx={{marginRight: '30px'}}/>
                                 <AfterMathTitle sx={{color: 'crimson'}}>DEFEAT</AfterMathTitle>

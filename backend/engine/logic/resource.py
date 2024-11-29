@@ -327,14 +327,12 @@ def ApplyWounds(thiefMd, wounds):
         cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).KnockedOutPeriod
 
     if cooldown:
-
-        trunkNow = timezone.now()
-        trunkNow = trunkNow.replace(microsecond=0)
+        trunkNow = timezone.now().replace(microsecond=0)
         expireTm = PD.Timedelta(cooldown).to_pytimedelta()
-
-        thiefMd.Status = status
         thiefMd.CooldownExpire = trunkNow + expireTm
-        thiefMd.save()
+
+    thiefMd.Status = status
+    thiefMd.save()
 
     return status, cooldown
 

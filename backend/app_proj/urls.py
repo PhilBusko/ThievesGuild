@@ -39,7 +39,6 @@ engine_url = [
     re_path(r'^set-heist',          NV.SetLastHeist),
     re_path(r'^launch-landing',     NV.LaunchLanding),
     re_path(r'^finish-landing',     NV.FinishLanding),
-    # re_path(r'^launch-room',    NV.LaunchRoom),
 
     re_path(r'^expedition-update',  NV.ExpeditionUpdate),
     re_path(r'^expedition-launch',  NV.ExpeditionLaunch),

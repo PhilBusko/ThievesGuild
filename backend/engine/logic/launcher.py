@@ -139,143 +139,163 @@ def RunObstacles(thiefMd, obstacleLs):
 
     return resultLs
 
-def AttachCombatDisplay(results):
-
-    for act in results:
-        rolls = act['rollParams']
-        if 'woundsCombat' in act:
-
-            act['thiefProfileTx'] = f"Off +{int(rolls[0]['attack'])} vs Def {int(rolls[0]['defense'])}"
-            act['thiefNumberAtt'] = len([x for x in rolls if x['attacker'] == 'thief'])
-            act['thiefDamageLs'] = [x['woundsRoll'] for x in rolls if x['attacker'] == 'thief']
-
-            if len(rolls) > 1:
-                act['enemyProfileTx'] = f"Off +{int(rolls[1]['attack'])} vs Def {int(rolls[1]['defense'])}"
-                act['enemyNumberAtt'] = len([x for x in rolls if x['attacker'] == 'enemy'])
-                act['enemyDamageLs'] = [x['woundsRoll'] for x in rolls if x['attacker'] == 'enemy']
-            else:
-                act['enemyProfileTx'] = f"Missed"
-                act['enemyNumberAtt'] = 0
-                act['enemyDamageLs'] = []
 
 
-    return results
 
-def RunResults(guildMd, thiefMd, roomNo, stageMd, obstacleLs, results):
-
-    # deduce the overall results
-
-    win = results[-1]['posNext'] == len(obstacleLs)
-    nextRoom = stageMd.RoomTypes[roomNo] 
-
-    nextStep = ''
-    if not win:                 nextStep = 'defeat'
-    if win and not nextRoom:    nextStep = 'victory'
-    if win and nextRoom:        nextStep = 'next-room'
-
-    # total up room rewards
-
-    roomRewards = {}
-    for rs in results:
-        reward = rs['reward']
+def GetLandingRewards(pActions):
+    rewardDx = {}
+    for ac in pActions:
+        reward = ac['reward']
         if reward:
-            if 'xp' in reward:      roomRewards['xp'] = roomRewards.get('xp', 0) + int(reward.split(' ')[1])
-            if 'gold' in reward:    roomRewards['gold'] = roomRewards.get('gold', 0) + int(reward.split(' ')[1])
-            if 'gems' in reward:    roomRewards['gems'] = roomRewards.get('gems', 0) + int(reward.split(' ')[1])
+            if 'xp' in reward:      rewardDx['xp'] = rewardDx.get('xp', 0) + int(reward.split(' ')[1])
+            if 'gold' in reward:    rewardDx['gold'] = rewardDx.get('gold', 0) + int(reward.split(' ')[1])
+            if 'gems' in reward:    rewardDx['gems'] = rewardDx.get('gems', 0) + int(reward.split(' ')[1])
+    return rewardDx
 
-    # grant room rewards, win or lose
-    # todo: apply guild bonus
+def ThiefResults(stageMd):
 
-    for key in roomRewards.keys():
-        if key == 'xp':     RS.GrantExperience(thiefMd, roomRewards[key])
-        if key == 'gold':   RS.GrantGold(guildMd, roomRewards[key])
-        if key == 'gems':   RS.GrantGems(guildMd, roomRewards[key])
+    # this runs on win or loss
+    # either way release all thieves to injuries or ready
 
-    thiefDx = GM.ThiefInGuild.objects.filter(id=thiefMd.id)
-    thiefDx = thiefDx.values('id', 'Name', 'Class', 'Health', 'Experience')[0]
-    status, cooldown = RS.ApplyWounds(thiefMd, results[-1]['woundsTotal'])
-    thiefDx['Status'] = status
-    thiefDx['Cooldown'] = cooldown
+    assigned = []
+    for nt, thId in enumerate(stageMd.Assignments):
 
-    thiefDx['Wounds'] = results[-1]['woundsTotal']
-    thiefDx['ExpReward'] = roomRewards['xp'] if 'xp' in roomRewards else 0
-    thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefMd.Level)
+        if thId:
+            thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thId)
 
-    # save room status, on lose the traps are reset
+            # apply results to thief
 
-    if win:
-        stageMd.RoomRewards[roomNo -1] = roomRewards
-        stageMd.Assignments[roomNo -1] = thiefDx
-        stageMd.save()
+            actions = stageMd.Actions[nt]
+            wounds = 0
+            xpReward = 0
+            if actions:
+                xpReward = GetLandingRewards(actions).get('xp', 0)
+                RS.GrantExperience(thiefMd, xpReward)
+                wounds = actions[-1]['woundsTotal']
 
-    # stage rewards
-    # on defeat only display the current room's results
+            status, cooldown = RS.ApplyWounds(thiefMd, wounds)
 
-    stageRewards = {}
-    # roomRewards = [roomRewards]
+            # return thief display for aftermath
 
-    if nextStep == 'victory':
-        stageRewards = ST.GetStageRewards(stageMd.BaseRewards)
-        stageMd.StageRewards = stageRewards
-        stageMd.save()
+            thiefDx = thiefMd.__dict__
+            dropCols = ['_state', 'GuildFK_id', 'BasePower', 'CooldownExpire',
+                        'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
+                        'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd',
+                        'Agility', 'Cunning', 'Might', 'Endurance',
+                        'Attack', 'Damage', 'Defense', 'Sabotage', 'Perceive', 'Traverse', ]
+            for dp in dropCols: thiefDx.pop(dp)
 
-        # grant the rewards
-        # todo: apply guild bonus
+            thiefDx['ExpReward'] = xpReward
+            thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefMd.Level)
+            thiefDx['Wounds'] = wounds
+            thiefDx['Status'] = status
+            thiefDx['Cooldown'] = cooldown
+            assigned.append( thiefDx )
+        else:
+            assigned.append( None )
 
-        for key in stageRewards.keys():
-            if key == 'gold':   RS.GrantGold(guildMd, stageRewards[key])
-            if key == 'gems':   RS.GrantGems(guildMd, stageRewards[key])
-            if key == 'stone':  RS.GrantStone(guildMd, stageRewards[key])
+    return assigned
 
-        # display all room results
+def DefeatMaterialResults(stageMd, guildMd):
 
-        # stageMd = GM.GuildStage.objects.GetOrNone(GuildFK=guildMd, Heist=heist, StageNo=stageNo)
-        # roomRewards = stageMd.RoomRewards
+    # sum the landings that have an assignment
 
-    return thiefDx, nextStep, stageRewards
+    totalLanding = {}
 
-def AttachDisplayData(roomRewards, stageRewards):
+    for nt, sn in enumerate(stageMd.Assignments):
+        if sn:
+            actions = stageMd.Actions[nt]
+            if actions:
+                rewards = GetLandingRewards(actions)
 
-    # assemble display for frontend
-    # textTwo can be for guild bonus
+                for rw in rewards:
+                    if rw != 'xp':
+                        totalLanding[rw] = totalLanding.get(rw, 0) + rewards[rw]
 
-    roomTotal = {}
-    for rm in roomRewards:
-        if not rm: break
-        for key in rm.keys():
-            if key == 'gold':   roomTotal['gold'] = roomTotal.get('gold', 0) + rm['gold']
-            if key == 'gems':   roomTotal['gems'] = roomTotal.get('gems', 0) + rm['gems']
+    # guild bonus
+
+    guildBonus = {}
+
+    # apply rewards to guild
+
+    totalMaterial = {}
+    mats = ['gold', 'stone', 'gems']
+    for mt in mats:
+        totalMaterial[mt] = totalLanding.get(mt, 0) + guildBonus.get(mt, 0)
+
+    RS.GrantGold(guildMd, totalMaterial['gold'])
+    RS.GrantStone(guildMd, totalMaterial['stone'])
+    RS.GrantGems(guildMd, totalMaterial['gems'])
+
+    # format display for aftermath
 
     fullRewards = []
+    for mt in mats:
+        if mt in totalMaterial:
+            fullRewards.append({
+                'type': mt, 
+                'fullAmount': totalMaterial.get(mt, 0),
+                'textOne': f"{totalLanding[mt]} collected" if mt in totalLanding else None,
+                'textTwo': None,
+            })
 
-    material = 'gold'
-    if material in stageRewards or material in roomTotal:
-        fullRewards.append({
-            'type': material, 
-            'fullAmount': stageRewards.get(material, 0) + roomTotal.get(material, 0),
-            'textOne': f"{roomTotal[material]} collected" if material in roomTotal else None,
-            'textTwo': None,
-        })
+    return fullRewards
 
-    material = 'stone'
-    if material in stageRewards:
-        fullRewards.append({
-            'type': material, 
-            'fullAmount': stageRewards.get(material, 0),
-            'textOne': None,
-            'textTwo': None,
-        })
+def VictoryMaterialResults(stageMd, guildMd):
 
-    material = 'gems'
-    if material in stageRewards or material in roomTotal:
-        fullRewards.append({
-            'type': material, 
-            'fullAmount': stageRewards.get(material, 0) + roomTotal.get(material, 0),
-            'textOne': f"{roomTotal[material]} collected" if material in roomTotal else None,
-            'textTwo': None,
-        })
+    # stage win rewards
 
-    return roomRewards, fullRewards
+    totalBase = ST.GetStageRewards(stageMd.BaseRewards)
+
+    # sum the landings that have an assignment
+
+    totalLanding = {}
+
+    for nt, sn in enumerate(stageMd.Assignments):
+        if sn:
+            actions = stageMd.Actions[nt]
+            rewards = GetLandingRewards(actions)
+            stageMd.LandingRewards[nt] = rewards        # save the current rewards
+
+            for rw in rewards:
+                if rw != 'xp':
+                    totalLanding[rw] = totalLanding.get(rw, 0) + rewards[rw]
+
+    # guild bonus applies to base + landing ?
+
+    guildBonus = {}
+
+    # apply rewards to guild
+
+    totalMaterial = {}
+    mats = ['gold', 'stone', 'gems']
+    for mt in mats:
+        totalMaterial[mt] = totalBase.get(mt, 0) + totalLanding.get(mt, 0) + guildBonus.get(mt, 0)
+
+    RS.GrantGold(guildMd, totalMaterial['gold'])
+    RS.GrantStone(guildMd, totalMaterial['stone'])
+    RS.GrantGems(guildMd, totalMaterial['gems'])
+
+    # format display for aftermath
+
+    fullRewards = []
+    for mt in mats:
+        if mt in totalMaterial:
+            fullRewards.append({
+                'type': mt, 
+                'fullAmount': totalMaterial.get(mt, 0),
+                'textOne': f"{totalLanding[mt]} collected" if mt in totalLanding else None,
+                'textTwo': None,
+            })
+
+    # save and return
+
+    stageMd.StageRewards = fullRewards
+    stageMd.save()
+
+    return fullRewards
+
+
 
 
 def RunExpedition(expeditionMd):
