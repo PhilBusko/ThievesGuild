@@ -43,6 +43,7 @@ const ThiefWorkspace = styled(ST.FlexVertical)(({ theme }) => ({
 
 const ButtonWorkspace = styled(Box)(({ theme }) => ({
     width: '150px',
+    height: '32px',
     padding: '6px 6px 6px 6px',
     border: `2px solid silver`,
     borderRadius: '6px',
@@ -103,7 +104,7 @@ const SelectorButton = styled(Button)(({ theme }) => ({
 
 function SelectorHeist(props) {
 
-    // display room and thief
+    // display landing and thief
 
     const getStageBkgd = (heist) => {
         if (heist.includes('trial')) return TrialTexture;
@@ -111,22 +112,6 @@ function SelectorHeist(props) {
         if (heist.includes('dungeon')) return DungeonTexture;
         if (heist.includes('campaign')) return CampaignTexture;
         return TowerTexture;
-    }
-
-    const getRoomType = (roomCode) => {
-        if (roomCode.includes('agi')) return 'Agility';
-        if (roomCode.includes('cun')) return 'Cunning';
-        if (roomCode.includes('mig')) return 'Might';
-        if (roomCode.includes('cmb')) return 'Combat';
-        return 'Mixed';
-    }
-
-    const getRoomName = (roomNo) => {
-        if (roomNo == 1) return 'Landing I';
-        if (roomNo == 2) return 'Landing II';
-        if (roomNo == 3) return 'Landing III';
-        if (roomNo == 4) return 'Landing IV';
-        return 'Landing V';
     }
 
     // thief menu
@@ -161,11 +146,18 @@ function SelectorHeist(props) {
                 />
             </RoomWorkspace>
 
-            { !props.selectedThief &&
+            { !props.selectedThief && !props.complete &&
                 <ThiefWorkspace sx={{width: '150px', height: '260px'}}>
                     <ST.RegularButton variant='contained' onClick={handleMenu}>
                         <ST.LinkText>Assign<br></br>Thief</ST.LinkText>
                     </ST.RegularButton>
+                </ThiefWorkspace>
+            }
+            { !!props.complete &&
+                <ThiefWorkspace sx={{width: '150px', height: '260px'}}>
+                    <ST.BaseText sx={{fontSize: '38px', color: 'crimson'}}>
+                        Complete
+                    </ST.BaseText>
                 </ThiefWorkspace>
             }
             { !!props.selectedThief && 
@@ -237,7 +229,7 @@ function SelectorHeist(props) {
             </ThiefMenu>
 
             <ButtonWorkspace sx={{ backgroundImage: `url(${getStageBkgd(props.heist)})` }} >
-
+            { !props.complete &&
                 <ST.FlexHorizontal sx={{ justifyContent: 'space-between', }}>
                     <SelectorButton 
                         variant='contained' 
@@ -254,7 +246,7 @@ function SelectorHeist(props) {
                         <ST.BaseText sx={{marginTop: '-6px', }}>Unassign</ST.BaseText>
                     </SelectorButton>
                 </ST.FlexHorizontal>
-
+            }
             </ButtonWorkspace>
 
         </SelectContainer>
@@ -271,6 +263,7 @@ SelectorHeist.defaultProps = {
     thiefChoices: [],
     selectedThief: null,
     selectedRoom: 0,
+    complete: false,
     notifyThiefChoice: () => {},
     notifySeeTraps: () => {},
 };

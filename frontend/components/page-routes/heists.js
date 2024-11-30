@@ -71,6 +71,7 @@ function Heists(props) {
     const [campaign, setCampaign] = useState([]);
 
     const [selectedHeistTx, setSelectedHeistTx] = useState(null);
+    const [selectedColor, setSelectedColor] = useState('');
     const [selectedHeist, setSelectedHeist] = useState([]);
 
     useEffect(() => {
@@ -105,10 +106,22 @@ function Heists(props) {
     }, [selectedHeistTx]);
 
     const nextSelected = (heistName) => {
-        if (heistName == 'tower')       setSelectedHeist(tower);
-        if (heistName == 'trial')       setSelectedHeist(trial);
-        if (heistName == 'dungeon')     setSelectedHeist(dungeon);
-        if (heistName == 'campaign')    setSelectedHeist(campaign);
+        if (heistName == 'tower') {
+            setSelectedHeist(tower);
+            setSelectedColor('#ffe033');    // gold
+        }
+        if (heistName == 'trial') {
+            setSelectedHeist(trial);
+            setSelectedColor('SpringGreen');
+        }
+        if (heistName == 'dungeon') {
+            setSelectedHeist(dungeon);
+            setSelectedColor('coral');
+        }
+        if (heistName == 'campaign') {
+            setSelectedHeist(campaign);
+            setSelectedColor('#ff66ff');   // fuchsia
+        }
     };
 
     const handleHeist = (heistName) => {
@@ -126,7 +139,7 @@ function Heists(props) {
         });
     };
 
-    const getHeistIcon = (heist) => {
+    const getHeistTexture = (heist) => {
         if (heist.includes('trial')) return TrialTexture;
         if (heist.includes('dungeon')) return DungeonTexture;
         if (heist.includes('campaign')) return CampaignTexture;
@@ -198,10 +211,14 @@ function Heists(props) {
                 <Grid item xs={12}>
                     <Stack spacing={'12px'} sx={{alignItems: 'center'}}>
                     { selectedHeist.length > 0 && selectedHeist.map( (val, idx) => 
-                        <StageContainer key={idx} sx={{ backgroundImage: `url(${getHeistIcon(val.Heist)})` }} >
+                        <StageContainer key={idx} sx={{ backgroundImage: `url(${getHeistTexture(val.Heist)})` }} >
 
                             <ST.FlexVertical sx={{width: '110px', margin: '', padding: ''}}>
-                                <ST.BaseText sx={{fontSize: '220%', marginTop: '-8px'}}>Stage {val.StageNo}</ST.BaseText>
+                                <ST.BaseText sx={{ fontSize: '220%', marginTop: '-8px',
+                                    color: !val.StageRewards ? selectedColor : '#d3d9de',
+                                }}>
+                                    Stage {val.StageNo}
+                                </ST.BaseText>
                             </ST.FlexVertical>
                             <StageSeparator src={ SeparatorSilver } />
 
@@ -212,6 +229,8 @@ function Heists(props) {
                                     power={val.MinPower[0]}
                                     obstCount={val.ObstCount[0]}
                                     obstLevel={val.ObstLevels[0]}
+                                    textColor={selectedColor}
+                                    complete={val.LandingRewards[0]}
                                 />
                             </Box>
                             <StageSeparator src={ SeparatorSilver } />
@@ -224,6 +243,8 @@ function Heists(props) {
                                         power={val.MinPower[1]} 
                                         obstCount={val.ObstCount[1]}
                                         obstLevel={val.ObstLevels[1]}
+                                        textColor={selectedColor}
+                                        complete={val.LandingRewards[1]}
                                     />
                                 </Box>
                                 <StageSeparator src={ SeparatorSilver } />
@@ -237,6 +258,8 @@ function Heists(props) {
                                         power={val.MinPower[2]}
                                         obstCount={val.ObstCount[2]}
                                         obstLevel={val.ObstLevels[2]}
+                                        textColor={selectedColor}
+                                        complete={val.LandingRewards[2]}
                                     />
                                 </Box>
                                 <StageSeparator src={ SeparatorSilver } />
@@ -247,8 +270,11 @@ function Heists(props) {
                                     variant='contained' 
                                     onClick={() => {handleStart(val.id)}}
                                     disabled={ val.Status != 'open' }
+                                    sx={{  '& .MuiTypography-root': { color: 'inherit' } }}
                                 >
-                                    <ST.LinkText>
+                                    <ST.LinkText sx={{
+                                        color: val.Status != 'complete' ? `${selectedColor} !important` : '#d3d9de !important',
+                                    }}>
                                         { val.Status != 'complete' ? 'Burgle' : 'Vacant' }
                                     </ST.LinkText>
                                 </ST.RegularButton>

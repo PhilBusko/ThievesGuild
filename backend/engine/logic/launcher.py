@@ -20,7 +20,7 @@ def RunObstacles(thiefMd, obstacleLs):
         currentObs = obstacleLs[obsPos]
         posCurr = obsPos
         reward = None
-        woundsRoll = None
+        woundsRoll = 0
 
         if currentObs['Skill'] != 'Fight':
 
@@ -138,9 +138,6 @@ def RunObstacles(thiefMd, obstacleLs):
             })
 
     return resultLs
-
-
-
 
 def GetLandingRewards(pActions):
     rewardDx = {}
@@ -294,8 +291,6 @@ def VictoryMaterialResults(stageMd, guildMd):
     stageMd.save()
 
     return fullRewards
-
-
 
 
 def RunExpedition(expeditionMd):

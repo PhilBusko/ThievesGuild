@@ -36,6 +36,7 @@ import TrapGargoyle from '../../assets/stage/trap-gargoyle.png';
 import TrapSewer from '../../assets/stage/trap-sewer.png';
 import TrapIdol from '../../assets/stage/trap-idol.png';
 import ExitMat from '../../assets/stage/exit-mat.png';
+import { ConstructionOutlined } from '@mui/icons-material';
 
 
 const OBSTACLE_SPACE = 360;
@@ -253,7 +254,7 @@ function PixiLanding(props) {
     const [animThief, setAnimThief] = useState(null);
     const [animObstacle, setAnimObstacle] = useState(null);
     const [animObstFilter, setAnimObstFilter] = useState({});
-    const [thiefHealth, setThiefHealth] = useState(0); 
+    const [thiefHealth, setThiefHealth] = useState(0);
     const [enemyHealth, setEnemyHealth] = useState(null); 
     const [enemyMaxHlt, setEnemyMaxHlt] = useState(null); 
 
@@ -365,8 +366,8 @@ function PixiLanding(props) {
         };
         setAnimThief(thiefDx);
 
-        // set the health based on previous action
-        // health will change when thief untips
+        // set thief health at the top of each action
+        // health also changes during animations
 
         var startHealth;
         if (animPos == 0) {
@@ -377,6 +378,7 @@ function PixiLanding(props) {
             if (!prevActionDx)
                 prevActionDx = props.actionLs.filter(ct => ct.posCurr == animPos -2)[0];
             startHealth = (props.thiefAssigned.Health - prevActionDx.woundsTotal) / props.thiefAssigned.Health * 100;
+            startHealth = Math.round(startHealth *100) /100;
         }
         setThiefHealth(startHealth);
 
@@ -445,6 +447,15 @@ function PixiLanding(props) {
             // console.log('interval abort', animPos, staticSprites.length, animThief != null, animObstacle != null);
             return;
         }
+
+
+        // stop the high speed bug
+        // if (['forward 100', 'forward 101', 'forward 102', 'forward 103'].includes(thiefStatus)) {
+        //     console.log('aborting')
+        //     return;
+        // }
+        // console.log(thiefStatus);
+
 
         // play the animation based on the obstacle type
 
@@ -593,7 +604,7 @@ function PixiLanding(props) {
         if (rightRollStatus.includes('pause')) {
             setRightRollTx(null);
         }
-        if (rightRollStatus.includes('display')) {
+        if (rightRollStatus.includes('display 0')) {
             let newText = `Roll ${actionDx.rollParams.roll}\n`;
             newText += `${actionDx.rollParams.trait} +${actionDx.rollParams.traitBonus}\n`;
             newText += `${actionDx.rollParams.skill} +${actionDx.rollParams.skillBonus}\n`;
@@ -626,7 +637,7 @@ function PixiLanding(props) {
             setDamageResults(null);
             setRewardResults(null);
         }
-        if (leftResultsStatus.includes('display')) {
+        if (leftResultsStatus.includes('display 0')) {
 
             if (!!actionDx.woundsAction)
                 setDamageResults(`${actionDx.woundsAction} damage`);
@@ -653,10 +664,11 @@ function PixiLanding(props) {
 
             // update the health bar
 
-            let newHealth = 
-                (props.thiefAssigned.Health - actionDx.woundsTotal) / props.thiefAssigned.Health * 100;
-            if (newHealth < 0) newHealth = 0;
-            setThiefHealth(newHealth);
+            let damagePerc = actionDx.woundsAction / props.thiefAssigned.Health * 100;
+            let newHltPerc = (thiefHealth - damagePerc);
+            newHltPerc = Math.round(newHltPerc *100) /100;
+            if (newHltPerc < 0) newHltPerc = 0;
+            setThiefHealth(newHltPerc);
         }
     }
 
@@ -804,6 +816,7 @@ function PixiLanding(props) {
 
             let damagePerc = currAttack.woundsRoll / props.thiefAssigned.Health * 100;
             let newHltPerc = thiefHealth - damagePerc;
+            newHltPerc = Math.round(newHltPerc *100) /100;
             if (newHltPerc < 0) newHltPerc = 0;
             setThiefHealth(newHltPerc);
         }
@@ -910,7 +923,7 @@ function PixiLanding(props) {
                         y={ 102 }
                         style={ getSingleStyle() } 
                     />
-                </Container> 
+                </Container>
 
             </Stage>
             }

@@ -8,6 +8,10 @@ import * as ST from  '../../elements/styled-elements';
 
 function LandingDisplay(props) {
 
+    const LandingText = styled(ST.BaseText)(({ theme }) => ({
+        color: !props.complete ? props.textColor : '#d3d9de',
+    }));
+
     const getTitle = (landingNo) => {
         if (landingNo == 1) return 'Landing I';
         if (landingNo == 2) return 'Landing II';
@@ -27,20 +31,20 @@ function LandingDisplay(props) {
 
     return (<>
         <ST.FlexVertical sx={{ padding: '0px 6px' }}>
-            <ST.BaseText sx={{fontSize: '180%', textDecoration:'underline', marginBottom: '2px'}}>
+            <LandingText sx={{fontSize: '180%', textDecoration:'underline', marginBottom: '2px'}}>
                 { getTitle(props.landingNo) }
-            </ST.BaseText>
+            </LandingText>
             <ST.FlexHorizontal sx={{justifyContent:'space-between'}}>
-                <ST.BaseText>Flavor:</ST.BaseText>
-                <ST.BaseText>{ getRoomType(props.roomType) }</ST.BaseText>
+                <LandingText>Flavor:</LandingText>
+                <LandingText>{ getRoomType(props.roomType) }</LandingText>
             </ST.FlexHorizontal>
             <ST.FlexHorizontal sx={{justifyContent:'space-between'}}>
-                <ST.BaseText>Power:</ST.BaseText>
-                <ST.BaseText> { props.power } </ST.BaseText>
+                <LandingText>Power:</LandingText>
+                <LandingText> { props.power } </LandingText>
             </ST.FlexHorizontal>
             <ST.FlexHorizontal sx={{justifyContent:'space-between'}}>
-                <ST.BaseText>Challenge: </ST.BaseText>
-                <ST.BaseText>{ props.obstCount } - { props.obstLevel }</ST.BaseText>
+                <LandingText>Challenge: </LandingText>
+                <LandingText>{ props.obstCount } - { props.obstLevel }</LandingText>
             </ST.FlexHorizontal>
         </ST.FlexVertical>
     </>)
@@ -52,6 +56,8 @@ LandingDisplay.defaultProps = {
     power: 0,
     obstCount: 0,
     obstLevel: 0,
+    textColor: '',
+    complete: false,
 };
 
 export default LandingDisplay;

@@ -48,8 +48,6 @@ function Playthrough(props) {
     const [actions, setActions] = useState([]);
     const [forwardEnabled, setForwardEnabled] = useState(false);
 
-
-
     const launchLanding = (pStage, pDeployment) => {
         AxiosConfig({
             method: 'POST',     
@@ -60,8 +58,7 @@ function Playthrough(props) {
                 'thieves': !!pDeployment ? pDeployment : [], 
             },
         }).then(responseData => {
-            
-            console.log(responseData);
+            // console.log(responseData);
 
             let newObstacles = responseData.stage.ObstaclesL1;
             if (responseData.landingIdx == 1)    newObstacles = responseData.stage.ObstaclesL2;
@@ -81,9 +78,7 @@ function Playthrough(props) {
         });
     }
 
-
     useEffect(() => {
-
         if ( !location.state ) {
             navigate('/heists/');
         }
@@ -93,24 +88,22 @@ function Playthrough(props) {
 
             const newStage = location.state.stage;
             const newDeployment = location.state.deployment;
-            // window.history.replaceState({}, document.title);  // comment out for dev
+            // window.history.replaceState({}, document.title);  // don't reset state so bugged run can be rerun
 
             launchLanding(newStage, newDeployment);
         }
     }, []);
 
 
-    // go to next scene
-    // should be when user hits button
+    // go to next scene with forward button
 
     const advancePhase = () => {
-
         AxiosConfig({
             method: 'POST',     
             url: '/engine/finish-landing',
             data: {},
         }).then(responseData => {
-            console.log(responseData);
+            // console.log(responseData);
 
             if (responseData.nextScene != 'next-landing') {
                 navigate('/aftermath/', 
@@ -133,11 +126,10 @@ function Playthrough(props) {
     }
 
 
-
     // set the auto battle speed
 
-    const SPEED1 = 100;
-    const SPEED2 = 50;
+    const SPEED1 = 90;
+    const SPEED2 = 45;
     const SPEED3 = 15;
     const [battleSpeed, setBattleSpeed] = useState(SPEED1);       // microsec per animation frame
 
@@ -172,7 +164,7 @@ function Playthrough(props) {
         if (roomCode.includes('agi')) return 'Agility';
         if (roomCode.includes('cun')) return 'Cunning';
         if (roomCode.includes('mig')) return 'Might';
-        if (roomCode.includes('cmb')) return 'Combat';
+        if (roomCode.includes('cmb')) return 'Guards';
         return 'Mixed';
     }
 
@@ -225,9 +217,11 @@ function Playthrough(props) {
                                     </ST.FlexVertical>
 
                                     <ST.FlexVertical sx={{width: '64px'}}>
-                                        <ST.BaseText>{ deployment[idx].Class }</ST.BaseText>
-                                        <ST.BaseText>{ deployment[idx].Name }</ST.BaseText>
-                                        <ST.BaseText>[{ deployment[idx].Power }]</ST.BaseText>
+                                        { !!deployment[idx] && <>
+                                            <ST.BaseText>{ deployment[idx].Class }</ST.BaseText>
+                                            <ST.BaseText>{ deployment[idx].Name }</ST.BaseText>
+                                            <ST.BaseText>[{ deployment[idx].Power }]</ST.BaseText>
+                                        </>}
                                     </ST.FlexVertical>
 
                                 </ST.FlexHorizontal>

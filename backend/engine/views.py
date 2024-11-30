@@ -397,6 +397,9 @@ def LaunchLanding(request):
 
     for nt in range(0, 5):
 
+        if not queueStage.Assignments[nt]:
+            continue
+
         if queueStage.LandingTypes[nt] and not queueStage.Actions[nt]:
 
             thiefId = queueStage.Assignments[nt]

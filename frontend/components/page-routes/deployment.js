@@ -65,12 +65,13 @@ function Deployment(props) {
     const [stage, setStage] = useState({});
 
     useEffect(() => {
+        // console.log(location.state.stage);
+
         if ( !location.state ) {
             setStage({});
             navigate('/heists/');
         }
         else {
-            // console.log(location.state.stage);
             setStage(location.state.stage);
             window.history.replaceState({}, document.title);
         }
@@ -133,11 +134,13 @@ function Deployment(props) {
     }
 
     useEffect(() => {
+        if (Object.keys(stage).length == 0) return;
+
         var thievesAssigned = 0;
-        if (!!thiefL1) thievesAssigned += 1;
-        if (!!thiefL2) thievesAssigned += 1;
-        if (!!thiefL3) thievesAssigned += 1;
-        if (!!thiefL4) thievesAssigned += 1;
+        if (!!thiefL1 || !!stage.LandingRewards[0]) thievesAssigned += 1;
+        if (!!thiefL2 || !!stage.LandingRewards[1]) thievesAssigned += 1;
+        if (!!thiefL3 || !!stage.LandingRewards[2]) thievesAssigned += 1;
+        if (!!thiefL4 || !!stage.LandingRewards[3]) thievesAssigned += 1;
         if (!!thiefL5) thievesAssigned += 1;
 
         if (thievesAssigned == stage.NumberRooms)
@@ -266,6 +269,7 @@ function Deployment(props) {
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefL1}
                                 selectedRoom={selectedRoomNo}
+                                complete={!!stage.LandingRewards[0]}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
@@ -281,6 +285,7 @@ function Deployment(props) {
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefL2}
                                 selectedRoom={selectedRoomNo}
+                                complete={!!stage.LandingRewards[1]}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
@@ -296,6 +301,7 @@ function Deployment(props) {
                                 thiefChoices={thiefLs}
                                 selectedThief={thiefL3}
                                 selectedRoom={selectedRoomNo}
+                                complete={!!stage.LandingRewards[2]}
                                 notifyThiefChoice={handleThiefChoice}
                                 notifySeeTraps={handleTraps}
                             /> }
