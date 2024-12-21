@@ -2,9 +2,11 @@
 ENGINE LAUNCHER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import json, random, math
+
 import emporium.models as EM 
 import emporium.logic.guild as GD
 import emporium.logic.stage as ST
+
 import engine.models as GM
 import engine.logic.resource as RS
 

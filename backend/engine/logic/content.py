@@ -493,7 +493,7 @@ def GetOrCreateMarket(userMd, guildMd):
         newReso.ResourceId = cm['ResourceId']
         newReso.StoreType = 'common'
         newReso.RareProperties = {
-            'name': GetThiefName(guildMd),
+            'name': RS.GetThiefName(guildMd),
             'agi': 3 if 'agi' in cm['ResourceId'] else 0,
             'cun': 3 if 'cun' in cm['ResourceId'] else 0,
             'mig': 3 if 'mig' in cm['ResourceId'] else 0,
@@ -551,7 +551,7 @@ def GetOrCreateMarket(userMd, guildMd):
         newReso.RareProperties = None            
 
         if 'thief' in randomType:
-            newName = GetThiefName(guildMd)
+            newName = RS.GetThiefName(guildMd)
             newReso.RareProperties = ST.GetStarThief(randomType, newName)
 
         newReso.save()
@@ -569,15 +569,6 @@ def GetOrCreateMarket(userMd, guildMd):
     rareDf = resourceDf[resourceDf['StoreType'] == 'rare']
 
     return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
-
-def GetThiefName(guildMd):
-    # random name that doesn't yet appear in guild
-    allNames = CN.CharacterNames()
-    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
-    existingNameLs = [x.Name for x in thiefMds]
-    availableNames = [x for x in allNames if x not in existingNameLs]
-    thiefName = random.choice(availableNames)
-    return thiefName
 
 def AttachMarketDisplay(resourceLs):
     # resource: MarketStore dict
@@ -647,9 +638,9 @@ def BuyPermission(storeId, guildMd):
     # thief blockage
 
     if 'thief' in storeMd.ResourceId:
-        thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+        currThieves = RS.GetThiefCount(guildMd)
         maxThieves = RS.GetThiefMax(guildMd)
-        if len(thiefMds) == maxThieves:
+        if currThieves == maxThieves:
             return 'guild occupancy is full'
 
     # cost blockage

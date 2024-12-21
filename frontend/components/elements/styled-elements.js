@@ -23,7 +23,7 @@ const AppTheme = createTheme({
 
 const BaseText = styled(Typography)(({ theme }) => ({
     fontFamily: 'Started by a Mouse',
-    fontSize: '170%',
+    fontSize: '28px',
     lineHeight: 0.9,
     letterSpacing: 0.6,
     color: DefaultText,

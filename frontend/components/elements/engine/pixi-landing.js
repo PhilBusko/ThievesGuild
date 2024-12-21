@@ -36,7 +36,6 @@ import TrapGargoyle from '../../assets/stage/trap-gargoyle.png';
 import TrapSewer from '../../assets/stage/trap-sewer.png';
 import TrapIdol from '../../assets/stage/trap-idol.png';
 import ExitMat from '../../assets/stage/exit-mat.png';
-import { ConstructionOutlined } from '@mui/icons-material';
 
 
 const OBSTACLE_SPACE = 360;

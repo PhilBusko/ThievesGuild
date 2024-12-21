@@ -11,6 +11,9 @@ import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import ReadOnlyArea from '../elements/controls/read-only-area';
 import MaterialsBar from '../elements/custom/materials-bar';
+import CastleEngine from '../elements/engine/castle-engine';
+import CastleCreate from '../modals/castle-create';
+
 
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -24,14 +27,17 @@ const Broadcast = styled(Box)(({ theme }) => ({
 function Castle(props) {
 
 
-    
-    // update the guild
+    // globals
 
+    const [message, setMessage] = useState('');
+    const [errorLs, setErrorLs] = useState([]);
     const { guildStore } = useContext(GlobalContext);
-    useEffect(() => {
+
+    const guildUpdate = () => {
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
+            // console.log(responseData);
             if (Object.keys(responseData).length === 0) {
                 guildStore[1](null);
             }
@@ -39,21 +45,65 @@ function Castle(props) {
                 guildStore[1](responseData);
             }
         }).catch(errorLs => {
-            console.log('GuildUpdate error', errorLs);
+            setErrorLs(errorLs);
         });
+    }
+
+    useEffect(() => {
+        guildUpdate();
     }, []);
 
-    // globals
-
-    const [message, setMessage] = useState('');
-    const [errorLs, setErrorLs] = useState([]);
 
 
+    // castle data
 
-    const test = (row) => {
-        console.log('test');
-        // GlobalContext.tryLogin();
+    const [castle, setCastle] = useState(null);
+    const [createOptions, setCreateOptions] = useState([]);
+    
+
+    const loadCastle = () => {
+        AxiosConfig({
+            url: '/engine/castle-details',
+        }).then(responseData => {
+            if (!responseData.message) {
+
+
+                console.log(responseData);
+
+                setCastle(responseData);
+
+                setCreateOptions(responseData.createOptions);
+
+            }
+            else {
+                setMessage(responseData.message);
+            }
+        }).catch(errorLs => {
+            if (errorLs[0].includes('401'))
+                setMessage("* You must be logged in to view the Castle.");
+            else
+                setErrorLs(errorLs);
+        });
     }
+
+    useEffect(() => {
+        setMessage('');
+        loadCastle();
+    }, []);
+
+
+
+    // create room 
+
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [selectedPlacement, setSelectedPlacement] = useState(false);
+
+    const handleCreateModal = (placement) => {
+        setSelectedPlacement(placement);
+        setCreateModalOpen(true);
+    }
+
+
 
 
     // render
@@ -85,19 +135,29 @@ function Castle(props) {
                 </Grid>
 
 
-                <ST.GridItemCenter item xs={12} lg={4}>
-                    <ST.ContentCard elevation={3}> 
-                        <ST.ContentTitle sx={{ marginBottom: '8px', }}>Base Page</ST.ContentTitle>
-                        <Stack spacing='8px' sx={{ width: '280px' }}>
 
-                            <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
-                                onClick={() => { test(); }}>
-                                <ST.LinkText>Test</ST.LinkText>
-                            </ST.RegularButton>
+                <ST.GridItemCenter item xs={12} >
+                    <ST.FlexHorizontal>
 
-                        </Stack>
-                    </ST.ContentCard>
+                        <CastleEngine
+                            width={ 850 }
+                            height={ 600 }
+                            castleInfo={ castle }
+                            notifyCreate={ handleCreateModal }
+                        />
+
+                    </ST.FlexHorizontal>
                 </ST.GridItemCenter>
+
+
+
+                <CastleCreate 
+                    open={ createModalOpen } 
+                    setOpen={ setCreateModalOpen }
+                    roomOptions={ createOptions }
+                    placement={ selectedPlacement }
+                    notifyReload={ () => {guildUpdate(); loadCastle();} }
+                />
 
 
             </ST.GridPage >

@@ -14,9 +14,7 @@ import DungeonHeist from '../assets/resource/heist-dungeon.png'
 import CampaignHeist from '../assets/resource/heist-campaign.png'
 
 import GoldMaterial from '../assets/resource/material-gold.png'
-import WoodMaterial from '../assets/resource/material-wood.png'
 import StoneMaterial from '../assets/resource/material-stone.png'
-import IronMaterial from '../assets/resource/material-iron.png'
 import GemsMaterial from '../assets/resource/material-gems.png'
 
 const StarImage = styled('img')(({ theme }) => ({
@@ -26,9 +24,7 @@ const StarImage = styled('img')(({ theme }) => ({
 
 const GetMaterial = (materialCode) => {
     if (materialCode.includes('gold'))     return GoldMaterial;
-    if (materialCode.includes('wood'))     return WoodMaterial;
     if (materialCode.includes('stone'))    return StoneMaterial;
-    if (materialCode.includes('iron'))     return IronMaterial;
     if (materialCode.includes('gems'))     return GemsMaterial;
     return '';
 };
@@ -36,6 +32,6 @@ const GetMaterial = (materialCode) => {
 export {
     StarIcon, StarImage, VictoryIcon, DefeatIcon,
     TowerHeist, TrialHeist, RaidHeist, DungeonHeist, CampaignHeist,
-    GoldMaterial, WoodMaterial, StoneMaterial, IronMaterial, GemsMaterial,
+    GoldMaterial, StoneMaterial, GemsMaterial,
     GetMaterial,
 }

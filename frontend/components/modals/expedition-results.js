@@ -262,7 +262,6 @@ function ExpeditionResults(props) {
 
                                     </DoubleSpacer>
                                 </RadioGroup>
-
                             </>}
 
                             { !props.expedition.Results.reward2 && !props.expedition.Results.reward.iconCode && <>

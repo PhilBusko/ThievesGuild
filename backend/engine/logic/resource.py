@@ -217,7 +217,7 @@ def GetRoomMax(guildMd):
     return throneMd.MaxRoomCount
 
 def GetExpeditionCount(guildMd):
-    count = 0
+    count = 3
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
     for rm in roomLs:
@@ -473,30 +473,49 @@ def SetThiefTotals(thiefMd):
 
 def CreateNewGuild(user, guildName):
 
+    # create and select guild object
+
     newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True})
     newGuild.save()
 
-    thiefNames = CN.CharacterNames()
-    newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Burglar', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1, thiefNames)
-    AttachStartingWargear(newThief)
-    newThief = AppendStartingThief(newGuild, 'Ruffian', 1, thiefNames)
-    AttachStartingWargear(newThief)
+    # starting thieves
 
-    StartingAccessories(newGuild)
+    newThief = AppendStartingThief(newGuild, 'Burglar', 1)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Ruffian', 1)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Burglar', 1)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Scoundrel', 1)
+    AttachStartingWargear(newThief)
+    newThief = AppendStartingThief(newGuild, 'Ruffian', 1)
+    AttachStartingWargear(newThief)
 
     thiefOb = GM.ThiefInGuild.objects.filter(GuildFK=newGuild)
     for th in thiefOb:
         SetThiefTotals(th)
 
-    return newGuild
+    # starting accessories
+
+    StartingAccessories(newGuild)
+
+    # starting rooms
+
+    roomMds = EM.CastleRoom.objects.filter(UpgradeType='unique')
+    
+    for rm in roomMds:
+        roomDx = {
+            'GuildFK': newGuild,
+            'Name': rm.Name,
+            'UpgradeType': rm.UpgradeType,
+            'Placement': rm.AllowedPlacement,
+            'Description': rm.Description,
+            'Level': 1 if rm.Name != 'Keep' else 0 
+        }
+        newRoom = GM.RoomInGuild(**roomDx)
+        newRoom.save()
 
 def GetThiefName(guildMd):
     # random name that doesn't yet appear in guild
@@ -506,21 +525,15 @@ def GetThiefName(guildMd):
     availableNames = [x for x in allNames if x not in existingNameLs]
     thiefName = random.choice(availableNames)
     return thiefName
-    
-def AppendStartingThief(guildMd, thiefClass, stars, allNames):
+
+def AppendStartingThief(guildMd, thiefClass, stars):
 
     thiefMd = EM.UnlockableThief.objects.filter(Class=thiefClass, Stars=stars)
     thiefDx = list(thiefMd.values())[0]
 
-    # random name that doesn't yet appear in guild
-    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
-    existingNameLs = [x.Name for x in thiefMds]
-    availableNames = [x for x in allNames if x not in existingNameLs]
-    thiefName = random.choice(availableNames)
-
     newThief ={
         'GuildFK': guildMd,
-        'Name': thiefName,
+        'Name': GetThiefName(guildMd),
         'Class': thiefDx['Class'],
         'Stars': thiefDx['Stars'],
         'BasePower': thiefDx['StoreCost'] / GD.POWER_FACTOR,

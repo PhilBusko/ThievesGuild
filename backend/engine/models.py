@@ -87,9 +87,12 @@ class ItemInGuild(JM.Model):
 class RoomInGuild(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Name = JM.TextField()
+    UpgradeType = JM.TextField()
+    Placement = JM.TextField(unique=True)
     Description = JM.TextField(null=True)
     Level = JM.IntegerField()
-    Placement = JM.TextField(unique=True)
+    Status = JM.TextField(default='Ready')      # Ready, Upgrading, Upgraded (not claimed)
+    CooldownExpire = JM.DateTimeField(null=True)
     objects = DB.BaseManager()
 
 

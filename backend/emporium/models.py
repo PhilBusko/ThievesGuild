@@ -44,6 +44,7 @@ class ThiefLevel(JM.Model):
 
 class CastleRoom(JM.Model):
     Name = JM.TextField(unique=True)
+    UpgradeType = JM.TextField()            # unique, basic, advanced
     UnlockThrone = JM.IntegerField()
     AllowedPlacement = JM.TextField()
     Description = JM.TextField(null=True)
@@ -52,11 +53,11 @@ class CastleRoom(JM.Model):
 class RoomUpgrade(JM.Model):
     Level = JM.IntegerField(unique=True)
     Stone_Basic = JM.IntegerField()
-    Stone_Advan = JM.IntegerField()
-    Stone_Throne = JM.IntegerField()
+    Stone_Advanced = JM.IntegerField()
+    Stone_Unique = JM.IntegerField()
     Period_Basic = JM.TextField()
-    Period_Advan = JM.TextField()
-    Period_Throne = JM.TextField()
+    Period_Advanced = JM.TextField()
+    Period_Unique = JM.TextField()
     objects = DB.BaseManager()
 
 class ThroneRoom(JM.Model):

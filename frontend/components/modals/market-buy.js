@@ -14,6 +14,7 @@ import * as RC from '../assets/resource';
 import getModalBackground from './_background-service';
 
 
+const highlightColor = 'DodgerBlue';
 const modalBkgd = getModalBackground();
 
 const FormWrapper = styled('form')(({ theme }) => ({
@@ -38,7 +39,7 @@ const ModalTitle = styled('h2')(({ theme }) => ({
         fontSize: '120%',
         lineHeight: 1,
         whiteSpace: 'nowrap',
-        color: 'DodgerBlue',
+        color: highlightColor,
         textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
     },
 }));
@@ -72,6 +73,7 @@ const PriceIcon = styled('img')(({ theme }) => ({
 
 const RegularButton = styled(Button)(({ theme }) => ({
     minWidth: '80px',
+    color: highlightColor,
     '& .MuiTypography-root': { 
         color: ST.DefaultText,
         letterSpacing: 1.5,   

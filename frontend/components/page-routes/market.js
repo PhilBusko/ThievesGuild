@@ -137,7 +137,7 @@ function Market(props) {
 
                 setTimeout(() => {
                     setModalOpen(true);
-                }, 100);        
+                }, 100);
             }
             else {
                 setMessage(responseData.message);
