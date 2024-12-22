@@ -86,7 +86,6 @@ function UserAccount(props) {
             };
             setUserInfo(newInfo);
             setGuildLs(responseData['Guilds']);
-            getGuildInfo();
 
             setThiefBp(responseData.thieves);
             setItemW2Bp(responseData.itemsW2);
@@ -115,26 +114,6 @@ function UserAccount(props) {
     }
 
 
-    // display current guild's details
-
-    const [leftInfo, setLeftInfo] = useState({});
-    const [middleInfo, setMiddleInfo] = useState({});
-    const [rightInfo, setRightInfo] = useState({});
-
-    const getGuildInfo = () => {
-        AxiosConfig({
-            url: '/engine/guild-info',
-        }).then(responseData => {
-            // console.log(responseData);
-            setLeftInfo(responseData.leftDx);
-            setMiddleInfo(responseData.middleDx);
-            setRightInfo(responseData.rightDx);
-        }).catch(errorLs => {
-            setErrorLs(errorLs);
-        });
-    }
-
-
     // select guild from table
 
     const handleGuildSelect = (guildName, checked) => {
@@ -147,9 +126,7 @@ function UserAccount(props) {
             url: '/engine/select-guild',
             data: { 'guildName': guildName },
         }).then(responseData => {
-            guildUpdate();
             userConnect();      // update the selected guild
-            getGuildInfo();
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
@@ -212,20 +189,6 @@ function UserAccount(props) {
                         <ST.ContentTitle sx={{ marginBottom: '8px', }}>Magna Carta</ST.ContentTitle>
 
                         <DisplayDict infoDx={ userInfo } width={ '280px' }/>
-
-                    </ST.ContentCard>
-                </ST.GridItemCenter>
-
-                <ST.GridItemCenter item xs={12} lg={8}>
-                    <ST.ContentCard elevation={3} sx={{marginTop: '20px'}}> 
-
-                        <ST.ContentTitle sx={{ marginBottom: '8px' }}>Guild Appraisal</ST.ContentTitle>
-                        
-                        <ST.FlexHorizontal sx={{alignItems: 'flex-start'}}>
-                            <DisplayDict infoDx={ leftInfo } width={ '200px' }/>
-                            <DisplayDict infoDx={ middleInfo } width={ '180px' }/>
-                            <DisplayDict infoDx={ rightInfo } width={ '220px' }/>
-                        </ST.FlexHorizontal>
 
                     </ST.ContentCard>
                 </ST.GridItemCenter>

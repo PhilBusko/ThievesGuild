@@ -93,11 +93,9 @@ def GuildInfo(request):
         return Response({})
 
     leftDx = {
-        'Charter': guildMd.Name,
         'Power': RS.GetTotalPower(guildMd),
         'Throne': guildMd.ThroneLevel,
         'Campaign': guildMd.CampaignWorld,
-        'Last Played': guildMd.LastPlayed,
         'Created': guildMd.CreateDate,
     }
 
@@ -111,10 +109,7 @@ def GuildInfo(request):
 
     recovery = RS.GetRecoveryTime(guildMd)
     rightDx = {
-        'Gold': f"{guildMd.VaultGold} / {RS.GetGoldMax(guildMd)}",
-        'Stone': f"{guildMd.VaultStone} / {RS.GetStoneMax(guildMd)}",
-        'Gems': guildMd.VaultGems,
-        'Recovery': f"{recovery} min" if recovery else "0 min",
+        'Rest Bonus': f"{recovery} min" if recovery else "0 min",
         'Gold Bonus': f"{RS.GetGoldBonus(guildMd)}%",
         'Stone Bonus': f"{RS.GetStoneBonus(guildMd)}%",
         'Gems Bonus': f"+{RS.GetGemsBonus(guildMd)}",
@@ -189,6 +184,8 @@ def DeleteGuild(request):
 
 
 
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def CastleDetails(request):
@@ -203,7 +200,6 @@ def CastleDetails(request):
 
     return Response(resultDx)
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def CreatePermission(request):
@@ -215,8 +211,6 @@ def CreatePermission(request):
     resultDx = CS.CreatePermission(roomName, guildMd)
 
     return Response(resultDx)
-
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -230,6 +224,8 @@ def CreateRoom(request):
     CS.CreateRoom(roomName, placement, guildMd)
 
     return Response('room created')
+
+
 
 
 

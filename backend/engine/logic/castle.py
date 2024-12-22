@@ -124,6 +124,11 @@ def CastleDetails(guildMd):
             basicMd = EM.BasicRoom.objects.GetOrNone(Level=1)
             advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=1)
 
+            buttonLs = ['upgrade', 'move', 'delete']
+
+            if roomTrial.Name == 'Scholarium':
+                buttonLs.insert(0, 'train')
+
             leftRooms.append({
                 'Name': roomTrial.Name,
                 'Level': roomTrial.Level,
@@ -131,7 +136,7 @@ def CastleDetails(guildMd):
                 'Status': roomTrial.Status,
                 'cooldown': cooldown,
                 'infoDx': GetInfo(roomTrial.Name, roomTrial.Level),
-                'buttonLs': ['upgrade', 'move', 'delete'],
+                'buttonLs': buttonLs,
             })
 
         else:

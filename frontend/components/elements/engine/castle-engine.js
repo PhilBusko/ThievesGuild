@@ -4,11 +4,10 @@ PIXI CASTLE
 import { useState, useEffect } from 'react';
 import { Box, ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { House, Construction } from '@mui/icons-material';
+import { House, Construction, ExitToApp, MoveUp, 
+    DeleteForever, DoubleArrow, Countertops } from '@mui/icons-material';
 
-import useInterval from './use-interval';
 import * as ST from  '../styled-elements';
-import * as RC from '../../assets/resource';
 
 import ArtisanRoom from '../../assets/castle/room-artisan.png';
 import BankRoom from '../../assets/castle/room-bank.png';
@@ -30,8 +29,6 @@ import FrameLong from '../../assets/castle/frame-long.png';
 import FrameShort from '../../assets/castle/frame-short.png';
 
 
-
-
 const ROOM_SCALE = 110;
 const spriteTemplates = [
     { name: 'Throne',       image: ThroneRoom,      width: 2*ROOM_SCALE, height: ROOM_SCALE },
@@ -50,6 +47,7 @@ const spriteTemplates = [
     { name: 'Blacksmith',   image: BlacksmithRoom,  width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
     { name: 'Artisan',      image: ArtisanRoom,     width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
 ];
+
 
 const EngineWrapper = styled(Box)(({ theme }) => ({
     position: 'relative',
@@ -239,15 +237,33 @@ function CastleRoom(props) {
                         { !!props.roomInfo.buttonLs && props.roomInfo.buttonLs.map((bt, id) => (
                             <Box key={id}>
                             { bt == 'create' && <>
-
                                 <ActionButton onClick={ () => {props.notifyCreate(props.roomInfo.Placement);} }>
                                     <House />
                                 </ActionButton>
-
                             </>}
                             { bt == 'upgrade' &&
                                 <ActionButton >
                                     <Construction />
+                                </ActionButton>
+                            }
+                            { bt == 'move' &&
+                                <ActionButton >
+                                    <MoveUp />
+                                </ActionButton>
+                            }
+                            { bt == 'delete' &&
+                                <ActionButton >
+                                    <DeleteForever />
+                                </ActionButton>
+                            }
+                            { bt == 'train' &&
+                                <ActionButton >
+                                    <DoubleArrow sx={{ transform: 'rotate(270deg)' }} />
+                                </ActionButton>
+                            }
+                            { bt == 'staff' &&
+                                <ActionButton >
+                                    <Countertops />
                                 </ActionButton>
                             }
                             </Box>
