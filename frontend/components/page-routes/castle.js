@@ -31,13 +31,13 @@ function Castle(props) {
 
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
-    const { guildStore } = useContext(GlobalContext);
 
+    const { guildStore } = useContext(GlobalContext);
     const guildUpdate = () => {
+        // initial call is made in global store
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
-            // console.log(responseData);
             if (Object.keys(responseData).length === 0) {
                 guildStore[1](null);
             }
@@ -48,12 +48,6 @@ function Castle(props) {
             setErrorLs(errorLs);
         });
     }
-
-    useEffect(() => {
-        guildUpdate();
-    }, []);
-
-
 
     // castle data
 
@@ -66,14 +60,10 @@ function Castle(props) {
             url: '/engine/castle-details',
         }).then(responseData => {
             if (!responseData.message) {
-
-
                 console.log(responseData);
 
                 setCastle(responseData);
-
                 setCreateOptions(responseData.createOptions);
-
             }
             else {
                 setMessage(responseData.message);

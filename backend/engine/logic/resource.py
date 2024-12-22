@@ -622,4 +622,3 @@ def StartingAccessories(guildMd):
             'Combat': accessoryDx['Combat'],
         }
         newModel = GM.ItemInGuild(**newAccessory).save()
-

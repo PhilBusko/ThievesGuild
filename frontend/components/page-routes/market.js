@@ -184,7 +184,7 @@ function Market(props) {
                 guildStore[1](responseData);
             }
         }).catch(errorLs => {
-            console.log('guildUpdate error', errorLs);
+            console.log('guild update error', errorLs);
         });
     }
 

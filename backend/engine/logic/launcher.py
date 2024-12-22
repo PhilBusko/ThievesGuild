@@ -543,4 +543,3 @@ def GenerateMaterial(throne, existingDx):
     }
 
     return rewardDx
-

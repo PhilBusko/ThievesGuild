@@ -11,8 +11,8 @@ import * as RC from '../../assets/resource';
 
 
 const BarContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
-    width: '320px',
-    height: '36px',
+    width: 'auto',
+    height: '38px',
     border: '3px ridge silver',
     borderRadius: '3px',
     justifyContent: 'space-around',
@@ -34,7 +34,7 @@ const BarContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
 }));
 
 const MaterialGroup = styled(ST.FlexHorizontal)(({ theme }) => ({
-    width: 'auto',
+    // width: 'auto',
     // borderLeft: '1px solid purple',
     // borderRight: '1px solid black',
 }));
@@ -43,34 +43,37 @@ const MaterialGroup = styled(ST.FlexHorizontal)(({ theme }) => ({
 function MaterialTemplate(props) {
 
     const MaterialImage = styled('img')(({ theme }) => ({
-        width: '36px', 
+        width: '36px',
+        paddingLeft: '10px',
         borderRadius: '50%',
         background: !props.isHighlight ? '' : 
             `radial-gradient(circle at 50% 50%, rgba(224, 255, 255, 1) 0%, rgba(238, 130, 238, 0) 70%)`,
     }));
 
-    const DataSpacer = styled(ST.FlexVertical)(({ theme }) => ({
-        position: 'relative',
-        width: ( !props.isGems ? '58px' : '46px' ),
+    const DataSpacer = styled(ST.FlexHorizontal)(({ theme }) => ({
+        // border: '1px solid white',
+        width: ( !props.isGems ? '90px' : '46px' ),
         height: '24px',
-        marginTop: '-6px',
     }));
-    
+
     const MaterialText = styled(ST.BaseText)(({ theme }) => ({
-        position: 'absolute',
-        bottom: '0px',
-        fontSize: ( !props.isGems ? 
-            (!props.isHighlight ? '170%' : '230%') :
-            (!props.isHighlight ? '190%' : '250%') ),
+        marginTop: '-12px',
+        fontSize: !props.isHighlight ? '28px' : '34px',
         fontWeight: !props.isHighlight ? 'normal' : 'bold',
         color: !props.isHighlight ? ST.DefaultText : 'crimson',
         textShadow: !props.isHighlight ? '' : 
             '-1px 1px 0 honeydew, 1px 1px 0 honeydew, 1px -1px 0 honeydew, -1px -1px 0 honeydew',
     }));
 
+    const MaxText = styled(ST.BaseText)(({ theme }) => ({
+        marginTop: '-5px',
+        fontSize: '20px',
+    }));
+
     const CurrencyProgress = styled(LinearProgress)(({ theme }) => ({
-        width: '45px',
+        width: '60px',
         height: '8px',
+        marginTop: '-4px',
         borderRadius: '4px',
 
         background: 'tan',
@@ -85,6 +88,11 @@ function MaterialTemplate(props) {
             <ST.FlexVertical>
                 <DataSpacer>
                     <MaterialText>{ props.matAmount.toLocaleString() }</MaterialText>
+                    { !props.isGems &&
+                        <MaxText>
+                            &nbsp;/ { props.matStorage.toLocaleString() }
+                        </MaxText>
+                    }
                 </DataSpacer>
                 { !props.isGems &&
                     <CurrencyProgress 
@@ -116,6 +124,8 @@ function usePrevious(value) {
 }
 
 function MaterialsBar(props) {
+
+    // initial call for global guild data is in GlobalContext
 
     const { guildStore } = useContext(GlobalContext);
     const prevGuild = usePrevious(guildStore[0]);

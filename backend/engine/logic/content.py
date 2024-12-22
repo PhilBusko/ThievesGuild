@@ -655,3 +655,62 @@ def BuyPermission(storeId, guildMd):
 
     return None
 
+def BuyMarket(storeId, guildMd):
+
+    storeMd = GM.MarketStore.objects.GetOrNone(id=storeId)
+
+    # add thief to the guild
+
+    if 'thief' in storeMd.ResourceId:
+        resourceMd = EM.UnlockableThief.objects.GetOrNone(ResourceId=storeMd.ResourceId)
+
+        newThief ={
+            'GuildFK': guildMd,
+            'Name': storeMd.RareProperties['name'],
+            'Class': resourceMd.Class,
+            'Stars': resourceMd.Stars,
+            'BasePower': resourceMd.StoreCost / GD.POWER_FACTOR,
+            'BaseAgi': storeMd.RareProperties['agi'],
+            'BaseCun': storeMd.RareProperties['cun'],
+            'BaseMig': storeMd.RareProperties['mig'],
+            'BaseEnd': storeMd.RareProperties['end'],
+        }
+        newModel = GM.ThiefInGuild(**newThief)
+        newModel.save()
+
+        RS.SetThiefTotals(newModel)
+        RS.SetGuildTotals(guildMd)
+        storeMd.Bought = True
+        storeMd.save()
+
+    # add item to the vault
+
+    else:
+        resourceMd = EM.UnlockableItem.objects.GetOrNone(ResourceId=storeMd.ResourceId)
+
+        newItem = {
+            'GuildFK': guildMd,
+            'ThiefFK': None,
+            'Throne': resourceMd.Throne,
+            'Name': resourceMd.Name,
+            'Slot': resourceMd.Slot,
+            'MagicLv': resourceMd.MagicLv,
+            'TotalLv': resourceMd.TotalLv,
+            'Power': resourceMd.StoreCost / GD.POWER_FACTOR,
+            'Requirement': resourceMd.Requirement,
+            'Trait': resourceMd.Trait,
+            'Combat': resourceMd.Combat,
+            'Skill': resourceMd.Skill,
+            'Magic': storeMd.RareProperties['magic'] if storeMd.RareProperties else None,
+        }
+        newModel = GM.ItemInGuild(**newItem).save()
+
+        storeMd.Bought = True
+        storeMd.save()
+
+    # deduct the gold cost
+
+    guildMd.VaultGold -= resourceMd.StoreCost
+    guildMd.save()
+
+    return storeMd

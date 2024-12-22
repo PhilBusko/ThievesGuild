@@ -122,15 +122,9 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 function CastleCreate(props) {
 
 
-
-
     useEffect(() => {
-        
-        console.log(props.roomOptions);
-
+        // console.log(props.roomOptions);
     }, [props.roomOptions])
-
-
 
 
     // choose room and get permission
@@ -151,7 +145,6 @@ function CastleCreate(props) {
     };
 
     const handleRoomSelected = (roomName, placement) => {
-        console.log(roomName, placement);
         setRoomToBuild(roomName);
         setMenuAnchor(null);
 
@@ -165,7 +158,7 @@ function CastleCreate(props) {
             url: '/engine/create-permission',
             data: { 'roomName': roomName, 'placement': placement, },
         }).then(responseData => {
-            console.log(responseData);
+            // console.log(responseData);
 
             setRoomCost(responseData.cost);
             setRoomInfo(responseData.infoDx);
@@ -185,25 +178,21 @@ function CastleCreate(props) {
 
     // build room after permission
 
-    const handleCreate = (room, action) => {
-        console.log(room);
-        console.log(action);
+    const handleCreate = (roomName, placement) => {
 
         AxiosConfig({
             method: 'POST',     
             url: '/engine/create-room',
-            data: { 'placement': null, 'action': null },
+            data: { 'roomName': roomName, 'placement': placement },
         }).then(responseData => {
-            if (!responseData.message) {
+
+            console.log(responseData);
 
 
-                console.log(responseData);
+            
+            props.setOpen(false);
+            props.notifyReload();
 
-                
-            }
-            else {
-                // setMessage(responseData.message);
-            }
         }).catch(errorLs => {
             console.log(errorLs);
         });
@@ -222,16 +211,6 @@ function CastleCreate(props) {
             setRoomInfo(null);    
         }
     }, [props.open])
-
-
-    // format data for display 
-
-    const getIcon = (resourceId, iconCode) => {
-        // console.log(category, iconCode)
-        if (resourceId.includes('material') == false)    return GI.GetIconAsset(iconCode);
-        if (resourceId.includes('material') == true)     return RC.GetMaterial(iconCode);
-        return null;
-    }
 
 
     // render
@@ -256,10 +235,11 @@ function CastleCreate(props) {
                             <RegularButton 
                                 variant='contained'
                                 onClick={ handleMenu }
+                                sx={{ padding: '2px 0px', }}
                             >
                                 <ST.LinkText>Room</ST.LinkText>
                             </RegularButton>
-                            <Box sx={{width: '100px'}}>
+                            <Box sx={{width: '100px', marginTop: '-10px', textAlign: 'center', }}>
                                 <InfoText>{ roomToBuild || 'None Chosen' }</InfoText>
                             </Box>
                         </ST.FlexHorizontal>
@@ -297,16 +277,18 @@ function CastleCreate(props) {
                         }
 
                         { !!roomInfo &&
-                            <ST.FlexHorizontal  >
+                            <ST.FlexHorizontal sx={{paddingTop: '-20px', }} >
                             <table>
                             <tbody>
                             { Object.keys(roomInfo).map((key, idx) => ( 
                                 <tr key={idx}>
                                     <td>
-                                        <InfoText>{key}:</InfoText>
+                                        <InfoText sx={{marginTop: '-10px',}}>{key}:</InfoText>
                                     </td>
                                     <td>
-                                        <InfoText sx={{ paddingLeft: '4px'}}>{ roomInfo[key] }</InfoText>
+                                        <InfoText sx={{paddingLeft: '4px', marginTop: '-10px', }}>
+                                            { roomInfo[key] }
+                                        </InfoText>
                                     </td>
                                 </tr> 
                             )) }
@@ -326,16 +308,14 @@ function CastleCreate(props) {
                         { !notPermitted && 
                             <RegularButton 
                                 variant='contained'
-                                // onClick={() => { props.notifyBuy(props.itemDx.id) }}
+                                onClick={() => { handleCreate(roomToBuild, props.placement) }}
                             >
                                 <ST.LinkText>Construct</ST.LinkText>
                             </RegularButton>
                         }
                         { !!notPermitted && 
                             <Box sx={{width: '110px'}}>
-                                <DeniedText>
-                                    {notPermitted}
-                                </DeniedText>
+                                <DeniedText>{ notPermitted }</DeniedText>
                             </Box>
                         }
                         <CloseButton onClick={() => { props.setOpen(false); }}>

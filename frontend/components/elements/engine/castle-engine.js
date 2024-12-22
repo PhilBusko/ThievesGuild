@@ -6,7 +6,6 @@ import { Box, ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { House, Construction } from '@mui/icons-material';
 
-
 import useInterval from './use-interval';
 import * as ST from  '../styled-elements';
 import * as RC from '../../assets/resource';
@@ -16,7 +15,6 @@ import BankRoom from '../../assets/castle/room-bank.png';
 import BlacksmithRoom from '../../assets/castle/room-blacksmith.png';
 import CartographerRoom from '../../assets/castle/room-cartographer.png';
 import DormitoryRoom from '../../assets/castle/room-dormitory.png';
-import EmptyRoom from '../../assets/castle/room-empty.png';
 import FenceRoom from '../../assets/castle/room-fence.png';
 import HallRoom from '../../assets/castle/room-hall.png';
 import JewelerRoom from '../../assets/castle/room-jeweler.png';
@@ -26,9 +24,10 @@ import ThroneRoom from '../../assets/castle/room-throne.png';
 import WarehouseRoom from '../../assets/castle/room-warehouse.png';
 import WorkshopRoom from '../../assets/castle/room-workshop.png';
 
+import EmptyRoom from '../../assets/castle/room-empty.png';
 import BrickWall from '../../assets/castle/brick-wall.png';
 import FrameLong from '../../assets/castle/frame-long.png';
-
+import FrameShort from '../../assets/castle/frame-short.png';
 
 
 
@@ -40,6 +39,16 @@ const spriteTemplates = [
     { name: 'Keep',         image: KeepRoom,        width: 2*ROOM_SCALE, height: ROOM_SCALE },
 
     { name: 'Empty',        image: EmptyRoom,       width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Bank',         image: BankRoom,        width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Warehouse',    image: WarehouseRoom,   width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Scholarium',   image: ScholariumRoom,  width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Dormitory',    image: DormitoryRoom,   width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Cartographer', image: CartographerRoom,    width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Fence',        image: FenceRoom,       width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Workshop',     image: WorkshopRoom,    width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Jeweler',      image: JewelerRoom,     width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Blacksmith',   image: BlacksmithRoom,  width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
+    { name: 'Artisan',      image: ArtisanRoom,     width: 1.5*ROOM_SCALE, height: ROOM_SCALE },
 ];
 
 const EngineWrapper = styled(Box)(({ theme }) => ({
@@ -186,9 +195,12 @@ function CastleRoom(props) {
                 />
                 { props.roomInfo.Level > 0 && <>
                     <RoomFrame
-                        src={ props.roomInfo.UpgradeType == 'unique' ? FrameLong : FrameLong }
+                        src={ props.roomInfo.UpgradeType == 'unique' ? FrameLong : FrameShort }
                         sx={{ width: props.roomInfo.width, height: props.roomInfo.height, }}
                     />
+                    <LevelSpacer>
+                        <RoomLevel>{ getRoman(props.roomInfo.Level) }</RoomLevel>
+                    </LevelSpacer>
                 </>}
             </RoomButton>
 
@@ -198,7 +210,8 @@ function CastleRoom(props) {
                     onClick={ (evt) => {evt.stopPropagation();} } 
                 >
                     <RoomTitle>
-                        {props.roomInfo.Name} 
+                        {props.roomInfo.Name}
+                        &nbsp;
                         {props.roomInfo.Level > 0 ? getRoman(props.roomInfo.Level) : null }
                     </RoomTitle>
                     <MiddleRow>
@@ -225,14 +238,14 @@ function CastleRoom(props) {
                     <ButtonRow>
                         { !!props.roomInfo.buttonLs && props.roomInfo.buttonLs.map((bt, id) => (
                             <Box key={id}>
-                            { bt.action == 'create' && <>
+                            { bt == 'create' && <>
 
                                 <ActionButton onClick={ () => {props.notifyCreate(props.roomInfo.Placement);} }>
                                     <House />
                                 </ActionButton>
 
                             </>}
-                            { bt.action == 'upgrade' &&
+                            { bt == 'upgrade' &&
                                 <ActionButton >
                                     <Construction />
                                 </ActionButton>
@@ -346,8 +359,8 @@ function CastleEngine(props) {
     }
 
     useEffect(() => {
-        // console.log(selectedId);
-    }, [selectedId]);
+        setSelectedId(null);
+    }, [props.castleInfo]);
 
 
 
@@ -373,6 +386,15 @@ function CastleEngine(props) {
                 </Box>
             ))}
 
+            { middleLs.map((rm, id) => (
+                <Box key={ id }>
+                    <CastleRoom 
+                        roomInfo={ rm }
+                        currSelected={ selectedId }
+                        notifySelect={ handleSelected }
+                    />
+                </Box>
+            ))}
 
 
 

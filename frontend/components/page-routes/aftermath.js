@@ -146,7 +146,7 @@ function Aftermath(props) {
                 guildStore[1](responseData);
             }
         }).catch(errorLs => {
-            console.log('GuildUpdate error', errorLs);
+            console.log('guild update error', errorLs);
         });
     }
 

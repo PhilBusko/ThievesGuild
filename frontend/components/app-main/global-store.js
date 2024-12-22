@@ -39,7 +39,7 @@ function GlobalProvider(props) {
                 setGuildDx(responseData);
             }
         }).catch(errorLs => {
-            console.log('GuildUpdate error', errorLs);
+            console.log('guild update error', errorLs);
         });
     }
 

@@ -90,8 +90,8 @@ class RoomInGuild(JM.Model):
     UpgradeType = JM.TextField()
     Placement = JM.TextField(unique=True)
     Description = JM.TextField(null=True)
-    Level = JM.IntegerField()
-    Status = JM.TextField(default='Ready')      # Ready, Upgrading, Upgraded (not claimed)
+    Level = JM.IntegerField(default=1)
+    Status = JM.TextField(default='Ready')      # Ready, Upgrading, Upgraded (not claimed), Training, Crafting
     CooldownExpire = JM.DateTimeField(null=True)
     objects = DB.BaseManager()
 
@@ -166,4 +166,3 @@ class MarketStore(JM.Model):
     Bought = JM.BooleanField(default=False)
 
     objects = DB.BaseManager()
-
