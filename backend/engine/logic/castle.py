@@ -17,6 +17,13 @@ def GetInfo(roomName, roomLevel):
     basicMd = EM.BasicRoom.objects.GetOrNone(Level=roomLevel)
     advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomLevel)
 
+    # when level 0 don't return any info
+
+    if not basicMd:
+        return {}
+
+    # return the room's info
+
     if roomName == 'Bank':
         infoDx = {'Gold Storage': basicMd.Bank_Gold, }
 
@@ -83,6 +90,7 @@ def CastleDetails(guildMd):
     for rm in middleRooms:
         rm.pop('id')
         rm.pop('GuildFK_id')
+        rm.pop('CooldownExpire')
 
         if rm['Name'] == 'Throne':
             throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
@@ -98,6 +106,8 @@ def CastleDetails(guildMd):
 
         if rm['Name'] == 'Great Hall':
             rm['infoTx'] = 'No special rules'
+            rm['Status'] = 'Upgrading'      # dev only
+            rm['cooldown'] = 500          # dev only
 
         if rm['Name'] == 'Keep' and rm['Level'] <= 2:
             rm['infoTx'] = 'Unlock at Throne 3'
@@ -121,6 +131,10 @@ def CastleDetails(guildMd):
                 trunkNow = timezone.now().replace(microsecond=0)
                 cooldown = roomTrial.CooldownExpire - trunkNow
 
+            status = roomTrial.Status
+            if cooldown.total_seconds() <= 0 and status == 'Upgrading': status = 'Upgraded'
+            # if cooldown <= 0 and status == 'Training': status = 'Trained'
+
             basicMd = EM.BasicRoom.objects.GetOrNone(Level=1)
             advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=1)
 
@@ -133,7 +147,7 @@ def CastleDetails(guildMd):
                 'Name': roomTrial.Name,
                 'Level': roomTrial.Level,
                 'Placement': placement,
-                'Status': roomTrial.Status,
+                'Status': status,
                 'cooldown': cooldown,
                 'infoDx': GetInfo(roomTrial.Name, roomTrial.Level),
                 'buttonLs': buttonLs,
@@ -243,5 +257,17 @@ def CreateRoom(roomName, placement, guildMd):
 
 
 
+def CastleFinalize(placement, guildMd):
+
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+
+    if roomMd.Status == 'Upgrading':
+        roomMd.Level += 1
+
+
+    # update room status regardless of finalize type
+
+    roomMd.Status = 'Ready'
+    roomMd.save()
 
 

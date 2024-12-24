@@ -93,12 +93,15 @@ function Castle(props) {
             setMiddleInfo(responseData.middleDx);
             setRightInfo(responseData.rightDx);
         }).catch(errorLs => {
-            setErrorLs(errorLs);
+            if (errorLs[0].includes('401'))
+                setMessage("* You must be logged in to view the Castle.");
+            else
+                setErrorLs(errorLs);
         });
     }
 
 
-    // create room 
+    // buttons
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [selectedPlacement, setSelectedPlacement] = useState(false);
@@ -106,6 +109,26 @@ function Castle(props) {
     const handleCreateModal = (placement) => {
         setSelectedPlacement(placement);
         setCreateModalOpen(true);
+    }
+
+    const handleFinalize = (roomInfo) => {
+
+
+
+        AxiosConfig({
+            method: 'POST',
+            url: '/engine/castle-finalize',
+            data: { 'placement': roomInfo.Placement, },
+        }).then(responseData => {
+
+            console.log(responseData)
+
+            updateData();
+            
+        }).catch(errorLs => {
+            setErrorLs(errorLs);
+        });
+
     }
 
 
@@ -116,6 +139,12 @@ function Castle(props) {
         loadCastle();
         getGuildInfo();
     }, []);
+
+    const updateData = () => {
+        guildUpdate(); 
+        loadCastle(); 
+        getGuildInfo();
+    }
 
 
     // render
@@ -154,6 +183,8 @@ function Castle(props) {
                             height={ 600 }
                             castleInfo={ castle }
                             notifyCreate={ handleCreateModal }
+                            notifyExpire={ () => { setTimeout(() => {updateData();}, 500);} }
+                            notifyFinalize={ handleFinalize }
                         />
 
                     </ST.FlexHorizontal>
@@ -178,7 +209,7 @@ function Castle(props) {
                     setOpen={ setCreateModalOpen }
                     roomOptions={ createOptions }
                     placement={ selectedPlacement }
-                    notifyReload={ () => {guildUpdate(); loadCastle(); getGuildInfo();} }
+                    notifyReload={ () => {updateData();} }
                 />
 
 

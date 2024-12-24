@@ -114,11 +114,6 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 }));
 
 
-
-
-
-
-
 function CastleCreate(props) {
 
 
@@ -174,8 +169,6 @@ function CastleCreate(props) {
     };
 
 
-    
-
     // build room after permission
 
     const handleCreate = (roomName, placement) => {
@@ -197,8 +190,6 @@ function CastleCreate(props) {
             console.log(errorLs);
         });
     }
-
-
 
 
     // clear the fields when the modal is closed

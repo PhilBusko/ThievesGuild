@@ -2,12 +2,13 @@
 PIXI CASTLE
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
-import { Box, ButtonBase, Stack, Menu, MenuItem } from '@mui/material';
+import { Box, ButtonBase, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { House, Construction, ExitToApp, MoveUp, 
     DeleteForever, DoubleArrow, Countertops } from '@mui/icons-material';
 
 import * as ST from  '../styled-elements';
+import Timer from '../custom/timer';
 
 import ArtisanRoom from '../../assets/castle/room-artisan.png';
 import BankRoom from '../../assets/castle/room-bank.png';
@@ -27,6 +28,7 @@ import EmptyRoom from '../../assets/castle/room-empty.png';
 import BrickWall from '../../assets/castle/brick-wall.png';
 import FrameLong from '../../assets/castle/frame-long.png';
 import FrameShort from '../../assets/castle/frame-short.png';
+import WorkingMesh from '../../assets/castle/mesh-working.png';
 
 
 const ROOM_SCALE = 110;
@@ -98,16 +100,64 @@ const RoomImage = styled('img')(({ theme }) => ({
 const LevelSpacer = styled(ST.FlexVertical)(({ theme }) => ({
     position: 'absolute',
     justifyContent: 'flex-end',
+    zIndex: 2,
 }));
 
 const RoomFrame = styled('img')(({ theme }) => ({
     position: 'absolute',
+    zIndex: 3,
 }));
 
 const RoomLevel = styled(ST.BaseText)(({ theme }) => ({
     fontSize: '28px',
     color: 'gold',
     textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
+}));
+
+
+const WorkingBackground = styled(ST.FlexVertical)(({ theme }) => ({
+    width: '100%',
+    position: 'absolute',
+    top: 0, left: 0,
+    zIndex: 1,
+
+    backgroundImage: `url(${WorkingMesh})`,
+    backgroundSize: '35px',
+    backgroundPosition: 'top center',
+    backgroundRepeat: 'repeat',
+    opacity: 0.6,
+}));
+
+const WorkingOverlay = styled(ST.FlexVertical)(({ theme }) => ({
+    width: '100%',
+    position: 'absolute',
+    top: 0, left: 0,
+    zIndex: 2,
+}));
+
+const WorkingText = styled(ST.BaseText)(({ theme }) => ({
+    marginBottom: '0px',
+    paddingTop: '10px',
+    fontSize: '32px',
+    color: 'aqua',
+    textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
+}));
+
+const WorkingTimer = styled(Box)(({ theme }) => ({
+    '& .MuiTypography-root': { 
+        color: 'aqua',
+        textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
+    }, 
+}));
+
+const WorkingButton = styled(Button)(({ theme }) => ({
+    backgroundColor: ST.FadedBlue,
+    '& .MuiTypography-root': { color: ST.DefaultText, },
+    '&:hover': {
+        backgroundColor: 'goldenrod',
+        '& .MuiTypography-root': { color: 'black', },
+    },
+
 }));
 
 
@@ -118,6 +168,7 @@ const SelectedDisplay = styled(ST.FlexVertical)(({ theme }) => ({
     bottom: '0px',
     left: '0px',
     height: 'inherit',
+    zIndex: 4,
 
     background: ST.TableBkgd,
     // border: `2px solid ${ST.DefaultText}`,
@@ -155,18 +206,7 @@ const ActionButton = styled(ButtonBase)(({ theme }) => ({
 }));
 
 
-
-
-
 function CastleRoom(props) {
-
-
-    // click actions
-
-
-
-
-    // display helpers
 
     const getRoman = (number) => {
         if (number == 1) return 'I';
@@ -180,18 +220,19 @@ function CastleRoom(props) {
         if (number == 9) return 'IX';
     };
 
-
-
     return (
         <RoomPositioner sx={{ left: props.roomInfo.xPos, top: props.roomInfo.yPos }}>
 
-            <RoomButton onClick={ (evt) => {props.notifySelect(evt, props.roomInfo);} }>
+            <RoomButton 
+                onClick={ (evt) => {props.notifySelect(evt, props.roomInfo);} }
+                disabled={ ['Ready', 'Locked'].includes(props.roomInfo.Status) ? false : true }
+            >
                 <RoomImage
                     src={ props.roomInfo.image }
                     sx={{   width: props.roomInfo.width, height: props.roomInfo.height, 
-                            filter: props.roomInfo.Level != 0 ? null : 'grayscale(100%)', }}
+                            filter: props.roomInfo.Status != 'Locked' ? null : 'grayscale(100%)', }}
                 />
-                { props.roomInfo.Level > 0 && <>
+                { props.roomInfo.Name != 'Empty' && props.roomInfo.Status != 'Locked' && <>
                     <RoomFrame
                         src={ props.roomInfo.UpgradeType == 'unique' ? FrameLong : FrameShort }
                         sx={{ width: props.roomInfo.width, height: props.roomInfo.height, }}
@@ -201,6 +242,30 @@ function CastleRoom(props) {
                     </LevelSpacer>
                 </>}
             </RoomButton>
+
+
+
+            { props.roomInfo.Status != 'Ready' && props.roomInfo.Status != 'Locked' && <>
+                <WorkingBackground></WorkingBackground>
+                <WorkingOverlay>
+                    { props.roomInfo.cooldown > 0 && <>
+                        <WorkingText>{ props.roomInfo.Status }</WorkingText>
+                        <WorkingTimer>
+                            <Timer 
+                                periodSec={ props.roomInfo.cooldown * 1000 }
+                                notifyExpire={ props.notifyExpire }
+                            />
+                        </WorkingTimer>
+                    </>}
+                    { props.roomInfo.cooldown <= 0 && <>
+                        <WorkingButton 
+                            onClick={ () => {props.notifyFinalize(props.roomInfo);} } 
+                        >
+                            <ST.LinkText> { props.roomInfo.Status } </ST.LinkText>
+                        </WorkingButton>
+                    </>}
+                </WorkingOverlay>
+            </>}
 
             { props.roomInfo.Placement == props.currSelected &&
                 <SelectedDisplay 
@@ -281,8 +346,9 @@ CastleRoom.defaultProps = {
     currSelected: '',
     notifySelect: () => {},
     notifyCreate: () => {},
+    notifyExpire: () => {},
+    notifyFinalize: () => {},
 };
-
 
 
 function CastleEngine(props) {
@@ -358,7 +424,6 @@ function CastleEngine(props) {
     }, [props.castleInfo]);
 
 
-
     // select a room
     
     const [selectedId, setSelectedId] = useState(null);
@@ -379,7 +444,6 @@ function CastleEngine(props) {
     }, [props.castleInfo]);
 
 
-
     // render
 
     return (<>
@@ -398,6 +462,8 @@ function CastleEngine(props) {
                         currSelected={ selectedId }
                         notifySelect={ handleSelected }
                         notifyCreate={ props.notifyCreate }
+                        notifyExpire={ props.notifyExpire } 
+                        notifyFinalize={ props.notifyFinalize }
                     />
                 </Box>
             ))}
@@ -408,6 +474,8 @@ function CastleEngine(props) {
                         roomInfo={ rm }
                         currSelected={ selectedId }
                         notifySelect={ handleSelected }
+                        notifyExpire={ props.notifyExpire } 
+                        notifyFinalize={ props.notifyFinalize }
                     />
                 </Box>
             ))}
@@ -423,6 +491,8 @@ CastleEngine.defaultProps = {
     height: 0,
     castleInfo: null,
     notifyCreate: () => {},
+    notifyExpire: () => {},
+    notifyFinalize: () => {},
 };
 
 export default CastleEngine;

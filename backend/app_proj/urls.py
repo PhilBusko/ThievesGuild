@@ -32,6 +32,7 @@ engine_url = [
     re_path(r'^castle-details',     NV.CastleDetails),
     re_path(r'^create-permission',  NV.CreatePermission),
     re_path(r'^create-room',        NV.CreateRoom),
+    re_path(r'^castle-finalize',    NV.CastleFinalize),
 
     re_path(r'^thief-details',  NV.ThiefDetails),
     re_path(r'^vault-details',  NV.VaultDetails),

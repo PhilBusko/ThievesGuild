@@ -261,7 +261,7 @@ function Garrison(props) {
                             <ThiefTable
                                 dataLs={thiefLs}
                                 notifySelect={handleThiefSelected}
-                                notifyTimer={() => { getThiefDetails(); }}
+                                notifyTimer={ () => { setTimeout(() => {getThiefDetails();}, 500);} }
                                 notifyDelete={handleThiefOpen}
                             />
                         </Stack>

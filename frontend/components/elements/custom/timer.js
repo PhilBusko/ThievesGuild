@@ -56,11 +56,9 @@ const Timer = (props) => {
         return timeTx
     }
 
-    return (
-        <Box>
+    return (<>
             <ST.BaseText>{ getTimeTx() }</ST.BaseText>
-        </Box>
-    );
+    </>);
 };
 
 Timer.defaultProps = {

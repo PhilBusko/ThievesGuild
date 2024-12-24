@@ -226,6 +226,20 @@ def CreateRoom(request):
     return Response('room created')
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def CastleFinalize(request):
+
+    userMd = request.user
+    placement = request.data.get('placement') 
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    CS.CastleFinalize(placement, guildMd)
+
+    return Response('castle finalize')
+
+
+
 
 
 
