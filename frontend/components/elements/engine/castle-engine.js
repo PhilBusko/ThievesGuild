@@ -76,8 +76,8 @@ const EngineWrapper = styled(Box)(({ theme }) => ({
 const WallBackground = styled('img')(({ theme }) => ({
     position: 'absolute',
     top: 30,
-    left: 20,
-    width: 810,
+    left: 18,
+    width: 830,
     height: 558,
 }));
 
@@ -243,8 +243,6 @@ function CastleRoom(props) {
                 </>}
             </RoomButton>
 
-
-
             { props.roomInfo.Status != 'Ready' && props.roomInfo.Status != 'Locked' && <>
                 <WorkingBackground></WorkingBackground>
                 <WorkingOverlay>
@@ -371,7 +369,7 @@ function CastleEngine(props) {
             let newRoom = rm;
             let placementNt = rm.Placement.split(' ')[1];
             newRoom.image = imageDx.image;
-            newRoom.xPos = 40;
+            newRoom.xPos = 45;
             newRoom.yPos = 70 + (ROOM_SCALE +20) * (placementNt -1);
             newRoom.width = imageDx.width;
             newRoom.height = imageDx.height;
@@ -385,7 +383,7 @@ function CastleEngine(props) {
             let newRoom = rm;
             let placementNt = rm.Placement.split(' ')[1];
             newRoom.image = imageDx.image;
-            newRoom.xPos = 225;
+            newRoom.xPos = 230;
             newRoom.yPos = 70 + (ROOM_SCALE +20) * placementNt;
             newRoom.width = imageDx.width;
             newRoom.height = imageDx.height;
@@ -399,7 +397,7 @@ function CastleEngine(props) {
             let newRoom = rm;
             let placementNt = rm.Placement.split(' ')[1];
             newRoom.image = imageDx.image;
-            newRoom.xPos = 465;
+            newRoom.xPos = 470;
             newRoom.yPos = 70 + (ROOM_SCALE +20) * (placementNt -1);
             newRoom.width = imageDx.width;
             newRoom.height = imageDx.height;
@@ -413,7 +411,7 @@ function CastleEngine(props) {
             let newRoom = rm;
             let placementNt = rm.Placement.split(' ')[1];
             newRoom.image = imageDx.image;
-            newRoom.xPos = 650;
+            newRoom.xPos = 655;
             newRoom.yPos = 70 + (ROOM_SCALE +20) * (placementNt -1);
             newRoom.width = imageDx.width;
             newRoom.height = imageDx.height;
@@ -480,6 +478,31 @@ function CastleEngine(props) {
                 </Box>
             ))}
 
+            { rightOneLs.map((rm, id) => (
+                <Box key={ id }>
+                    <CastleRoom 
+                        roomInfo={ rm }
+                        currSelected={ selectedId }
+                        notifySelect={ handleSelected }
+                        notifyCreate={ props.notifyCreate }
+                        notifyExpire={ props.notifyExpire } 
+                        notifyFinalize={ props.notifyFinalize }
+                    />
+                </Box>
+            ))}
+
+            { rightTwoLs.map((rm, id) => (
+                <Box key={ id }>
+                    <CastleRoom 
+                        roomInfo={ rm }
+                        currSelected={ selectedId }
+                        notifySelect={ handleSelected }
+                        notifyCreate={ props.notifyCreate }
+                        notifyExpire={ props.notifyExpire } 
+                        notifyFinalize={ props.notifyFinalize }
+                    />
+                </Box>
+            ))}
 
 
         </EngineWrapper>

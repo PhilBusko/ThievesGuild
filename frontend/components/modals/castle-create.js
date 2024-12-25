@@ -10,7 +10,6 @@ import { Close } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config';
 import * as ST from '../elements/styled-elements';
-import * as GI from '../assets/guild-icons';
 import * as RC from '../assets/resource';
 import getModalBackground from './_background-service';
 

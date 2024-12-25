@@ -133,7 +133,8 @@ def CastleDetails(guildMd):
 
             status = roomTrial.Status
             if cooldown.total_seconds() <= 0 and status == 'Upgrading': status = 'Upgraded'
-            # if cooldown <= 0 and status == 'Training': status = 'Trained'
+            if cooldown.total_seconds() <= 0 and status == 'Training': status = 'Trained'
+            if cooldown.total_seconds() <= 0 and status == 'Crafting': status = 'Crafted'
 
             basicMd = EM.BasicRoom.objects.GetOrNone(Level=1)
             advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=1)

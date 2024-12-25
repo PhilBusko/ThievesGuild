@@ -179,7 +179,7 @@ function Castle(props) {
                     <ST.FlexHorizontal>
 
                         <CastleEngine
-                            width={ 850 }
+                            width={ 855 }
                             height={ 600 }
                             castleInfo={ castle }
                             notifyCreate={ handleCreateModal }
