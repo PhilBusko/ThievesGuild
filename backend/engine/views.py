@@ -94,7 +94,7 @@ def GuildInfo(request):
 
     leftDx = {
         'Power': RS.GetTotalPower(guildMd),
-        'Throne': guildMd.ThroneLevel,
+        'Throne': RS.GetThroneLevel(guildMd),
         'Campaign': guildMd.CampaignWorld,
         'Created': guildMd.CreateDate,
     }
@@ -224,6 +224,20 @@ def CreateRoom(request):
     CS.CreateRoom(roomName, placement, guildMd)
 
     return Response('room created')
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def UpgradePermission(request):
+
+    userMd = request.user
+    placement = request.data.get('placement') 
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    resultDx = CS.UpgradePermission(placement, guildMd)
+
+    return Response(resultDx)
+
 
 
 @api_view(['POST'])
@@ -622,7 +636,7 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(guildMd.ThroneLevel, ep, runResults)
+            winResults = LH.ExpeditionResults(RS.GetThroneLevel(guildMd), ep, runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 

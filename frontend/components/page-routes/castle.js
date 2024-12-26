@@ -14,6 +14,7 @@ import ReadOnlyArea from '../elements/controls/read-only-area';
 import MaterialsBar from '../elements/custom/materials-bar';
 import CastleEngine from '../elements/engine/castle-engine';
 import CastleCreate from '../modals/castle-create';
+import CastleUpgrade from '../modals/castle-upgrade';
 
 
 
@@ -105,10 +106,19 @@ function Castle(props) {
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [selectedPlacement, setSelectedPlacement] = useState(false);
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
     const handleCreateModal = (placement) => {
         setSelectedPlacement(placement);
         setCreateModalOpen(true);
+    }
+
+    const handleUpgradeModal = (placement) => {
+
+        console.log(placement);
+
+        setSelectedPlacement(placement);
+        setUpgradeModalOpen(true);
     }
 
     const handleFinalize = (roomInfo) => {
@@ -183,6 +193,8 @@ function Castle(props) {
                             height={ 600 }
                             castleInfo={ castle }
                             notifyCreate={ handleCreateModal }
+                            notifyUpgrade={ handleUpgradeModal }
+
                             notifyExpire={ () => { setTimeout(() => {updateData();}, 500);} }
                             notifyFinalize={ handleFinalize }
                         />
@@ -212,6 +224,12 @@ function Castle(props) {
                     notifyReload={ () => {updateData();} }
                 />
 
+                <CastleUpgrade 
+                    open={ upgradeModalOpen } 
+                    setOpen={ setUpgradeModalOpen }
+                    placement={ selectedPlacement }
+                    notifyReload={ () => {updateData();} }
+                />
 
 
 

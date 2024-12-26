@@ -155,8 +155,10 @@ function Expedition(props) {
     };
 
     const handleTimer = () => {
-        updateExpeditions();
-        updateThieves();
+        setTimeout( () => {
+            updateExpeditions();
+            updateThieves();
+        }, 500);
     };
 
     const handleOpenResults = (expNo) => {

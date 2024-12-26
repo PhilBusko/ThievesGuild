@@ -169,12 +169,13 @@ def GetThiefCount(guildMd):
 
 def GetThiefMax(guildMd):
 
-    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
-    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Dormitory', Level__gte=1)
-    count = throneMd.MaxThieves
+    hallMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Great Hall')
+    abilityMd = EM.UniqueRoom.objects.GetOrNone(Level=hallMd.Level)
+    count = abilityMd.Hall_MaxThieves
 
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Dormitory', Level__gte=1)
     for rm in roomLs:
-        roomLookup = EM.BasicRoom.objects.filter(Level=rm.Level)
+        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
         count += roomLookup.Dorm_MaxThieves
 
     return count
@@ -183,12 +184,16 @@ def GetItemCount(guildMd):
     itemLs = GM.ItemInGuild.objects.filter(GuildFK=guildMd)
     return len(itemLs)
 
+def GetThroneLevel(guildMd):
+    throneMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Throne')
+    return throneMd.Level
+
 def GetGoldMax(guildMd):
 
-    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
-    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Bank', Level__gte=1)
+    throneMd = EM.UniqueRoom.objects.GetOrNone(Level=GetThroneLevel(guildMd))
     count = throneMd.Throne_Gold
 
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Bank', Level__gte=1)
     for rm in roomLs:
         roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
         count += roomLookup.Bank_Gold
@@ -197,10 +202,10 @@ def GetGoldMax(guildMd):
 
 def GetStoneMax(guildMd):
 
-    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
-    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Warehouse', Level__gte=1)
+    throneMd = EM.UniqueRoom.objects.GetOrNone(Level=GetThroneLevel(guildMd))
     count = throneMd.Throne_Stone
 
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Warehouse', Level__gte=1)
     for rm in roomLs:
         roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
         count += roomLookup.Warehouse_Stone
@@ -213,11 +218,14 @@ def GetRoomCount(guildMd):
     return len(room1) + len(room2)
 
 def GetRoomMax(guildMd):
-    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
+    throneMd = EM.UniqueRoom.objects.GetOrNone(Level=GetThroneLevel(guildMd))
     return throneMd.MaxRoomCount
 
 def GetExpeditionCount(guildMd):
-    count = 3
+
+    hallMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Great Hall')
+    abilityMd = EM.UniqueRoom.objects.GetOrNone(Level=hallMd.Level)
+    count = 3 #abilityMd.Hall_Expedition
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer', Level__gte=1)
     for rm in roomLs:
@@ -226,16 +234,16 @@ def GetExpeditionCount(guildMd):
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Jeweler', Level__gte=1)
     for rm in roomLs:
-        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        roomLookup = EM.AdvancedRoom.objects.GetOrNone(Level=rm.Level)
         count += roomLookup.Jeweler_ExpedSlots
 
     return count
 
 def GetMagicStoreCount(guildMd):
-    count = 4
 
-    throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
-    count += throneMd.MagicSlots
+    hallMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Great Hall')
+    abilityMd = EM.UniqueRoom.objects.GetOrNone(Level=hallMd.Level)
+    count = abilityMd.Hall_MagicStore
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Fence', Level__gte=1)
     for rm in roomLs:

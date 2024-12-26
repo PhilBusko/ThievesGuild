@@ -11,66 +11,179 @@ import engine.models as GM
 import engine.logic.resource as RS
 
 
+def GetInfo(upgradeType, roomName, roomLevel):
 
-def GetInfo(roomName, roomLevel):
-
-    basicMd = EM.BasicRoom.objects.GetOrNone(Level=roomLevel)
-    advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomLevel)
-
-    # when level 0 don't return any info
-
-    if not basicMd:
+    if roomLevel == 0:
         return {}
 
-    # return the room's info
+    if upgradeType == 'unique':
 
-    if roomName == 'Bank':
-        infoDx = {'Gold Storage': basicMd.Bank_Gold, }
+        abilityMd = EM.UniqueRoom.objects.GetOrNone(Level=roomLevel)
 
-    if roomName == 'Warehouse':
-        infoDx = {'Stone Storage': basicMd.Warehouse_Stone, }
+        if roomName == 'Throne':
+            infoDx = {
+                'Max Rooms':            abilityMd.MaxRoomCount,
+                'Max Room Level':       abilityMd.MaxRoomLevel,
+                'Gold Storage':         abilityMd.Throne_Gold, 
+                'Stone Storage':        abilityMd.Throne_Stone,
+            }
 
-    if roomName == 'Scholarium':
-        infoDx = {'Max Thief Level': basicMd.Scholarium_MaxLevel, }
+        if roomName == 'Great Hall':
+            infoDx = {
+                'Max Thieves':          abilityMd.Hall_MaxThieves,
+                'Expedition Slots':     abilityMd.Hall_Expedition,
+                'Magic Store Slots':    abilityMd.Hall_MagicStore,
+            }
 
-    if roomName == 'Dormitory':
-        infoDx = {
-            'Max Thieves': f"+{basicMd.Dorm_MaxThieves}",
-            'Rest Bonus': basicMd.Dorm_Recovery,
-        }
+        if roomName == 'Keep':
+            infoDx = {
+                'Defenders':    abilityMd.Keep_Defenders,
+                'Traps':        abilityMd.Keep_Traps,
+            }
 
-    if roomName == 'Cartographer':
-        infoDx = {
-            'Expedition Slots': basicMd.Cartog_Slots,
-            'Rest Bonus': basicMd.Cartog_Recovery,
-        }
+    if upgradeType == 'basic':
 
-    if roomName == 'Fence':
-        infoDx = {
-            'Heist Gold Bonus': advancedMd.Fence_GoldBonus,
-            'Magic Store Slots': advancedMd.Fence_MagicSlots,
-        }
+        abilityMd = EM.BasicRoom.objects.GetOrNone(Level=roomLevel)
 
-    if roomName == 'Workshop':
-        infoDx = {
-            'Heist Stone Bonus': advancedMd.Workshop_StoneBonus,
-            'Extra Defense': advancedMd.Workshop_Defense,
-        }
+        if roomName == 'Bank':
+            infoDx = {'Gold Storage': abilityMd.Bank_Gold, }
 
-    if roomName == 'Jeweler':
-        infoDx = {
-            'Heist Gem Bonus': advancedMd.Jeweler_GemBonus,
-            'Expedition Slots': advancedMd.Jeweler_ExpedSlots,
-        }
+        if roomName == 'Warehouse':
+            infoDx = {'Stone Storage': abilityMd.Warehouse_Stone, }
 
-    if roomName == 'Blacksmith':
-        infoDx = {'Creation Time': advancedMd.Blacksmith_Period,}
+        if roomName == 'Scholarium':
+            infoDx = {'Max Thief Level': abilityMd.Scholarium_MaxLevel, }
 
-    if roomName == 'Artisan':
-        infoDx = {
-            'Upgrade Cost': advancedMd.Artisan_Cost,
-            'Upgrade Time': advancedMd.Artisan_Period,
-        }
+        if roomName == 'Dormitory':
+            infoDx = {
+                'Max Thieves': f"+{abilityMd.Dorm_MaxThieves}",
+                'Rest Bonus': abilityMd.Dorm_Recovery,
+            }
+
+        if roomName == 'Cartographer':
+            infoDx = {
+                'Expedition Slots': abilityMd.Cartog_Slots,
+                'Rest Bonus': abilityMd.Cartog_Recovery,
+            }
+
+    if upgradeType == 'advanced':
+
+        abilityMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomLevel)
+
+        if roomName == 'Fence':
+            infoDx = {
+                'Heist Gold Bonus': abilityMd.Fence_GoldBonus,
+                'Magic Store Slots': abilityMd.Fence_MagicSlots,
+            }
+
+        if roomName == 'Workshop':
+            infoDx = {
+                'Heist Stone Bonus': abilityMd.Workshop_StoneBonus,
+                'Extra Defense': abilityMd.Workshop_Defense,
+            }
+
+        if roomName == 'Jeweler':
+            infoDx = {
+                'Heist Gem Bonus': abilityMd.Jeweler_GemBonus,
+                'Expedition Slots': abilityMd.Jeweler_ExpedSlots,
+            }
+
+        if roomName == 'Blacksmith':
+            infoDx = {'Creation Time': abilityMd.Blacksmith_Period,}
+
+        if roomName == 'Artisan':
+            infoDx = {
+                'Upgrade Cost': abilityMd.Artisan_Cost,
+                'Upgrade Time': abilityMd.Artisan_Period,
+            }
+
+    return infoDx
+
+def GetUpgradeInfo(upgradeType, roomName, roomLevel):
+
+    if upgradeType == 'unique':
+
+        currMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomLevel)
+        nextMd = EM.AdvancedRoom.objects.GetOrNone(Level=(roomLevel +1))
+
+        if roomName == 'Throne':
+            infoDx = {
+                'Max Rooms':            f"{currMd.MaxRoomCount} -> {nextMd.MaxRoomCount}",
+                'Max Room Level':       f"{currMd.MaxRoomLevel} -> {nextMd.MaxRoomLevel}",
+                'Gold Storage':         f"{currMd.Throne_Gold} -> {nextMd.Throne_Gold}", 
+                'Stone Storage':        f"{currMd.Throne_Stone} -> {nextMd.Throne_Stone}",
+            }
+
+        if roomName == 'Great Hall':
+            infoDx = {
+                'Max Thieves':          f"{currMd.Hall_MaxThieves} -> {nextMd.Hall_MaxThieves}",
+                'Expedition Slots':     f"{currMd.Hall_Expedition} -> {nextMd.Hall_Expedition}",
+                'Magic Store Slots':    f"{currMd.Hall_MagicStore} -> {nextMd.Hall_MagicStore}",
+            }
+
+        if roomName == 'Keep':
+            infoDx = {
+                'Defenders':    f"{currMd.Keep_Defenders} -> {nextMd.Keep_Defenders}",
+                'Traps':        f"{currMd.Keep_Traps} -> {nextMd.Keep_Traps}",
+            }
+
+    if upgradeType == 'basic':
+
+        currMd = EM.BasicRoom.objects.GetOrNone(Level=roomLevel)
+        nextMd = EM.BasicRoom.objects.GetOrNone(Level=(roomLevel +1))
+
+        if roomName == 'Bank':
+            infoDx = {'Gold Storage': f"{currMd.Bank_Gold} -> {nextMd.Bank_Gold}", }
+
+        if roomName == 'Warehouse':
+            infoDx = {'Stone Storage': f"{basicMd.Warehouse_Stone} -> {nextMd.Warehouse_Stone}", }
+
+        if roomName == 'Scholarium':
+            infoDx = {'Max Thief Level': f"{basicMd.Scholarium_MaxLevel} -> {nextMd.Scholarium_MaxLevel}", }
+
+        if roomName == 'Dormitory':
+            infoDx = {
+                'Max Thieves': f"+{basicMd.Dorm_MaxThieves} -> {nextMd.Dorm_MaxThieves}",
+                'Rest Bonus': f"{basicMd.Dorm_Recovery} -> {nextMd.Dorm_Recovery}",
+            }
+
+        if roomName == 'Cartographer':
+            infoDx = {
+                'Expedition Slots': f"{basicMd.Cartog_Slots} -> {nextMd.Cartog_Slots}",
+                'Rest Bonus': f"{basicMd.Cartog_Recovery} -> {nextMd.Cartog_Recovery}",
+            }
+
+    if upgradeType == 'advanced':
+
+        advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomLevel)
+        advancedNextMd = EM.AdvancedRoom.objects.GetOrNone(Level=(roomLevel +1))
+
+        if roomName == 'Fence':
+            infoDx = {
+                'Heist Gold Bonus': advancedMd.Fence_GoldBonus,
+                'Magic Store Slots': advancedMd.Fence_MagicSlots,
+            }
+
+        if roomName == 'Workshop':
+            infoDx = {
+                'Heist Stone Bonus': advancedMd.Workshop_StoneBonus,
+                'Extra Defense': advancedMd.Workshop_Defense,
+            }
+
+        if roomName == 'Jeweler':
+            infoDx = {
+                'Heist Gem Bonus': advancedMd.Jeweler_GemBonus,
+                'Expedition Slots': advancedMd.Jeweler_ExpedSlots,
+            }
+
+        if roomName == 'Blacksmith':
+            infoDx = {'Creation Time': advancedMd.Blacksmith_Period,}
+
+        if roomName == 'Artisan':
+            infoDx = {
+                'Upgrade Cost': advancedMd.Artisan_Cost,
+                'Upgrade Time': advancedMd.Artisan_Period,
+            }
 
     return infoDx
 
@@ -92,27 +205,16 @@ def CastleDetails(guildMd):
         rm.pop('GuildFK_id')
         rm.pop('CooldownExpire')
 
-        if rm['Name'] == 'Throne':
-            throneMd = EM.ThroneRoom.objects.GetOrNone(Level=guildMd.ThroneLevel)
-            rm['infoDx'] = {
-                'Max Thieves': throneMd.MaxThieves,
-                'Max Rooms': throneMd.MaxRoomCount,
-                'Max Room Level': throneMd.MaxRoomLevel,
-                'Gold Storage': throneMd.Throne_Gold,
-                'Stone Storage': throneMd.Throne_Stone,
-                'Magic Store Slots': throneMd.MagicSlots,
-            }
-            rm['buttonLs'] = ['upgrade']
-
-        if rm['Name'] == 'Great Hall':
-            rm['infoTx'] = 'No special rules'
-            rm['Status'] = 'Upgrading'      # dev only
-            rm['cooldown'] = 500          # dev only
+        rm['infoDx'] = GetInfo(rm['UpgradeType'], rm['Name'], rm['Level'])
 
         if rm['Name'] == 'Keep' and rm['Level'] <= 2:
+            rm['infoDx'] = None
             rm['infoTx'] = 'Unlock at Throne 3'
 
+        rm['buttonLs'] = ['upgrade']
 
+        if rm['Name'] == 'Throne':
+            throneLevel = rm['Level']
 
 
     # left rooms
@@ -170,7 +272,7 @@ def CastleDetails(guildMd):
 
     createMenu = []
 
-    menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=guildMd.ThroneLevel, UpgradeType='basic')
+    menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=throneLevel, UpgradeType='basic')
     for rm in menuRoomLs:
         cost = EM.RoomUpgrade.objects.GetOrNone(Level=1).Stone_Basic
         createMenu.append({
@@ -178,7 +280,7 @@ def CastleDetails(guildMd):
             'cost': cost,
         })
 
-    menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=guildMd.ThroneLevel, UpgradeType='advanced')
+    menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=throneLevel, UpgradeType='advanced')
     for rm in menuRoomLs:
         cost = EM.RoomUpgrade.objects.GetOrNone(Level=1).Stone_Advanced
         createMenu.append({
@@ -216,7 +318,8 @@ def CreatePermission(roomName, guildMd):
     resultDx = {
         'name': roomName,
         'cost': cost,
-        'infoDx': GetInfo(roomName, 1),
+        'duration': None,
+        'infoDx': GetInfo(buildRoom.UpgradeType, roomName, 1),
         'permission': permission,
     }
     return resultDx
@@ -255,6 +358,38 @@ def CreateRoom(roomName, placement, guildMd):
 
     newRoom = GM.RoomInGuild(**roomDx)
     newRoom.save()
+
+
+
+def UpgradePermission(placement, guildMd):
+
+    permission = None
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+    throneMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Throne')
+
+    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level)
+    cost = upgradeMd.Stone_Basic
+    if roomMd.UpgradeType == 'advanced': cost = upgradeMd.Stone_Advanced
+    if roomMd.UpgradeType == 'unique': cost = upgradeMd.Stone_Unique
+
+    if guildMd.VaultStone < cost:
+        permission = 'Stone reserves are insufficient'
+
+    if roomMd.Name == 'Throne' and roomMd.Level == guildMd.CampaignWorld:
+        permission = f"Progress to Campaign World {guildMd.CampaignWorld +1}"
+
+    if roomMd.Name != 'Throne' and roomMd.Level == throneMd.Level:
+        permission = f"Upgrade the Throne to {throneMd.Level +1}"
+
+    resultDx = {
+        'name': roomMd.Name,
+        'cost': cost,
+        'infoDx': GetUpgradeInfo(roomMd.UpgradeType, roomMd.Name, roomMd.Level),
+        'permission': permission,
+    }
+    return resultDx
+
+
 
 
 

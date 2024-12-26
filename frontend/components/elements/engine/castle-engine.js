@@ -305,28 +305,23 @@ function CastleRoom(props) {
                                 </ActionButton>
                             </>}
                             { bt == 'upgrade' &&
-                                <ActionButton >
+                                <ActionButton onClick={ () => {props.notifyUpgrade(props.roomInfo.Placement);} }>
                                     <Construction />
                                 </ActionButton>
                             }
                             { bt == 'move' &&
-                                <ActionButton >
+                                <ActionButton onClick={ () => {props.notifyMove(props.roomInfo.Placement);} }>
                                     <MoveUp />
                                 </ActionButton>
                             }
                             { bt == 'delete' &&
-                                <ActionButton >
+                                <ActionButton onClick={ () => {props.notifyDelete(props.roomInfo.Placement);} }>
                                     <DeleteForever />
                                 </ActionButton>
                             }
                             { bt == 'train' &&
-                                <ActionButton >
+                                <ActionButton onClick={ () => {props.notifyTrain(props.roomInfo.Placement);} }>
                                     <DoubleArrow sx={{ transform: 'rotate(270deg)' }} />
-                                </ActionButton>
-                            }
-                            { bt == 'staff' &&
-                                <ActionButton >
-                                    <Countertops />
                                 </ActionButton>
                             }
                             </Box>
@@ -344,6 +339,11 @@ CastleRoom.defaultProps = {
     currSelected: '',
     notifySelect: () => {},
     notifyCreate: () => {},
+    notifyUpgrade: () => {},
+    notifyMove: () => {},
+    notifyDelete: () => {},
+    notifyTrain: () => {},
+
     notifyExpire: () => {},
     notifyFinalize: () => {},
 };
@@ -460,6 +460,8 @@ function CastleEngine(props) {
                         currSelected={ selectedId }
                         notifySelect={ handleSelected }
                         notifyCreate={ props.notifyCreate }
+                        notifyUpgrade={ props.notifyUpgrade }
+
                         notifyExpire={ props.notifyExpire } 
                         notifyFinalize={ props.notifyFinalize }
                     />
@@ -472,32 +474,8 @@ function CastleEngine(props) {
                         roomInfo={ rm }
                         currSelected={ selectedId }
                         notifySelect={ handleSelected }
-                        notifyExpire={ props.notifyExpire } 
-                        notifyFinalize={ props.notifyFinalize }
-                    />
-                </Box>
-            ))}
-
-            { rightOneLs.map((rm, id) => (
-                <Box key={ id }>
-                    <CastleRoom 
-                        roomInfo={ rm }
-                        currSelected={ selectedId }
-                        notifySelect={ handleSelected }
-                        notifyCreate={ props.notifyCreate }
-                        notifyExpire={ props.notifyExpire } 
-                        notifyFinalize={ props.notifyFinalize }
-                    />
-                </Box>
-            ))}
-
-            { rightTwoLs.map((rm, id) => (
-                <Box key={ id }>
-                    <CastleRoom 
-                        roomInfo={ rm }
-                        currSelected={ selectedId }
-                        notifySelect={ handleSelected }
-                        notifyCreate={ props.notifyCreate }
+                        notifyUpgrade={ props.notifyUpgrade }
+                        
                         notifyExpire={ props.notifyExpire } 
                         notifyFinalize={ props.notifyFinalize }
                     />

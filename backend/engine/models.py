@@ -17,13 +17,11 @@ class Guild(JM.Model):
     CreateDate = JM.DateField(default=now)
     Selected = JM.BooleanField(default=False)
 
-    ThroneLevel = JM.IntegerField(default=1)
-    CampaignWorld = JM.IntegerField(default=1)
-
     VaultGold = JM.IntegerField(default=0)
     VaultStone = JM.IntegerField(default=0)
     VaultGems = JM.IntegerField(default=10)
     LastHeist = JM.TextField(default='tower')              # tower, trial, dungeon, campaign
+    CampaignWorld = JM.IntegerField(default=1)
     DungeonCheck = JM.DateField(null=True)
 
     objects = DB.BaseManager()

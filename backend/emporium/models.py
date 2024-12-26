@@ -60,20 +60,21 @@ class RoomUpgrade(JM.Model):
     Period_Unique = JM.TextField()
     objects = DB.BaseManager()
 
-class ThroneRoom(JM.Model):
+class UniqueRoom(JM.Model):
     Level = JM.IntegerField(unique=True)
     MaxRoomCount = JM.IntegerField()
     MaxRoomLevel = JM.IntegerField()
-    MaxThieves = JM.IntegerField()
     Throne_Gold = JM.IntegerField()
     Throne_Stone = JM.IntegerField()
-    MagicSlots = JM.IntegerField()
+    Hall_MaxThieves = JM.IntegerField()
+    Hall_MagicStore = JM.IntegerField()
+    Hall_Expedition = JM.IntegerField()
+    Keep_Defenders = JM.IntegerField()
+    Keep_Traps = JM.IntegerField()
     objects = DB.BaseManager()
 
 class BasicRoom(JM.Model):
     Level = JM.IntegerField(unique=True)
-    Keep_Defenders = JM.IntegerField()
-    Keep_Traps = JM.IntegerField()
     Bank_Gold = JM.IntegerField()
     Warehouse_Stone = JM.IntegerField()
     Scholarium_MaxLevel = JM.IntegerField()
