@@ -95,7 +95,7 @@ const RegularButton = styled(Button)(({ theme }) => ({
 
 const DeniedText = styled(ST.BaseText)(({ theme }) => ({
     fontSize: '30px',
-    lineHeight: 0.7,
+    lineHeight: 0.8,
     color: 'crimson',
     textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
     textAlign: 'center',
@@ -114,6 +114,7 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 
 
 function CastleUpgrade(props) {
+
 
 
 
@@ -136,11 +137,6 @@ function CastleUpgrade(props) {
         // });
 
     }, []);
-
-
-
-
-
 
 
 
@@ -195,7 +191,7 @@ function CastleUpgrade(props) {
                                 variant='contained'
                                 onClick={() => { }}
                             >
-                                <ST.LinkText>Construct</ST.LinkText>
+                                <ST.LinkText>Retool</ST.LinkText>
                             </RegularButton>
                         }
                         { !!notPermitted && 

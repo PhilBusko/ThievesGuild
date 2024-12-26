@@ -95,7 +95,7 @@ const RegularButton = styled(Button)(({ theme }) => ({
 
 const DeniedText = styled(ST.BaseText)(({ theme }) => ({
     fontSize: '30px',
-    lineHeight: 0.7,
+    lineHeight: 0.8,
     color: 'crimson',
     textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
     textAlign: 'center',
@@ -127,6 +127,7 @@ function CastleCreate(props) {
     const [roomToBuild, setRoomToBuild] = useState(null);
 
     const [roomCost, setRoomCost] = useState(null);
+    const [roomDuration, setRoomDuration] = useState(null);
     const [roomInfo, setRoomInfo] = useState(null);
     const [notPermitted, setNotPermitted] = useState('No room chosen');
 
@@ -155,6 +156,7 @@ function CastleCreate(props) {
             // console.log(responseData);
 
             setRoomCost(responseData.cost);
+            setRoomDuration(responseData.duration);
             setRoomInfo(responseData.infoDx);
 
             if (responseData.permission) 
@@ -217,7 +219,7 @@ function CastleCreate(props) {
 
                     <Stack spacing={ '10px' } sx={{width: '100%'}}>
 
-                        <ST.FlexHorizontal>
+                        <ST.FlexHorizontal sx={{padding: '10px 0px'}}>
                             <InfoText>Position: { props.placement }</InfoText>
                         </ST.FlexHorizontal>
 
@@ -258,11 +260,22 @@ function CastleCreate(props) {
                         </ActionMenu>
 
                         { !!roomCost &&
-                            <ST.FlexHorizontal>
-                                <PriceIcon src={ RC.StoneMaterial } />
-                                <InfoHighlight sx={{marginTop: '-6px'}}>
-                                    { roomCost.toLocaleString() }
-                                </InfoHighlight>
+                            <ST.FlexHorizontal sx={{padding: '10px 0px'}}>
+
+                                <ST.FlexHorizontal sx={{paddingLeft: '25px'}}>
+                                    <PriceIcon src={ RC.StoneMaterial } />
+                                    <InfoHighlight sx={{marginTop: '-6px'}}>
+                                        { roomCost.toLocaleString() }
+                                    </InfoHighlight>
+                                </ST.FlexHorizontal>
+
+                                <ST.FlexHorizontal sx={{paddingRight: '25px'}}>
+                                    <PriceIcon src={ RC.Hourglass } sx={{width: '34px'}}/>
+                                    <InfoHighlight sx={{marginTop: '-6px'}}>
+                                        { roomDuration }
+                                    </InfoHighlight>
+                                </ST.FlexHorizontal>
+
                             </ST.FlexHorizontal>
                         }
 

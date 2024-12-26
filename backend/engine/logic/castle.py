@@ -271,21 +271,22 @@ def CastleDetails(guildMd):
     # create menu
 
     createMenu = []
+    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=1)
 
     menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=throneLevel, UpgradeType='basic')
     for rm in menuRoomLs:
-        cost = EM.RoomUpgrade.objects.GetOrNone(Level=1).Stone_Basic
         createMenu.append({
             'name': rm.Name,
-            'cost': cost,
+            'cost': upgradeMd.Stone_Basic,
+            'duration': upgradeMd.Period_Basic,
         })
 
     menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=throneLevel, UpgradeType='advanced')
     for rm in menuRoomLs:
-        cost = EM.RoomUpgrade.objects.GetOrNone(Level=1).Stone_Advanced
         createMenu.append({
             'name': rm.Name,
-            'cost': cost,
+            'cost': upgradeMd.Stone_Advanced,
+            'duration': upgradeMd.Period_Advanced,
         })
 
     # return
@@ -302,13 +303,20 @@ def CastleDetails(guildMd):
 
 def CreatePermission(roomName, guildMd):
 
-    permission = None
+    # gather data
 
     buildRoom = EM.CastleRoom.objects.GetOrNone(Name=roomName)
     upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=1)
     cost = upgradeMd.Stone_Basic
+    duration = upgradeMd.Period_Basic
     if buildRoom.UpgradeType == 'advanced':
         cost = upgradeMd.Stone_Advanced
+        duration = upgradeMd.Period_Advanced
+    
+    # discover permission
+
+    permission = None
+
     if guildMd.VaultStone < cost:
         permission = 'Stone reserves are insufficient'
 
@@ -318,7 +326,7 @@ def CreatePermission(roomName, guildMd):
     resultDx = {
         'name': roomName,
         'cost': cost,
-        'duration': None,
+        'duration': duration,
         'infoDx': GetInfo(buildRoom.UpgradeType, roomName, 1),
         'permission': permission,
     }
@@ -369,8 +377,13 @@ def UpgradePermission(placement, guildMd):
 
     upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level)
     cost = upgradeMd.Stone_Basic
-    if roomMd.UpgradeType == 'advanced': cost = upgradeMd.Stone_Advanced
-    if roomMd.UpgradeType == 'unique': cost = upgradeMd.Stone_Unique
+    duration = upgradeMd.Period_Basic
+    if roomMd.UpgradeType == 'advanced': 
+        cost = upgradeMd.Stone_Advanced
+        duration = upgradeMd.Period_Advanced
+    if roomMd.UpgradeType == 'unique': 
+        cost = upgradeMd.Stone_Unique
+        duration = upgradeMd.Period_Unique
 
     if guildMd.VaultStone < cost:
         permission = 'Stone reserves are insufficient'
@@ -384,6 +397,7 @@ def UpgradePermission(placement, guildMd):
     resultDx = {
         'name': roomMd.Name,
         'cost': cost,
+        'duration': duration,
         'infoDx': GetUpgradeInfo(roomMd.UpgradeType, roomMd.Name, roomMd.Level),
         'permission': permission,
     }

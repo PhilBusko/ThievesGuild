@@ -208,9 +208,9 @@ function Castle(props) {
                         <ST.ContentTitle sx={{ marginBottom: '8px' }}>Guild Appraisal</ST.ContentTitle>
 
                         <ST.FlexHorizontal sx={{alignItems: 'flex-start'}}>
-                            <DisplayDict infoDx={ leftInfo } width={ '200px' }/>
+                            <DisplayDict infoDx={ leftInfo } width={ '190px' }/>
                             <DisplayDict infoDx={ middleInfo } width={ '180px' }/>
-                            <DisplayDict infoDx={ rightInfo } width={ '220px' }/>
+                            <DisplayDict infoDx={ rightInfo } width={ '180px' }/>
                         </ST.FlexHorizontal>
 
                     </ST.ContentCard>

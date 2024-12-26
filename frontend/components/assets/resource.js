@@ -9,13 +9,13 @@ import DefeatIcon from '../assets/resource/result-defeat.png'
 
 import TowerHeist from '../assets/resource/heist-tower.png'
 import TrialHeist from '../assets/resource/heist-trial.png'
-import RaidHeist from '../assets/resource/heist-raid.png'
 import DungeonHeist from '../assets/resource/heist-dungeon.png'
 import CampaignHeist from '../assets/resource/heist-campaign.png'
 
 import GoldMaterial from '../assets/resource/material-gold.png'
 import StoneMaterial from '../assets/resource/material-stone.png'
 import GemsMaterial from '../assets/resource/material-gems.png'
+import Hourglass from '../assets/resource/material-hourglass.png'
 
 const StarImage = styled('img')(({ theme }) => ({
     margin: '2px -4px 0px 0px',
@@ -31,7 +31,7 @@ const GetMaterial = (materialCode) => {
 
 export {
     StarIcon, StarImage, VictoryIcon, DefeatIcon,
-    TowerHeist, TrialHeist, RaidHeist, DungeonHeist, CampaignHeist,
-    GoldMaterial, StoneMaterial, GemsMaterial,
+    TowerHeist, TrialHeist, DungeonHeist, CampaignHeist,
+    GoldMaterial, StoneMaterial, GemsMaterial, Hourglass,
     GetMaterial,
 }
