@@ -225,7 +225,6 @@ def CreateRoom(request):
 
     return Response('room created')
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def UpgradePermission(request):
@@ -238,6 +237,17 @@ def UpgradePermission(request):
 
     return Response(resultDx)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def UpgradeRoom(request):
+
+    userMd = request.user
+    placement = request.data.get('placement') 
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    resultDx = CS.UpgradeRoom(placement, guildMd)
+
+    return Response(resultDx)
 
 
 @api_view(['POST'])

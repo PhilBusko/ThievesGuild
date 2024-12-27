@@ -173,20 +173,13 @@ function CastleCreate(props) {
     // build room after permission
 
     const handleCreate = (roomName, placement) => {
-
         AxiosConfig({
             method: 'POST',     
             url: '/engine/create-room',
             data: { 'roomName': roomName, 'placement': placement },
         }).then(responseData => {
-
-            console.log(responseData);
-
-
-            
             props.setOpen(false);
             props.notifyReload();
-
         }).catch(errorLs => {
             console.log(errorLs);
         });

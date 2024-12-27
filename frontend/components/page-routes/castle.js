@@ -102,29 +102,31 @@ function Castle(props) {
     }
 
 
-    // buttons
+    // create room
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [selectedPlacement, setSelectedPlacement] = useState(false);
-    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
     const handleCreateModal = (placement) => {
         setSelectedPlacement(placement);
         setCreateModalOpen(true);
     }
 
+    // upgrade room
+    
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+    const [upgradeInfo, setUpgradeInfo] = useState(false);
+
     const handleUpgradeModal = (placement) => {
-
-        console.log(placement);
-
-        setSelectedPlacement(placement);
+        setUpgradeInfo(placement);
         setUpgradeModalOpen(true);
     }
 
+
+
+    // finalize room button
+
     const handleFinalize = (roomInfo) => {
-
-
-
         AxiosConfig({
             method: 'POST',
             url: '/engine/castle-finalize',
@@ -138,9 +140,7 @@ function Castle(props) {
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
-
     }
-
 
     // onload constructor
 
@@ -227,7 +227,7 @@ function Castle(props) {
                 <CastleUpgrade 
                     open={ upgradeModalOpen } 
                     setOpen={ setUpgradeModalOpen }
-                    placement={ selectedPlacement }
+                    placement={ upgradeInfo }
                     notifyReload={ () => {updateData();} }
                 />
 

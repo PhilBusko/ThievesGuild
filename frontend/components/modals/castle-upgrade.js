@@ -62,28 +62,6 @@ const InfoHighlight = styled(ST.BaseHighlight)(({ theme }) => ({
 }));
 
 
-const ActionMenu = styled(Menu)(({ theme }) => ({
-    '& .MuiPaper-root': { 
-        padding: '0px 6px',
-        border: `2px solid aqua`,
-        background: ST.MenuBkgd,
-    },
-}));
-
-const ActionMenuItem = styled(MenuItem)(({ theme }) => ({
-    padding: '0px',
-    '&:hover': {
-        '& .MuiTypography-root': { color: 'magenta',}
-    },
-}));
-
-const MenuMaterial = styled('img')(({ theme }) => ({
-    width: '22px',
-    marginBottom: '-6px',
-    paddingRight: '4px',
-}));
-
-
 const RegularButton = styled(Button)(({ theme }) => ({
     minWidth: '80px',
     backgroundColor: highlightColor,
@@ -94,7 +72,7 @@ const RegularButton = styled(Button)(({ theme }) => ({
 }));
 
 const DeniedText = styled(ST.BaseText)(({ theme }) => ({
-    fontSize: '30px',
+    fontSize: '28px',
     lineHeight: 0.8,
     color: 'crimson',
     textShadow: '-1px 1px 0 black, 1px 1px 0 black, 1px -1px 0 black, -1px -1px 0 black',
@@ -116,36 +94,41 @@ const CloseButton = styled(ButtonBase)(({ theme }) => ({
 function CastleUpgrade(props) {
 
 
-
-
-    const [notPermitted, setNotPermitted] = useState(null);
-
+    const [upgradeRoom, setUpgradeRoom] = useState(null);
 
     useEffect(() => {
-        // get the permission based on the room
+        // get the permission any time the modal loads
 
-        // AxiosConfig({
-        //     method: 'POST',     
-        //     url: '/engine/upgrade-permission',
-        //     data: { 'placement': props.placement, },
-        // }).then(responseData => {
+        if (!props.open) 
+            return;
 
-        //     console.log(responseData)
-
-        // }).catch(errorLs => {
-        //     console.log(errorLs);
-        // });
-
-    }, []);
-
-
-
+        AxiosConfig({
+            method: 'POST',     
+            url: '/engine/upgrade-permission',
+            data: { 'placement': props.placement, },
+        }).then(responseData => {
+            console.log(responseData)
+            setUpgradeRoom(responseData);
+        }).catch(errorLs => {
+            console.log(errorLs);
+        });
+    }, [props.open]);
 
 
-    // build room after permission
+    // upgrade room after permission
 
-    const handleCreate = (roomName, placement) => {
-
+    const handleUpgrade = (placement) => {
+        AxiosConfig({
+            method: 'POST',     
+            url: '/engine/upgrade-room',
+            data: { 'placement': props.placement, },
+        }).then(responseData => {
+            // console.log(responseData)
+            props.setOpen(false);
+            props.notifyReload();
+        }).catch(errorLs => {
+            console.log(errorLs);
+        });
     }
 
 
@@ -153,7 +136,7 @@ function CastleUpgrade(props) {
 
     useEffect(() => {
         if (!props.open) {
-
+            setUpgradeRoom(null);
         }
     }, [props.open])
 
@@ -165,38 +148,70 @@ function CastleUpgrade(props) {
         <Modal open={ props.open }>
             <FormWrapper>
                 <ST.FlexVertical sx={{ justifyContent: 'space-between'}}>
+                { !!upgradeRoom && <>
 
                     <ModalTitle>
                         <ST.LinkText>Upgrade Room</ST.LinkText>
                     </ModalTitle>
 
-
-
                     <Stack spacing={ '10px' } sx={{width: '100%'}}>
 
                         <ST.FlexHorizontal>
-                            <InfoText>Position: { props.placement }</InfoText>
+                            <InfoText>{ upgradeRoom.name }</InfoText>
+                        </ST.FlexHorizontal>
+
+                        <ST.FlexHorizontal sx={{paddingTop: '4px'}}>
+                            <ST.FlexHorizontal sx={{paddingLeft: '25px'}}>
+                                <PriceIcon src={ RC.StoneMaterial } />
+                                <InfoHighlight sx={{marginTop: '-6px'}}>
+                                    { upgradeRoom.cost.toLocaleString() }
+                                </InfoHighlight>
+                            </ST.FlexHorizontal>
+                            <ST.FlexHorizontal sx={{paddingRight: '25px'}}>
+                                <PriceIcon src={ RC.Hourglass } sx={{width: '34px'}}/>
+                                <InfoHighlight sx={{marginTop: '-6px'}}>
+                                    { upgradeRoom.duration }
+                                </InfoHighlight>
+                            </ST.FlexHorizontal>
+                        </ST.FlexHorizontal>
+
+                        <ST.FlexHorizontal sx={{paddingTop: '-20px', }} >
+                            <table><tbody>
+                                { Object.keys(upgradeRoom.infoDx).map((key, idx) => ( 
+                                    <tr key={idx}>
+                                        <td>
+                                            <InfoText sx={{ textAlign: 'right',}}>
+                                                {key}:
+                                            </InfoText>
+                                        </td>
+                                        <td>
+                                            <InfoText sx={{paddingLeft: '4px', }}>
+                                                { upgradeRoom.infoDx[key] }
+                                            </InfoText>
+                                        </td>
+                                    </tr> 
+                                )) }
+                            </tbody></table>
                         </ST.FlexHorizontal>
 
                     </Stack>
-
 
                     <ST.FlexVertical sx={{ 
                         height: '84px', 
                         paddingBottom: '10px',
                         justifyContent: 'space-between',
                     }}>
-                        { !notPermitted && 
+                        { !upgradeRoom.permission && 
                             <RegularButton 
                                 variant='contained'
-                                onClick={() => { }}
+                                onClick={() => {handleUpgrade(props.placement);}}
                             >
-                                <ST.LinkText>Retool</ST.LinkText>
+                                <ST.LinkText>Reconfigure</ST.LinkText>
                             </RegularButton>
                         }
-                        { !!notPermitted && 
-                            <Box sx={{width: '110px'}}>
-                                <DeniedText>{ notPermitted }</DeniedText>
+                        { !!upgradeRoom.permission && 
+                            <Box sx={{width: '130px'}}>
+                                <DeniedText>{ upgradeRoom.permission }</DeniedText>
                             </Box>
                         }
                         <CloseButton onClick={() => { props.setOpen(false); }}>
@@ -204,6 +219,7 @@ function CastleUpgrade(props) {
                         </CloseButton>
                     </ST.FlexVertical>
 
+                </>}
                 </ST.FlexVertical>
             </FormWrapper>
         </Modal>  

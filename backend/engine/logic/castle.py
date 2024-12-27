@@ -103,8 +103,8 @@ def GetUpgradeInfo(upgradeType, roomName, roomLevel):
 
     if upgradeType == 'unique':
 
-        currMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomLevel)
-        nextMd = EM.AdvancedRoom.objects.GetOrNone(Level=(roomLevel +1))
+        currMd = EM.UniqueRoom.objects.GetOrNone(Level=roomLevel)
+        nextMd = EM.UniqueRoom.objects.GetOrNone(Level=(roomLevel +1))
 
         if roomName == 'Throne':
             infoDx = {
@@ -136,21 +136,21 @@ def GetUpgradeInfo(upgradeType, roomName, roomLevel):
             infoDx = {'Gold Storage': f"{currMd.Bank_Gold} -> {nextMd.Bank_Gold}", }
 
         if roomName == 'Warehouse':
-            infoDx = {'Stone Storage': f"{basicMd.Warehouse_Stone} -> {nextMd.Warehouse_Stone}", }
+            infoDx = {'Stone Storage': f"{currMd.Warehouse_Stone} -> {nextMd.Warehouse_Stone}", }
 
         if roomName == 'Scholarium':
-            infoDx = {'Max Thief Level': f"{basicMd.Scholarium_MaxLevel} -> {nextMd.Scholarium_MaxLevel}", }
+            infoDx = {'Max Thief Level': f"{currMd.Scholarium_MaxLevel} -> {nextMd.Scholarium_MaxLevel}", }
 
         if roomName == 'Dormitory':
             infoDx = {
-                'Max Thieves': f"+{basicMd.Dorm_MaxThieves} -> {nextMd.Dorm_MaxThieves}",
-                'Rest Bonus': f"{basicMd.Dorm_Recovery} -> {nextMd.Dorm_Recovery}",
+                'Max Thieves': f"+{currMd.Dorm_MaxThieves} -> {nextMd.Dorm_MaxThieves}",
+                'Rest Bonus': f"{currMd.Dorm_Recovery} -> {nextMd.Dorm_Recovery}",
             }
 
         if roomName == 'Cartographer':
             infoDx = {
-                'Expedition Slots': f"{basicMd.Cartog_Slots} -> {nextMd.Cartog_Slots}",
-                'Rest Bonus': f"{basicMd.Cartog_Recovery} -> {nextMd.Cartog_Recovery}",
+                'Expedition Slots': f"{currMd.Cartog_Slots} -> {nextMd.Cartog_Slots}",
+                'Rest Bonus': f"{currMd.Cartog_Recovery} -> {nextMd.Cartog_Recovery}",
             }
 
     if upgradeType == 'advanced':
@@ -203,7 +203,12 @@ def CastleDetails(guildMd):
     for rm in middleRooms:
         rm.pop('id')
         rm.pop('GuildFK_id')
-        rm.pop('CooldownExpire')
+
+        # capture for later
+
+        if rm['Name'] == 'Throne': throneLevel = rm['Level']
+
+        # update buttons and level info
 
         rm['infoDx'] = GetInfo(rm['UpgradeType'], rm['Name'], rm['Level'])
 
@@ -213,8 +218,19 @@ def CastleDetails(guildMd):
 
         rm['buttonLs'] = ['upgrade']
 
-        if rm['Name'] == 'Throne':
-            throneLevel = rm['Level']
+        # update status
+
+        status = rm['Status']
+        cooldown = None
+        if rm['CooldownExpire']:
+            trunkNow = timezone.now().replace(microsecond=0)
+            cooldown = rm['CooldownExpire'] - trunkNow
+            if cooldown.total_seconds() <= 0 and status == 'Upgrading': status = 'Upgraded'
+
+        rm['Status'] = status
+        rm['cooldown'] = cooldown
+
+
 
 
     # left rooms
@@ -252,7 +268,7 @@ def CastleDetails(guildMd):
                 'Placement': placement,
                 'Status': status,
                 'cooldown': cooldown,
-                'infoDx': GetInfo(roomTrial.Name, roomTrial.Level),
+                'infoDx': GetInfo(roomTrial.UpgradeType, roomTrial.Name, roomTrial.Level),
                 'buttonLs': buttonLs,
             })
 
@@ -367,15 +383,12 @@ def CreateRoom(roomName, placement, guildMd):
     newRoom = GM.RoomInGuild(**roomDx)
     newRoom.save()
 
-
-
 def UpgradePermission(placement, guildMd):
 
-    permission = None
     roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
     throneMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Throne')
 
-    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level)
+    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level +1)
     cost = upgradeMd.Stone_Basic
     duration = upgradeMd.Period_Basic
     if roomMd.UpgradeType == 'advanced': 
@@ -384,6 +397,8 @@ def UpgradePermission(placement, guildMd):
     if roomMd.UpgradeType == 'unique': 
         cost = upgradeMd.Stone_Unique
         duration = upgradeMd.Period_Unique
+
+    permission = None
 
     if guildMd.VaultStone < cost:
         permission = 'Stone reserves are insufficient'
@@ -395,7 +410,7 @@ def UpgradePermission(placement, guildMd):
         permission = f"Upgrade the Throne to {throneMd.Level +1}"
 
     resultDx = {
-        'name': roomMd.Name,
+        'name': f"{roomMd.Name} {roomMd.Level} -> {roomMd.Level +1}",
         'cost': cost,
         'duration': duration,
         'infoDx': GetUpgradeInfo(roomMd.UpgradeType, roomMd.Name, roomMd.Level),
@@ -403,6 +418,29 @@ def UpgradePermission(placement, guildMd):
     }
     return resultDx
 
+def UpgradeRoom(placement, guildMd):
+
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level +1)
+
+    cost = upgradeMd.Stone_Basic
+    period = upgradeMd.Period_Basic
+    if roomMd.UpgradeType == 'advanced':
+        cost = upgradeMd.Stone_Advanced
+        period = upgradeMd.Period_Advanced
+    if roomMd.UpgradeType == 'unique':
+        cost = upgradeMd.Stone_Unique
+        period = upgradeMd.Period_Unique
+
+    guildMd.VaultStone -= cost
+    guildMd.save()
+
+    trunkNow = timezone.now().replace(microsecond=0)
+    expireTm = PD.Timedelta(period).to_pytimedelta()
+
+    roomMd.Status = 'Upgrading'
+    roomMd.CooldownExpire = trunkNow + expireTm
+    roomMd.save()
 
 
 
