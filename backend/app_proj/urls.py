@@ -30,13 +30,16 @@ engine_url = [
     re_path(r'^delete-guild',   NV.DeleteGuild),
 
 
+
     re_path(r'^castle-details',     NV.CastleDetails),
     re_path(r'^create-permission',  NV.CreatePermission),
     re_path(r'^create-room',        NV.CreateRoom),
     re_path(r'^upgrade-permission', NV.UpgradePermission),
     re_path(r'^upgrade-room',       NV.UpgradeRoom),
+    re_path(r'^move-room',          NV.MoveRoom),
 
     re_path(r'^castle-finalize',    NV.CastleFinalize),
+
 
 
     re_path(r'^thief-details',  NV.ThiefDetails),

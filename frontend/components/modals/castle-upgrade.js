@@ -107,7 +107,7 @@ function CastleUpgrade(props) {
             url: '/engine/upgrade-permission',
             data: { 'placement': props.placement, },
         }).then(responseData => {
-            console.log(responseData)
+            // console.log(responseData)
             setUpgradeRoom(responseData);
         }).catch(errorLs => {
             console.log(errorLs);

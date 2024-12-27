@@ -459,11 +459,12 @@ function CastleEngine(props) {
                         roomInfo={ rm }
                         currSelected={ selectedId }
                         notifySelect={ handleSelected }
-                        notifyCreate={ props.notifyCreate }
                         notifyUpgrade={ props.notifyUpgrade }
-
                         notifyExpire={ props.notifyExpire } 
                         notifyFinalize={ props.notifyFinalize }
+
+                        notifyCreate={ props.notifyCreate }
+                        notifyMove={ props.notifyMove }
                     />
                 </Box>
             ))}
@@ -475,7 +476,6 @@ function CastleEngine(props) {
                         currSelected={ selectedId }
                         notifySelect={ handleSelected }
                         notifyUpgrade={ props.notifyUpgrade }
-                        
                         notifyExpire={ props.notifyExpire } 
                         notifyFinalize={ props.notifyFinalize }
                     />
@@ -491,9 +491,9 @@ CastleEngine.defaultProps = {
     width: 0,
     height: 0,
     castleInfo: null,
-    notifyCreate: () => {},
-    notifyExpire: () => {},
-    notifyFinalize: () => {},
+    // notifyExpire: () => {},
+    // notifyFinalize: () => {},
+    // notifyCreate: () => {},
 };
 
 export default CastleEngine;

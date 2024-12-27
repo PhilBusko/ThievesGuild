@@ -305,6 +305,11 @@ def CastleDetails(guildMd):
             'duration': upgradeMd.Period_Advanced,
         })
 
+    placeOptions = ['L1 1', 'L1 2', 'L1 3', 'L1 4', 
+        'R1 1', 'R1 2', 'R1 3', 'R1 4', 
+        'R2 1', 'R2 2', 'R2 3', 'R2 4',
+    ]
+
     # return
 
     details = {
@@ -313,6 +318,7 @@ def CastleDetails(guildMd):
         'rightOneCol': leftRooms,
         'rightTwoCol': leftRooms,
         'createOptions': createMenu,
+        'placeOptions': placeOptions,
         'thiefLevels': [],
     }
     return details
@@ -442,6 +448,17 @@ def UpgradeRoom(placement, guildMd):
     roomMd.CooldownExpire = trunkNow + expireTm
     roomMd.save()
 
+def MoveRoom(guildMd, currentPlace, targetPlace):
+
+    currentRoom = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=currentPlace)
+    targetRoom = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=targetPlace)
+
+    currentRoom.Placement = targetPlace
+    currentRoom.save()
+
+    if targetRoom:
+        targetRoom.Placement = currentPlace
+        targetRoom.save()
 
 
 

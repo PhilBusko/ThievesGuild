@@ -86,7 +86,7 @@ class RoomInGuild(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Name = JM.TextField()
     UpgradeType = JM.TextField()
-    Placement = JM.TextField(unique=True)
+    Placement = JM.TextField()
     Description = JM.TextField(null=True)
     Level = JM.IntegerField(default=0)
     Status = JM.TextField(default='Ready')      # Ready, Upgrading, Training, Crafting

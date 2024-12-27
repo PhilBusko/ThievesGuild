@@ -250,6 +250,22 @@ def UpgradeRoom(request):
     return Response(resultDx)
 
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def MoveRoom(request):
+
+    userMd = request.user
+    currentPlace = request.data.get('currentPlace') 
+    targetPlace = request.data.get('targetPlace') 
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    CS.MoveRoom(guildMd, currentPlace, targetPlace)
+
+    return Response('room moved')
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def CastleFinalize(request):

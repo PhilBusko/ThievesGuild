@@ -15,6 +15,7 @@ import MaterialsBar from '../elements/custom/materials-bar';
 import CastleEngine from '../elements/engine/castle-engine';
 import CastleCreate from '../modals/castle-create';
 import CastleUpgrade from '../modals/castle-upgrade';
+import CastleMove from '../modals/castle-move';
 
 
 
@@ -66,6 +67,7 @@ function Castle(props) {
 
                 setCastle(responseData);
                 setCreateOptions(responseData.createOptions);
+                setPlaceOptions(responseData.placeOptions);
             }
             else {
                 setMessage(responseData.message);
@@ -122,6 +124,23 @@ function Castle(props) {
         setUpgradeModalOpen(true);
     }
 
+    // move room
+    
+    const [moveModalOpen, setMoveModalOpen] = useState(false);
+    const [placeOptions, setPlaceOptions] = useState(false);
+    const [moveInfo, setMoveInfo] = useState(false);
+
+    const handleMoveModal = (placement) => {
+        setMoveInfo(placement);
+        setMoveModalOpen(true);
+    }
+
+
+
+    // delete room
+
+
+    
 
 
     // finalize room button
@@ -194,6 +213,7 @@ function Castle(props) {
                             castleInfo={ castle }
                             notifyCreate={ handleCreateModal }
                             notifyUpgrade={ handleUpgradeModal }
+                            notifyMove={ handleMoveModal }
 
                             notifyExpire={ () => { setTimeout(() => {updateData();}, 500);} }
                             notifyFinalize={ handleFinalize }
@@ -231,6 +251,13 @@ function Castle(props) {
                     notifyReload={ () => {updateData();} }
                 />
 
+                <CastleMove 
+                    open={ moveModalOpen } 
+                    setOpen={ setMoveModalOpen }
+                    placeOptions={ placeOptions }
+                    placement={ moveInfo }
+                    notifyReload={ () => {updateData();} }
+                />
 
 
             </ST.GridPage >
