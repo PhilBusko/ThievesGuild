@@ -37,6 +37,8 @@ engine_url = [
     re_path(r'^upgrade-permission', NV.UpgradePermission),
     re_path(r'^upgrade-room',       NV.UpgradeRoom),
     re_path(r'^move-room',          NV.MoveRoom),
+    re_path(r'^delete-permission',  NV.DeletePermission),
+    re_path(r'^delete-room',        NV.DeleteRoom),
 
     re_path(r'^castle-finalize',    NV.CastleFinalize),
 

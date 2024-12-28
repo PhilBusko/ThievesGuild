@@ -460,6 +460,91 @@ def MoveRoom(guildMd, currentPlace, targetPlace):
         targetRoom.Placement = currentPlace
         targetRoom.save()
 
+def DeletePermission(guildMd, placement):
+
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+
+    # check permission
+
+    permission = None
+
+    if roomMd.Status != 'Ready':
+        permission = 'Room must be unoccupied'
+
+    if roomMd.Name == 'Dormitory':
+        abilityMd = EM.BasicRoom.objects.GetOrNone(Level=roomMd.Level)
+        deleteSlots = abilityMd.Dorm_MaxThieves
+        thievesGuild = RS.GetThiefCount(guildMd)
+        thievesMax = RS.GetThiefMax(guildMd)
+        surplusThieves = thievesGuild - (thievesMax - deleteSlots)
+        if surplusThieves >= 1:
+            permission = f"Retire {surplusThieves} thieves from the guild"
+
+    if any(roomMd.Name for x in ['Cartographer', 'Jeweler']):
+
+        # cooldown = null, thief = null
+        # cooldown > 0, thief = thief
+        # cooldown = "0.0", thief = thief
+        # cooldown = ?, thief = thief, claimed = true
+
+        if roomMd.Name == 'Cartographer':
+            abilityMd = EM.BasicRoom.objects.GetOrNone(Level=roomMd.Level)
+            roomSlots = abilityMd.Cartog_Slots
+        else:
+            abilityMd = EM.AdvancedRoom.objects.GetOrNone(Level=roomMd.Level)
+            roomSlots = abilityMd.Jeweler_ExpedSlots
+
+        expedSlots = RS.GetExpeditionCount(guildMd)
+        slotsToCheck = [(expedSlots - x) for x in range(0, roomSlots)]
+
+        for sc in slotsToCheck:
+
+            expeditionMd = GM.GuildExpedition.objects.GetOrNone(GuildFK=guildMd, SlotNo=sc)
+            if not expeditionMd: continue
+
+            if expeditionMd.ThiefFK == None or expeditionMd.Claimed == True:
+                expeditionMd.delete()
+
+            else:
+                permission = f"Expedition slot {sc} is outstanding"
+                break
+
+    # append refund amount
+
+    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level)
+    refund = upgradeMd.Stone_Basic
+    if roomMd.UpgradeType == 'advanced': refund = upgradeMd.Stone_Advanced
+    refund = round(refund / 2)
+
+    resultDx = {
+        'name': roomMd.Name,
+        'level': roomMd.Level,
+        'refund': refund,
+        'infoDx': GetInfo(roomMd.UpgradeType, roomMd.Name, roomMd.Level),
+        'permission': permission,
+    }
+    return resultDx
+
+def DeleteRoom(guildMd, placement):
+
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+
+    # get the refund 
+
+    upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=roomMd.Level)
+    refund = upgradeMd.Stone_Basic
+    if roomMd.UpgradeType == 'advanced': refund = upgradeMd.Stone_Advanced
+    refund = round(refund / 2)
+
+    # delete the room
+
+    roomMd.delete()
+
+    # reduce currencies
+
+    RS.GrantGold(guildMd, 0)
+    RS.GrantStone(guildMd, refund)
+
 
 
 def CastleFinalize(placement, guildMd):

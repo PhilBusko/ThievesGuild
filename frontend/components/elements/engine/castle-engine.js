@@ -465,6 +465,7 @@ function CastleEngine(props) {
 
                         notifyCreate={ props.notifyCreate }
                         notifyMove={ props.notifyMove }
+                        notifyDelete={ props.notifyDelete }
                     />
                 </Box>
             ))}

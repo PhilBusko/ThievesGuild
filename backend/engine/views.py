@@ -249,8 +249,6 @@ def UpgradeRoom(request):
 
     return Response(resultDx)
 
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def MoveRoom(request):
@@ -263,6 +261,32 @@ def MoveRoom(request):
     CS.MoveRoom(guildMd, currentPlace, targetPlace)
 
     return Response('room moved')
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def DeletePermission(request):
+
+    userMd = request.user
+    placement = request.data.get('placement') 
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    resultDx = CS.DeletePermission(guildMd, placement)
+
+    return Response(resultDx)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def DeleteRoom(request):
+
+    userMd = request.user
+    placement = request.data.get('placement') 
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    CS.DeleteRoom(guildMd, placement)
+
+    return Response('room moved')
+
+
 
 
 

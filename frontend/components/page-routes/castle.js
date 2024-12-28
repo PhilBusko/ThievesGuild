@@ -16,6 +16,7 @@ import CastleEngine from '../elements/engine/castle-engine';
 import CastleCreate from '../modals/castle-create';
 import CastleUpgrade from '../modals/castle-upgrade';
 import CastleMove from '../modals/castle-move';
+import CastleDelete from '../modals/castle-delete';
 
 
 
@@ -107,40 +108,47 @@ function Castle(props) {
     // create room
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [selectedPlacement, setSelectedPlacement] = useState(false);
+    const [createInfo, setCreateInfo] = useState(null);
 
     const handleCreateModal = (placement) => {
-        setSelectedPlacement(placement);
+        setCreateInfo(placement);
         setCreateModalOpen(true);
     }
 
     // upgrade room
-    
+
     const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
-    const [upgradeInfo, setUpgradeInfo] = useState(false);
+    const [upgradeInfo, setUpgradeInfo] = useState(null);
 
     const handleUpgradeModal = (placement) => {
-        setUpgradeInfo(placement);
         setUpgradeModalOpen(true);
+        setUpgradeInfo(placement);
     }
 
     // move room
-    
+
     const [moveModalOpen, setMoveModalOpen] = useState(false);
-    const [placeOptions, setPlaceOptions] = useState(false);
-    const [moveInfo, setMoveInfo] = useState(false);
+    const [placeOptions, setPlaceOptions] = useState([]);
+    const [moveInfo, setMoveInfo] = useState(null);
 
     const handleMoveModal = (placement) => {
-        setMoveInfo(placement);
         setMoveModalOpen(true);
+        setMoveInfo(placement);
     }
+
 
 
 
     // delete room
 
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deletePlace, setDeletePlace] = useState(null);
 
-    
+    const handleDeleteModal = (placement) => {
+        setDeleteModalOpen(true);
+        setDeletePlace(placement);
+    }
+
 
 
     // finalize room button
@@ -214,6 +222,7 @@ function Castle(props) {
                             notifyCreate={ handleCreateModal }
                             notifyUpgrade={ handleUpgradeModal }
                             notifyMove={ handleMoveModal }
+                            notifyDelete={ handleDeleteModal }
 
                             notifyExpire={ () => { setTimeout(() => {updateData();}, 500);} }
                             notifyFinalize={ handleFinalize }
@@ -240,7 +249,7 @@ function Castle(props) {
                     open={ createModalOpen } 
                     setOpen={ setCreateModalOpen }
                     roomOptions={ createOptions }
-                    placement={ selectedPlacement }
+                    placement={ createInfo }
                     notifyReload={ () => {updateData();} }
                 />
 
@@ -251,11 +260,18 @@ function Castle(props) {
                     notifyReload={ () => {updateData();} }
                 />
 
-                <CastleMove 
+                <CastleMove
                     open={ moveModalOpen } 
                     setOpen={ setMoveModalOpen }
                     placeOptions={ placeOptions }
                     placement={ moveInfo }
+                    notifyReload={ () => {updateData();} }
+                />
+
+                <CastleDelete
+                    open={ deleteModalOpen } 
+                    setOpen={ setDeleteModalOpen }
+                    placement={ deletePlace }
                     notifyReload={ () => {updateData();} }
                 />
 
