@@ -26,10 +26,11 @@ function GuildIdInput(props) {
             sx={{width: '60px'}} 
             type='number'
             InputProps={{
-                inputProps: { max: 9, min: 1 }
+                inputProps: { min: 1, max: 9, }
             }}
-            value={ props.value } 
-            onChange={(event) => { props.onChange(event.target.value); }}
+            value={ props.value }
+            onChange={ (event) => {props.onChange(event.target.value);} }
+            onKeyDown={ (event) => {event.preventDefault();} }
         />
     );
 }

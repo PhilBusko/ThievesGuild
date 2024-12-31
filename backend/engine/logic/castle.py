@@ -4,6 +4,7 @@ ENGINE CASTLE ROOMS
 import pandas as PD
 from django.utils import timezone
 
+import app_proj.notebooks as NT
 import emporium.models as EM 
 import emporium.logic.guild as GD
 
@@ -559,5 +560,70 @@ def CastleFinalize(placement, guildMd):
 
     roomMd.Status = 'Ready'
     roomMd.save()
+
+
+
+
+def TrainingDetails(guildMd):
+
+    thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
+    thiefLs = []
+
+    for md in thiefMds:
+
+        thiefDx = md.__dict__
+        thiefLs.append(thiefDx)
+
+        thiefDx['DisplayDamage'] = f"<{thiefDx['Damage']}>"
+        thiefDx['GuildIcon'] = f"class-{thiefDx['Class'].lower()}-s{thiefDx['Stars']}"
+        thiefDx['StageIcon'] = f"thief-{thiefDx['Class'].lower()}"
+
+        levelMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefDx['Level'])
+        levelNextMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefDx['Level']+1)
+
+        thiefDx['ExpNextLevel'] = levelNextMd.Experience
+        thiefDx['PowerNext'] = thiefDx['Power'] + levelNextMd.Power - levelMd.Power
+        thiefDx['Duration'] = levelMd.TrainPeriod
+
+        traitAdv = [
+            {'stat': 'Agi +1', 'base': thiefDx['BaseAgi'], 'trained': 2 }, #thiefDx['TrainedAgi']},
+            {'stat': 'Cun +1', 'base': thiefDx['BaseCun'], 'trained': thiefDx['TrainedCun']},
+            {'stat': 'Mig +1', 'base': thiefDx['BaseMig'], 'trained': thiefDx['TrainedMig']},
+            {'stat': 'End +1', 'base': thiefDx['BaseEnd'], 'trained': thiefDx['TrainedEnd']},
+        ]
+        for idx, tr in enumerate(traitAdv): 
+            tr['available'] = 6 - tr['trained']
+            tr['id'] = idx      # frontend datagrid
+            tr['selected'] = 0
+
+        checkTx = ' '.join(thiefDx['TrainedSkills'])
+        skillAdv = [
+            {'stat': 'Att +2', 'base': None, 'trained': 1 if 'att' in checkTx else 0 },
+            {'stat': 'Dmg +2', 'base': None, 'trained': 1 if 'dmg' in checkTx else 1}, # },
+            {'stat': 'Def +2', 'base': None, 'trained': 1 if 'def' in checkTx else 0 },
+            {'stat': 'Sab +4', 'base': None, 'trained': 1 if 'sab' in checkTx else 0 },
+            {'stat': 'Per +4', 'base': None, 'trained': 1 if 'per' in checkTx else 0 },
+            {'stat': 'Tra +4', 'base': None, 'trained': 1 if 'tra' in checkTx else 0 },
+        ]
+        for idx, tr in enumerate(skillAdv): 
+            tr['available'] = 1 - tr['trained']
+            tr['id'] = 10 + idx 
+            tr['selected'] = 0
+        thiefDx['Advances'] = traitAdv + skillAdv
+
+    thiefDf = PD.DataFrame(thiefLs)
+    thiefDf = thiefDf.drop(['_state', 'GuildFK_id', 'CooldownExpire',
+                            'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
+                            'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd'], 
+                            axis=1, errors='ignore')
+    thiefDf = thiefDf.sort_values(by=['Level', 'Experience'], ascending=[False, False])
+
+    return NT.DataframeToDicts(thiefDf)
+
+
+
+def TrainingStart(guildMd, thiefId, advance, placement):
+
+    print(thiefId, advance, placement)
 
 

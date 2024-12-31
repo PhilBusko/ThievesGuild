@@ -45,7 +45,7 @@ function ThiefStats(props) {
                         {props.infoDx.Name}
                     </ST.BaseText>
                     <ST.BaseText sx={{}}>
-                        {props.infoDx.Power}
+                        [{props.infoDx.Power}]
                     </ST.BaseText>
                 </ST.FlexHorizontal>
 

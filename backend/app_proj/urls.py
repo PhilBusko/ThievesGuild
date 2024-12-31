@@ -39,8 +39,10 @@ engine_url = [
     re_path(r'^move-room',          NV.MoveRoom),
     re_path(r'^delete-permission',  NV.DeletePermission),
     re_path(r'^delete-room',        NV.DeleteRoom),
-
     re_path(r'^castle-finalize',    NV.CastleFinalize),
+
+    re_path(r'^training-details',   NV.TrainingDetails),
+    re_path(r'^training-start',     NV.TrainingStart),
 
 
 

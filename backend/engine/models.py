@@ -32,9 +32,9 @@ class ThiefInGuild(JM.Model):
     Name = JM.TextField()
     Class = JM.TextField()
     Stars = JM.TextField()
-    BasePower = JM.IntegerField()
     Level = JM.IntegerField(default=1)
     Experience = JM.IntegerField(default=0)
+    PowerBase = JM.IntegerField()
 
     BaseAgi = JM.IntegerField(default=0)
     BaseCun = JM.IntegerField(default=0)
@@ -44,6 +44,7 @@ class ThiefInGuild(JM.Model):
     TrainedCun = JM.IntegerField(default=0)
     TrainedMig = JM.IntegerField(default=0)
     TrainedEnd = JM.IntegerField(default=0)
+    TrainedSkills = JM.JSONField(default=list)      # ['att 2', 'sab 4']
 
     Power = JM.IntegerField(null=True)
     Agility = JM.IntegerField(null=True)

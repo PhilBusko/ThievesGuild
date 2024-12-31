@@ -19,7 +19,6 @@ import CastleMove from '../modals/castle-move';
 import CastleDelete from '../modals/castle-delete';
 
 
-
 const Broadcast = styled(Box)(({ theme }) => ({
     '& .MuiTypography-root': {
         fontSize: '220%',
@@ -137,8 +136,6 @@ function Castle(props) {
     }
 
 
-
-
     // delete room
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -148,7 +145,6 @@ function Castle(props) {
         setDeleteModalOpen(true);
         setDeletePlace(placement);
     }
-
 
 
     // finalize room button
@@ -168,6 +164,7 @@ function Castle(props) {
             setErrorLs(errorLs);
         });
     }
+
 
     // onload constructor
 
@@ -274,7 +271,6 @@ function Castle(props) {
                     placement={ deletePlace }
                     notifyReload={ () => {updateData();} }
                 />
-
 
             </ST.GridPage >
         </PageLayout>

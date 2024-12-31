@@ -3,6 +3,7 @@ APP-MAIN ROUTES
 **************************************************************************************************/
 import Scholarium from '../page-routes/scholarium';
 import Castle from '../page-routes/castle';
+import CastleTrain from '../page-routes/castle-train';
 import Garrison from '../page-routes/garrison';
 import Heists from '../page-routes/heists';
 import Deployment from '../page-routes/deployment';
@@ -76,6 +77,12 @@ export const RoutesConfig = [
         'title': 'Aftermath',
         'path': '/aftermath/',
         'element': <Aftermath />, 
+        'order': 0,
+    },
+    {
+        'title': 'Training',
+        'path': '/training/',
+        'element': <CastleTrain />, 
         'order': 0,
     },
     {

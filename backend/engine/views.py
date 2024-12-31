@@ -286,16 +286,12 @@ def DeleteRoom(request):
 
     return Response('room moved')
 
-
-
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def CastleFinalize(request):
 
     userMd = request.user
-    placement = request.data.get('placement') 
+    placement = request.data.get('placement')
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
     CS.CastleFinalize(placement, guildMd)
@@ -303,6 +299,33 @@ def CastleFinalize(request):
     return Response('castle finalize')
 
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def TrainingDetails(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    RS.ResetInjuryCooldowns(guildMd)
+    resultDx = CS.TrainingDetails(guildMd)
+
+    return Response(resultDx)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def TrainingStart(request):
+
+    userMd = request.user
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+    thiefId = request.data.get('thiefId')
+    advance = request.data.get('advance')
+    placement = request.data.get('placement')
+
+    resultDx = CS.TrainingStart(guildMd, thiefId, advance, placement)
+
+    return Response('training started')
 
 
 

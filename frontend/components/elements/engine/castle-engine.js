@@ -2,6 +2,7 @@
 PIXI CASTLE
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, ButtonBase, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { House, Construction, ExitToApp, MoveUp, 
@@ -208,6 +209,15 @@ const ActionButton = styled(ButtonBase)(({ theme }) => ({
 
 function CastleRoom(props) {
 
+    const navigate = useNavigate();  
+
+    const handleTraining = (placement) => {
+        navigate(
+            '/training/', 
+            {state: {placement: placement,}}
+        );
+    };
+
     const getRoman = (number) => {
         if (number == 1) return 'I';
         if (number == 2) return 'II';
@@ -320,7 +330,7 @@ function CastleRoom(props) {
                                 </ActionButton>
                             }
                             { bt == 'train' &&
-                                <ActionButton onClick={ () => {props.notifyTrain(props.roomInfo.Placement);} }>
+                                <ActionButton onClick={ () => {handleTraining(props.roomInfo.Placement);} }>
                                     <DoubleArrow sx={{ transform: 'rotate(270deg)' }} />
                                 </ActionButton>
                             }
@@ -342,8 +352,6 @@ CastleRoom.defaultProps = {
     notifyUpgrade: () => {},
     notifyMove: () => {},
     notifyDelete: () => {},
-    notifyTrain: () => {},
-
     notifyExpire: () => {},
     notifyFinalize: () => {},
 };
@@ -427,8 +435,6 @@ function CastleEngine(props) {
     const [selectedId, setSelectedId] = useState(null);
 
     const handleSelected = (event, roomDx) => {
-        // console.log(roomDx);
-
         event.stopPropagation();    // don't let the parent's onclick trigger
 
         let newId = null;
@@ -462,7 +468,6 @@ function CastleEngine(props) {
                         notifyUpgrade={ props.notifyUpgrade }
                         notifyExpire={ props.notifyExpire } 
                         notifyFinalize={ props.notifyFinalize }
-
                         notifyCreate={ props.notifyCreate }
                         notifyMove={ props.notifyMove }
                         notifyDelete={ props.notifyDelete }

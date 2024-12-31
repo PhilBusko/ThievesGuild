@@ -8,6 +8,6 @@ POWER_FACTOR = 50
 
 
 def GetNextLevelXp(level):
-    exp = EM.ThiefLevel.objects.filter(Level=level+1)[0].Experience
+    exp = EM.ThiefLevel.objects.GetOrNone(Level=level+1).Experience
     return exp
 

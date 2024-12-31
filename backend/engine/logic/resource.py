@@ -409,6 +409,12 @@ def GetItemSkill(itemMd, skill):
         total += int(itemMd.Magic.split(' ')[1])
     return total
 
+def GetTrainedSkill(thiefMd, skill):
+    for sk in thiefMd.TrainedSkills:
+        if skill in sk:
+            return sk.split(' ')[1]
+    return 0
+
 def SetThiefTotals(thiefMd):
 
     weapon = GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='weapon')
@@ -437,29 +443,35 @@ def SetThiefTotals(thiefMd):
                     GetItemTrait(head, 'end') + GetItemTrait(hands, 'end') + 
                     GetItemTrait(feet, 'end') + GetItemTrait(back, 'end') )
 
-    # set combat 
+    # set combat
 
     thiefMd.Health = 70 + thiefMd.Endurance * 5
 
-    thiefMd.Attack = (thiefMd.Agility + GetItemCombat(weapon, 'att') + GetItemCombat(armor, 'att') +
+    thiefMd.Attack = (thiefMd.Agility + GetTrainedSkill(thiefMd, 'att') + 
+                    GetItemCombat(weapon, 'att') + GetItemCombat(armor, 'att') +
                     GetItemCombat(head, 'att') + GetItemCombat(hands, 'att') + 
                     GetItemCombat(feet, 'att') + GetItemCombat(back, 'att') )
-    thiefMd.Damage = (6 + thiefMd.Cunning + GetItemCombat(weapon, 'dmg') + GetItemCombat(armor, 'dmg') +
+    thiefMd.Damage = (6 + thiefMd.Cunning + GetTrainedSkill(thiefMd, 'dmg') + 
+                    GetItemCombat(weapon, 'dmg') + GetItemCombat(armor, 'dmg') +
                     GetItemCombat(head, 'dmg') + GetItemCombat(hands, 'dmg') + 
                     GetItemCombat(feet, 'dmg') + GetItemCombat(back, 'dmg') )
-    thiefMd.Defense = (11 + thiefMd.Might + GetItemCombat(weapon, 'def') + GetItemCombat(armor, 'def') +
+    thiefMd.Defense = (11 + thiefMd.Might + GetTrainedSkill(thiefMd, 'def') + 
+                    GetItemCombat(weapon, 'def') + GetItemCombat(armor, 'def') +
                     GetItemCombat(head, 'def') + GetItemCombat(hands, 'def') + 
                     GetItemCombat(feet, 'def') + GetItemCombat(back, 'def') )
 
-    # set skills 
+    # set skills
 
-    thiefMd.Sabotage = (GetItemSkill(weapon, 'sab') + GetItemSkill(armor, 'sab') +
+    thiefMd.Sabotage = (GetTrainedSkill(thiefMd, 'sab') +
+                    GetItemSkill(weapon, 'sab') + GetItemSkill(armor, 'sab') +
                     GetItemSkill(head, 'sab') + GetItemSkill(hands, 'sab') + 
                     GetItemSkill(feet, 'sab') + GetItemSkill(back, 'sab') )
-    thiefMd.Perceive = (GetItemSkill(weapon, 'per') + GetItemSkill(armor, 'per') +
+    thiefMd.Perceive = (GetTrainedSkill(thiefMd, 'per') +
+                    GetItemSkill(weapon, 'per') + GetItemSkill(armor, 'per') +
                     GetItemSkill(head, 'per') + GetItemSkill(hands, 'per') + 
                     GetItemSkill(feet, 'per') + GetItemSkill(back, 'per') )
-    thiefMd.Traverse = (GetItemSkill(weapon, 'tra') + GetItemSkill(armor, 'tra') +
+    thiefMd.Traverse = (GetTrainedSkill(thiefMd, 'tra') +
+                    GetItemSkill(weapon, 'tra') + GetItemSkill(armor, 'tra') +
                     GetItemSkill(head, 'tra') + GetItemSkill(hands, 'tra') + 
                     GetItemSkill(feet, 'tra') + GetItemSkill(back, 'tra') )
 
@@ -467,7 +479,7 @@ def SetThiefTotals(thiefMd):
 
     levelMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
 
-    thiefMd.Power = thiefMd.BasePower
+    thiefMd.Power = thiefMd.PowerBase
     thiefMd.Power += levelMd.Power
     thiefMd.Power += weapon.Power if weapon else 0
     thiefMd.Power += armor.Power if armor else 0 
@@ -545,7 +557,7 @@ def AppendStartingThief(guildMd, thiefClass, stars):
         'Name': GetThiefName(guildMd),
         'Class': thiefDx['Class'],
         'Stars': thiefDx['Stars'],
-        'BasePower': thiefDx['StoreCost'] / GD.POWER_FACTOR,
+        'PowerBase': thiefDx['StoreCost'] / GD.POWER_FACTOR,
         'BaseAgi': 3 if 'agi' in thiefDx['StartTrait'] else 0,
         'BaseCun': 3 if 'cun' in thiefDx['StartTrait'] else 0,
         'BaseMig': 3 if 'mig' in thiefDx['StartTrait'] else 0,

@@ -158,7 +158,7 @@ function SelectorExpedition(props) {
             </ControlWorkspace>
 
             { !props.selectedThief && !props.claimed &&
-                <ThiefWorkspace sx={{width: '150px', height: '246px'}}>
+                <ThiefWorkspace sx={{width: '150px', height: '250px'}}>
                     <ST.RegularButton variant='contained' onClick={handleMenu}>
                         <ST.LinkText>Assign<br></br>Thief</ST.LinkText>
                     </ST.RegularButton>
@@ -171,7 +171,7 @@ function SelectorExpedition(props) {
             }
             { !!props.claimed && 
                 <ThiefWorkspace>
-                    <Box sx={{ width: '150px', height: '260px' }}></Box>
+                    <Box sx={{ width: '150px', height: '250px' }}></Box>
                 </ThiefWorkspace>
             }
 
