@@ -61,6 +61,24 @@ def GetThiefList(guildMd):
 
             thiefDx[sl] = item
 
+        # advances
+
+        advances = []
+
+        if thiefDx['TrainedAgi'] > 0: advances.append(f"Agi +{thiefDx['TrainedAgi']}")
+        if thiefDx['TrainedCun'] > 0: advances.append(f"Cun +{thiefDx['TrainedCun']}")
+        if thiefDx['TrainedMig'] > 0: advances.append(f"Mig +{thiefDx['TrainedMig']}")
+        if thiefDx['TrainedEnd'] > 0: advances.append(f"End +{thiefDx['TrainedEnd']}")
+
+        if 'att 2' in thiefDx['TrainedSkills']: advances.append('Att +2')
+        if 'dmg 2' in thiefDx['TrainedSkills']: advances.append('Dmg +2')
+        if 'def 2' in thiefDx['TrainedSkills']: advances.append('Def +2')
+        if 'sab 4' in thiefDx['TrainedSkills']: advances.append('Sab +4')
+        if 'per 4' in thiefDx['TrainedSkills']: advances.append('Per +4')
+        if 'tra 4' in thiefDx['TrainedSkills']: advances.append('Tra +4')
+
+        thiefDx['advances'] = advances
+
     thiefDf = PD.DataFrame(thiefLs)
     thiefDf = thiefDf.drop(['_state', 'GuildFK_id', 'BasePower', 'CooldownExpire',
                             'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 

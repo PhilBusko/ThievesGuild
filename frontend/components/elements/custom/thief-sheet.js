@@ -79,19 +79,44 @@ function ThiefSheet(props) {
     return (<ST.FlexHorizontal sx={{alignItems: 'flex-start', gap: '16px'}}>
         {Object.keys(props.infoDx).length > 0 && <>
 
-            <SheetControl>
-                <ST.FlexHorizontal sx={{gap: '10px'}}>
+            <ST.FlexVertical sx={{gap: '16px'}}>
 
-                    <ST.FlexVertical sx={{ margin: '' }}>
-                        <ThiefContainer>
-                            <ThiefSprite src={ GetThiefIcon(props.infoDx.StageIcon) } />
-                        </ThiefContainer>
+                <SheetControl>
+                    <ST.FlexHorizontal sx={{gap: '10px'}}>
+
+                        <ST.FlexVertical sx={{ margin: '' }}>
+                            <ThiefContainer>
+                                <ThiefSprite src={ GetThiefIcon(props.infoDx.StageIcon) } />
+                            </ThiefContainer>
+                        </ST.FlexVertical>
+
+                        <ThiefStats infoDx={ props.infoDx } />
+
+                    </ST.FlexHorizontal>
+                </SheetControl>
+
+                <SheetControl>
+                    <ST.FlexVertical sx={{
+                        width: '300px', height: '73px', 
+                        alignItems: 'flex-start', justifyContent: 'flex-start',
+                    }}>
+
+                        <ST.BaseText sx={{fontSize: '34px', margin: '-8px 0px 0px 0px'}}>
+                            Advances
+                        </ST.BaseText>
+
+                        <ST.FlexHorizontal sx={{justifyContent: 'flex-start', flexWrap: 'wrap'}}>
+                        { props.infoDx.advances.map( (val, idx) => 
+                            <Box key={ idx } sx={{width: '60px'}}>
+                                <ST.BaseText>{ val }</ST.BaseText>
+                            </Box>
+                        )}
+                        </ST.FlexHorizontal>
+
                     </ST.FlexVertical>
+                </SheetControl>
 
-                    <ThiefStats infoDx={ props.infoDx } />
-
-                </ST.FlexHorizontal>
-            </SheetControl>
+            </ST.FlexVertical>
 
             <SheetControl>
                 <EquipmentPanel spacing='0px'>

@@ -41,7 +41,7 @@ function ThiefStats(props) {
 
             <TopMain>
                 <ST.FlexHorizontal sx={{justifyContent: 'space-between', alignItems: 'center'}}>
-                    <ST.BaseText sx={{fontSize: '210%', margin: '-8px 0px 0px 0px'}}>
+                    <ST.BaseText sx={{fontSize: '34px', margin: '-8px 0px 0px 0px'}}>
                         {props.infoDx.Name}
                     </ST.BaseText>
                     <ST.BaseText sx={{}}>
