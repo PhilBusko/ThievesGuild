@@ -78,10 +78,11 @@ const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
 
 const StyledNumber = styled(TextField)(({ theme }) => ({
     margin: '3px 0px',
-    '& .MuiInputBase-root': { 
+    '& .MuiInputBase-root': {
+        padding: '2px 0px',
         background: ST.ControlBkgd,
         fontFamily: 'midnight flame',
-        fontSize: '22px',
+        fontSize: '20px',
         lineHeight: 0.1,
     },
     '& .MuiInputBase-input': {
@@ -349,14 +350,11 @@ function CastleTrain(props) {
                 'placement': placement,
             },
         }).then(responseData => {
-
-            console.log(responseData)
-
+            navigate('/castle/', );
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });
     };
-
 
 
     const GetThiefIcon = (code) => {
@@ -365,6 +363,7 @@ function CastleTrain(props) {
         if (code == 'thief-ruffian')    return ThiefRuffian;
         return '';
     }
+
 
     // render
 

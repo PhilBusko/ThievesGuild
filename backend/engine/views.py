@@ -182,10 +182,6 @@ def DeleteGuild(request):
     return Response(f"Charter {guild} has been abolished.")
 
 
-
-
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def CastleDetails(request):
@@ -286,20 +282,6 @@ def DeleteRoom(request):
 
     return Response('room moved')
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def CastleFinalize(request):
-
-    userMd = request.user
-    placement = request.data.get('placement')
-    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
-
-    CS.CastleFinalize(placement, guildMd)
-
-    return Response('castle finalize')
-
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def TrainingDetails(request):
@@ -311,7 +293,6 @@ def TrainingDetails(request):
     resultDx = CS.TrainingDetails(guildMd)
 
     return Response(resultDx)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -327,7 +308,17 @@ def TrainingStart(request):
 
     return Response('training started')
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def CastleFinalize(request):
 
+    userMd = request.user
+    placement = request.data.get('placement')
+    guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
+
+    CS.CastleFinalize(placement, guildMd)
+
+    return Response('castle finalize')
 
 
 @api_view(['GET'])
@@ -581,7 +572,7 @@ def LaunchLanding(request):
         else:
             thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thId)
             thiefDx = thiefMd.__dict__
-            dropCols = ['_state', 'GuildFK_id', 'BasePower', 'CooldownExpire',
+            dropCols = ['_state', 'GuildFK_id', 'PowerBase', 'CooldownExpire',
                         'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
                         'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd', ]
             for dp in dropCols:

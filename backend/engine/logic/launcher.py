@@ -177,7 +177,7 @@ def ThiefResults(stageMd):
             # return thief display for aftermath
 
             thiefDx = thiefMd.__dict__
-            dropCols = ['_state', 'GuildFK_id', 'BasePower', 'CooldownExpire',
+            dropCols = ['_state', 'GuildFK_id', 'PowerBase', 'CooldownExpire',
                         'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
                         'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd',
                         'Agility', 'Cunning', 'Might', 'Endurance',

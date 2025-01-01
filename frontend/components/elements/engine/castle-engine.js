@@ -488,6 +488,37 @@ function CastleEngine(props) {
                 </Box>
             ))}
 
+            { rightOneLs.map((rm, id) => (
+                <Box key={ id }>
+                    <CastleRoom 
+                        roomInfo={ rm }
+                        currSelected={ selectedId }
+                        notifySelect={ handleSelected }
+                        notifyUpgrade={ props.notifyUpgrade }
+                        notifyExpire={ props.notifyExpire } 
+                        notifyFinalize={ props.notifyFinalize }
+                        notifyCreate={ props.notifyCreate }
+                        notifyMove={ props.notifyMove }
+                        notifyDelete={ props.notifyDelete }
+                    />
+                </Box>
+            ))}
+
+            { rightTwoLs.map((rm, id) => (
+                <Box key={ id }>
+                    <CastleRoom 
+                        roomInfo={ rm }
+                        currSelected={ selectedId }
+                        notifySelect={ handleSelected }
+                        notifyUpgrade={ props.notifyUpgrade }
+                        notifyExpire={ props.notifyExpire } 
+                        notifyFinalize={ props.notifyFinalize }
+                        notifyCreate={ props.notifyCreate }
+                        notifyMove={ props.notifyMove }
+                        notifyDelete={ props.notifyDelete }
+                    />
+                </Box>
+            ))}
 
         </EngineWrapper>
         }</>);

@@ -29,8 +29,6 @@ engine_url = [
     re_path(r'^select-guild',   NV.SelectGuild),
     re_path(r'^delete-guild',   NV.DeleteGuild),
 
-
-
     re_path(r'^castle-details',     NV.CastleDetails),
     re_path(r'^create-permission',  NV.CreatePermission),
     re_path(r'^create-room',        NV.CreateRoom),
@@ -39,12 +37,9 @@ engine_url = [
     re_path(r'^move-room',          NV.MoveRoom),
     re_path(r'^delete-permission',  NV.DeletePermission),
     re_path(r'^delete-room',        NV.DeleteRoom),
-    re_path(r'^castle-finalize',    NV.CastleFinalize),
-
     re_path(r'^training-details',   NV.TrainingDetails),
     re_path(r'^training-start',     NV.TrainingStart),
-
-
+    re_path(r'^castle-finalize',    NV.CastleFinalize),
 
     re_path(r'^thief-details',  NV.ThiefDetails),
     re_path(r'^vault-details',  NV.VaultDetails),

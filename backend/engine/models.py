@@ -84,14 +84,15 @@ class ItemInGuild(JM.Model):
     objects = DB.BaseManager()
 
 class RoomInGuild(JM.Model):
-    GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
-    Name = JM.TextField()
-    UpgradeType = JM.TextField()
-    Placement = JM.TextField()
-    Description = JM.TextField(null=True)
-    Level = JM.IntegerField(default=0)
-    Status = JM.TextField(default='Ready')      # Ready, Upgrading, Training, Crafting
-    CooldownExpire = JM.DateTimeField(null=True)
+    GuildFK =               JM.ForeignKey(Guild, on_delete=JM.CASCADE)
+    Name =                  JM.TextField()
+    UpgradeType =           JM.TextField()
+    Placement =             JM.TextField()
+    Description =           JM.TextField(null=True)
+    Level =                 JM.IntegerField(default=0)
+    Status =                JM.TextField(default='Ready')      # Ready, Upgrading, Training, Crafting
+    CooldownExpire =        JM.DateTimeField(null=True)
+    StaffingData =          JM.JSONField(default=list)      # [{'thiefId': id, 'data': value}]
     objects = DB.BaseManager()
 
 

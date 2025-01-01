@@ -190,11 +190,7 @@ def GetUpgradeInfo(upgradeType, roomName, roomLevel):
 
 
 
-
 def CastleDetails(guildMd):
-
-
-
 
     # middle rooms
 
@@ -231,9 +227,6 @@ def CastleDetails(guildMd):
         rm['Status'] = status
         rm['cooldown'] = cooldown
 
-
-
-
     # left rooms
 
     leftRooms = []
@@ -250,10 +243,12 @@ def CastleDetails(guildMd):
                 trunkNow = timezone.now().replace(microsecond=0)
                 cooldown = roomTrial.CooldownExpire - trunkNow
 
+            cooldownFix = cooldown.total_seconds() if cooldown else 0
+
             status = roomTrial.Status
-            if cooldown.total_seconds() <= 0 and status == 'Upgrading': status = 'Upgraded'
-            if cooldown.total_seconds() <= 0 and status == 'Training': status = 'Trained'
-            if cooldown.total_seconds() <= 0 and status == 'Crafting': status = 'Crafted'
+            if cooldownFix <= 1 and status == 'Upgrading': status = 'Upgraded'
+            if cooldownFix <= 1 and status == 'Training': status = 'Trained'
+            if cooldownFix <= 1 and status == 'Crafting': status = 'Crafted'
 
             basicMd = EM.BasicRoom.objects.GetOrNone(Level=1)
             advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=1)
@@ -282,8 +277,105 @@ def CastleDetails(guildMd):
                 'buttonLs': ['create'],
             })
 
+    # right one rooms
 
+    rightOneRooms = []
 
+    for rg in range(1, 5):
+
+        placement = f"R1 {rg}"
+        roomTrial = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+
+        if roomTrial:
+
+            cooldown = None
+            if roomTrial.CooldownExpire:
+                trunkNow = timezone.now().replace(microsecond=0)
+                cooldown = roomTrial.CooldownExpire - trunkNow
+
+            cooldownFix = cooldown.total_seconds() if cooldown else 0
+
+            status = roomTrial.Status
+            if cooldownFix <= 1 and status == 'Upgrading': status = 'Upgraded'
+            if cooldownFix <= 1 and status == 'Training': status = 'Trained'
+            if cooldownFix <= 1 and status == 'Crafting': status = 'Crafted'
+
+            basicMd = EM.BasicRoom.objects.GetOrNone(Level=1)
+            advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=1)
+
+            buttonLs = ['upgrade', 'move', 'delete']
+
+            if roomTrial.Name == 'Scholarium':
+                buttonLs.insert(0, 'train')
+
+            rightOneRooms.append({
+                'Name': roomTrial.Name,
+                'Level': roomTrial.Level,
+                'Placement': placement,
+                'Status': status,
+                'cooldown': cooldown,
+                'infoDx': GetInfo(roomTrial.UpgradeType, roomTrial.Name, roomTrial.Level),
+                'buttonLs': buttonLs,
+            })
+
+        else:
+            rightOneRooms.append({
+                'Name': 'Empty',
+                'Placement': placement,
+                'Status': 'Ready',
+                'infoTx': 'Available to build',
+                'buttonLs': ['create'],
+            })
+
+    # right two rooms
+
+    rightTwoRooms = []
+
+    for rg in range(1, 5):
+
+        placement = f"R2 {rg}"
+        roomTrial = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+
+        if roomTrial:
+
+            cooldown = None
+            if roomTrial.CooldownExpire:
+                trunkNow = timezone.now().replace(microsecond=0)
+                cooldown = roomTrial.CooldownExpire - trunkNow
+
+            cooldownFix = cooldown.total_seconds() if cooldown else 0
+
+            status = roomTrial.Status
+            if cooldownFix <= 1 and status == 'Upgrading': status = 'Upgraded'
+            if cooldownFix <= 1 and status == 'Training': status = 'Trained'
+            if cooldownFix <= 1 and status == 'Crafting': status = 'Crafted'
+
+            basicMd = EM.BasicRoom.objects.GetOrNone(Level=1)
+            advancedMd = EM.AdvancedRoom.objects.GetOrNone(Level=1)
+
+            buttonLs = ['upgrade', 'move', 'delete']
+
+            if roomTrial.Name == 'Scholarium':
+                buttonLs.insert(0, 'train')
+
+            rightTwoRooms.append({
+                'Name': roomTrial.Name,
+                'Level': roomTrial.Level,
+                'Placement': placement,
+                'Status': status,
+                'cooldown': cooldown,
+                'infoDx': GetInfo(roomTrial.UpgradeType, roomTrial.Name, roomTrial.Level),
+                'buttonLs': buttonLs,
+            })
+
+        else:
+            rightTwoRooms.append({
+                'Name': 'Empty',
+                'Placement': placement,
+                'Status': 'Ready',
+                'infoTx': 'Available to build',
+                'buttonLs': ['create'],
+            })
 
     # create menu
 
@@ -316,8 +408,8 @@ def CastleDetails(guildMd):
     details = {
         'leftCol': leftRooms,
         'middleCol': middleRooms,
-        'rightOneCol': leftRooms,
-        'rightTwoCol': leftRooms,
+        'rightOneCol': rightOneRooms,
+        'rightTwoCol': rightTwoRooms,
         'createOptions': createMenu,
         'placeOptions': placeOptions,
         'thiefLevels': [],
@@ -546,24 +638,6 @@ def DeleteRoom(guildMd, placement):
     RS.GrantGold(guildMd, 0)
     RS.GrantStone(guildMd, refund)
 
-
-
-def CastleFinalize(placement, guildMd):
-
-    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
-
-    if roomMd.Status == 'Upgrading':
-        roomMd.Level += 1
-
-
-    # update room status regardless of finalize type
-
-    roomMd.Status = 'Ready'
-    roomMd.save()
-
-
-
-
 def TrainingDetails(guildMd):
 
     thiefMds = GM.ThiefInGuild.objects.filter(GuildFK=guildMd)
@@ -586,7 +660,7 @@ def TrainingDetails(guildMd):
         thiefDx['Duration'] = levelMd.TrainPeriod
 
         traitAdv = [
-            {'stat': 'Agi +1', 'base': thiefDx['BaseAgi'], 'trained': 2 }, #thiefDx['TrainedAgi']},
+            {'stat': 'Agi +1', 'base': thiefDx['BaseAgi'], 'trained': thiefDx['TrainedAgi']},
             {'stat': 'Cun +1', 'base': thiefDx['BaseCun'], 'trained': thiefDx['TrainedCun']},
             {'stat': 'Mig +1', 'base': thiefDx['BaseMig'], 'trained': thiefDx['TrainedMig']},
             {'stat': 'End +1', 'base': thiefDx['BaseEnd'], 'trained': thiefDx['TrainedEnd']},
@@ -599,7 +673,7 @@ def TrainingDetails(guildMd):
         checkTx = ' '.join(thiefDx['TrainedSkills'])
         skillAdv = [
             {'stat': 'Att +2', 'base': None, 'trained': 1 if 'att' in checkTx else 0 },
-            {'stat': 'Dmg +2', 'base': None, 'trained': 1 if 'dmg' in checkTx else 1}, # },
+            {'stat': 'Dmg +2', 'base': None, 'trained': 1 if 'dmg' in checkTx else 0 },
             {'stat': 'Def +2', 'base': None, 'trained': 1 if 'def' in checkTx else 0 },
             {'stat': 'Sab +4', 'base': None, 'trained': 1 if 'sab' in checkTx else 0 },
             {'stat': 'Per +4', 'base': None, 'trained': 1 if 'per' in checkTx else 0 },
@@ -620,10 +694,52 @@ def TrainingDetails(guildMd):
 
     return NT.DataframeToDicts(thiefDf)
 
-
-
 def TrainingStart(guildMd, thiefId, advance, placement):
 
-    print(thiefId, advance, placement)
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+    thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
+    upgradeMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
 
+    trunkNow = timezone.now().replace(microsecond=0)
+    expireTm = PD.Timedelta(upgradeMd.TrainPeriod).to_pytimedelta()
+    advance = advance.lower().replace('+', '')
 
+    roomMd.Status = 'Training'
+    roomMd.CooldownExpire = trunkNow + expireTm
+    roomMd.StaffingData = [{'thiefId': thiefId, 'data': advance}]
+    roomMd.save()
+
+    thiefMd.Status = 'Training'
+    thiefMd.CooldownExpire = trunkNow + expireTm
+    thiefMd.save()
+
+def CastleFinalize(placement, guildMd):
+
+    roomMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Placement=placement)
+
+    if roomMd.Status == 'Upgrading':
+        roomMd.Level += 1
+
+    if roomMd.Status == 'Training':
+        staffing = roomMd.StaffingData[0]
+        thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=staffing['thiefId'])
+        
+        if 'agi' in staffing['data']:       thiefMd.TrainedAgi += 1
+        elif 'cun' in staffing['data']:     thiefMd.TrainedCun += 1
+        elif 'mig' in staffing['data']:     thiefMd.TrainedMig += 1
+        elif 'end' in staffing['data']:     thiefMd.TrainedEnd += 1
+        else:                               thiefMd.TrainedSkills.append(staffing['data'])
+
+        thiefMd.Level += 1
+        thiefMd.Experience = 0
+        thiefMd.Status = 'Ready'
+        thiefMd.CooldownExpire = None
+        thiefMd.save()
+        RS.SetThiefTotals(thiefMd)
+
+    # update room status regardless of finalize type
+
+    roomMd.Status = 'Ready'
+    roomMd.CooldownExpire = None
+    roomMd.StaffingData = []
+    roomMd.save()

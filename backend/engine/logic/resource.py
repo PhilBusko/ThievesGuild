@@ -412,7 +412,7 @@ def GetItemSkill(itemMd, skill):
 def GetTrainedSkill(thiefMd, skill):
     for sk in thiefMd.TrainedSkills:
         if skill in sk:
-            return sk.split(' ')[1]
+            return int(sk.split(' ')[1])
     return 0
 
 def SetThiefTotals(thiefMd):
