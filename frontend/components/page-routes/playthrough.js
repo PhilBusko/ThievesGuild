@@ -103,7 +103,7 @@ function Playthrough(props) {
             url: '/engine/finish-landing',
             data: {},
         }).then(responseData => {
-            // console.log(responseData);
+            console.log(responseData.assignments);
 
             if (responseData.nextScene != 'next-landing') {
                 navigate('/aftermath/', 
@@ -129,14 +129,12 @@ function Playthrough(props) {
     // set the auto battle speed
 
     const SPEED1 = 90;
-    const SPEED2 = 45;
-    const SPEED3 = 20;
+    const SPEED2 = 25;
     const [battleSpeed, setBattleSpeed] = useState(SPEED1);       // microsec per animation frame
 
     const changeSpeed = () => {
         if (battleSpeed == SPEED1)      setBattleSpeed(SPEED2);
-        if (battleSpeed == SPEED2)      setBattleSpeed(SPEED3);
-        if (battleSpeed == SPEED3)      setBattleSpeed(SPEED1);
+        if (battleSpeed == SPEED2)      setBattleSpeed(SPEED1);
     }
 
 
@@ -270,7 +268,6 @@ function Playthrough(props) {
                                 <ST.LinkText>
                                     {battleSpeed == SPEED1 && 'Speed 1x'}
                                     {battleSpeed == SPEED2 && 'Speed 2x'}
-                                    {battleSpeed == SPEED3 && 'Speed 4x'}
                                 </ST.LinkText>
                             </ST.RegularButton>
                             <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}

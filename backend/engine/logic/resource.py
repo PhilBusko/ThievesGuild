@@ -243,7 +243,7 @@ def GetExpeditionCount(guildMd):
 
     hallMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Great Hall')
     abilityMd = EM.UniqueRoom.objects.GetOrNone(Level=hallMd.Level)
-    count = 3 #abilityMd.Hall_Expedition
+    count = abilityMd.Hall_Expedition
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer', Level__gte=1)
     for rm in roomLs:

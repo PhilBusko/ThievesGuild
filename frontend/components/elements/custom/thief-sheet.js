@@ -168,12 +168,12 @@ function ThiefSheet(props) {
         </>}
         {Object.keys(props.infoDx).length == 0 && <>
             <SheetControl>
-                <ST.FlexHorizontal sx={{ width: '330px', height: '250px' }}>
+                <ST.FlexHorizontal sx={{ width: '297px', height: '252px' }}>
                     <ST.BaseText>Select a Thief</ST.BaseText>
                 </ST.FlexHorizontal>
             </SheetControl>
             <SheetControl>
-                <ST.FlexHorizontal sx={{ width: '320px', height: '370px' }}>
+                <ST.FlexHorizontal sx={{ width: '308px', height: '350px' }}>
                     <ST.BaseText>Requisitions</ST.BaseText>
                 </ST.FlexHorizontal>
             </SheetControl>

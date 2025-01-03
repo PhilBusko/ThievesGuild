@@ -184,6 +184,7 @@ def ThiefResults(stageMd):
                         'Attack', 'Damage', 'Defense', 'Sabotage', 'Perceive', 'Traverse', ]
             for dp in dropCols: thiefDx.pop(dp)
 
+            thiefDx['Experience'] = thiefDx['Experience'] - xpReward        # the reward is already on thief
             thiefDx['ExpReward'] = xpReward
             thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefMd.Level)
             thiefDx['Wounds'] = wounds

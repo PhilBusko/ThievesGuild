@@ -188,8 +188,6 @@ def GetUpgradeInfo(upgradeType, roomName, roomLevel):
 
     return infoDx
 
-
-
 def CastleDetails(guildMd):
 
     # middle rooms
