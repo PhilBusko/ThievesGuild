@@ -110,7 +110,6 @@ def AssembleRoom(stageType, stageLevel, maxObstacles):
 
     # generate the room randomly
     # then check if it passes certain requirements
-    # increase combat sampling so it can show up more
 
     potentialLs = ProductionTable(stageLevel,2,1,1,1)
 

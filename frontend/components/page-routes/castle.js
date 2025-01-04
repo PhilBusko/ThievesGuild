@@ -63,7 +63,7 @@ function Castle(props) {
             url: '/engine/castle-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData);
+                // console.log(responseData);
 
                 setCastle(responseData);
                 setCreateOptions(responseData.createOptions);
