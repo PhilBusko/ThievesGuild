@@ -480,7 +480,6 @@ def DailyHeists(request):
         'dungeon': dungeon,
         'campaign': campaign,
         'lastHeist': guildMd.LastHeist,
-        'message': None,
     }
     return Response(responseDx)
 

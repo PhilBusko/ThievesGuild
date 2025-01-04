@@ -78,17 +78,27 @@ def RunObstacles(thiefMd, obstacleLs):
         else:
             woundsCombat = 0
             woundsEnemy = 0
+            thiefRolls = 1
+            enemyRolls = 1
+
             rollParamLs = []
 
             while thiefWounds < thiefMd.Health and woundsEnemy < currentObs['Health']:
 
                 # player attack
 
-                naturalRoll = random.randint(1, 20) 
+                rollPool = []
+                for rg in range(0, thiefRolls):
+                    rollPool.append(random.randint(1, 20))
+                naturalRoll = max(rollPool)
+
                 woundsRoll = 0
                 if naturalRoll + thiefMd.Attack >= currentObs['Defense']:
                     woundsRoll = ST.RollDamage(thiefMd.Damage)
                     woundsEnemy += woundsRoll
+                    thiefRolls = 1
+                else:
+                    thiefRolls += 1
 
                 rollParamLs.append({
                     'attacker': 'thief',
@@ -104,12 +114,19 @@ def RunObstacles(thiefMd, obstacleLs):
 
                 if woundsEnemy < currentObs['Health']:
 
-                    naturalRoll = random.randint(1, 20)
+                    rollPool = []
+                    for rg in range(0, enemyRolls):
+                        rollPool.append(random.randint(1, 20))
+                    naturalRoll = max(rollPool)
+
                     woundsRoll = 0
                     if naturalRoll + currentObs['Attack'] >= thiefMd.Defense:
                         woundsRoll = ST.RollDamage(currentObs['Damage'])
                         woundsCombat += woundsRoll
                         thiefWounds += woundsRoll
+                        enemyRolls = 1
+                    else:
+                        enemyRolls += 1
 
                     rollParamLs.append({
                         'attacker': 'enemy',

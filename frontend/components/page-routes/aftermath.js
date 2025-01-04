@@ -112,7 +112,7 @@ function Aftermath(props) {
             navigate('/heists/');
         }
         else {
-            console.log(location.state);  
+            // console.log(location.state);  
             setNextScene(location.state.nextScene);
 
             let heist = `${getTitle(location.state.heist)} - Stage ${location.state.stageNo}`;
