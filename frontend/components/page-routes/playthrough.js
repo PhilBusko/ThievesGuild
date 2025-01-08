@@ -103,7 +103,7 @@ function Playthrough(props) {
             url: '/engine/finish-landing',
             data: {},
         }).then(responseData => {
-            // console.log(responseData);
+            console.log(responseData.assignments);
 
             if (responseData.nextScene != 'next-landing') {
                 navigate('/aftermath/', 
@@ -129,7 +129,7 @@ function Playthrough(props) {
     // set the auto battle speed
 
     const SPEED1 = 90;
-    const SPEED2 = 28;
+    const SPEED2 = 31;
     const [battleSpeed, setBattleSpeed] = useState(SPEED1);       // microsec per animation frame
 
     const changeSpeed = () => {

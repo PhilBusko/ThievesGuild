@@ -3,7 +3,7 @@ SIMULATION HELPER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random, math
 import emporium.models as EM
-import emporium.logic.stage as ST
+import emporium.logic.stage as SG
 
 
 def AttachWargear(baseThief):
@@ -188,47 +188,30 @@ def RunPassTest(thiefConfig, obstacleLs):
                 passed = False
                 effectLs = currentObs['Failure'].split(', ')
                 for ef in effectLs:
-                    if ef == 'wound': wounds += ST.RollDamage(currentObs['Damage'])
+                    if ef == 'wound': wounds += SG.RollDamage(currentObs['Damage'])
                     if ef == 'pass': obsPos += 1
                 if wounds >= thiefConfig['Hlt']: obsPos -= 1
 
         else:
             # print('combat:', currentObs['Name'])
             enemyWounds = 0
-            thiefRolls = 1
-            enemyRolls = 1
 
             while thiefConfig['Hlt'] > wounds and currentObs['Health'] > enemyWounds:
 
                 # player attack
 
-                rollPool = []
-                for rg in range(0, thiefRolls):
-                    rollPool.append(random.randint(1, 20))
-                attackResult = max(rollPool) + thiefConfig['Att']
-
+                attackResult = random.randint(1, 20) + thiefConfig['Att']
                 if attackResult >= currentObs['Defense']:
-                    enemyWounds += ST.RollDamage(thiefConfig['Dmg'])
-                    thiefRolls = 1
-                else:
-                    thiefRolls += 1
-
+                    enemyWounds += SG.RollDamage(thiefConfig['Dmg'])
+                
                 # print('player attack', wounds, enemyWounds)
 
                 # if enemy lives, they attack
 
                 if currentObs['Health'] > enemyWounds:
-
-                    rollPool = []
-                    for rg in range(0, enemyRolls):
-                        rollPool.append(random.randint(1, 20))
-                    attackResult = max(rollPool) + currentObs['Attack']
-
+                    attackResult = random.randint(1, 20) + currentObs['Attack']
                     if attackResult >= thiefConfig['Def']:
-                        wounds += ST.RollDamage(currentObs['Damage'])
-                        enemyRolls = 1
-                    else:
-                        enemyRolls += 1
+                        wounds += SG.RollDamage(currentObs['Damage'])
 
                 # print('enemy attack', wounds, enemyWounds)
 

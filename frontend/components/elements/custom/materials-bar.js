@@ -2,7 +2,7 @@
 MATERIALS BAR
 **************************************************************************************************/
 import { useState, useEffect, useContext, useRef } from 'react';
-import { Box, LinearProgress } from '@mui/material';
+import { LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import { GlobalContext } from '../../app-main/global-store';

@@ -11,7 +11,6 @@ import PageLayout from  '../layout/page-layout';
 import * as ST from  '../elements/styled-elements';
 import * as RC from '../assets/resource';
 import ReadOnlyArea from '../elements/controls/read-only-area';
-import DisplayDict from '../elements/display/display-dict';
 import HeistGroup from '../elements/custom/heist-group';
 import LandingDisplay from '../elements/custom/landing-display';
 
@@ -34,12 +33,6 @@ const HeistContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
     flexWrap: 'wrap',
     padding: '0px 0px 10px 0px',
     borderBottom: `2px solid ${ST.GoldText}`,
-}));
-
-const InfoPositioner = styled(Box)(({ theme }) => ({
-    position: 'absolute',
-    top: 0,
-    left: window.innerWidth > 900 ? 70 : 10,    // only works when the page is loaded
 }));
 
 const StageContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
@@ -72,19 +65,14 @@ function Heists(props) {
 
     // heists data
 
-    const [towerStages, setTowerStages] = useState([]);
-    const [trialStages, setTrialStages] = useState([]);
-    const [dungeonStages, setDungeonStages] = useState([]);
-    const [campaignStages, setCampaignStages] = useState([]);
-    const [towerInfo, setTowerInfo] = useState(null);
-    const [trialInfo, setTrialInfo] = useState(null);
-    const [dungeonInfo, setDungeonInfo] = useState(null);
-    const [campaignInfo, setCampaignInfo] = useState(null);
+    const [tower, setTower] = useState([]);
+    const [trial, setTrial] = useState([]);
+    const [dungeon, setDungeon] = useState([]);
+    const [campaign, setCampaign] = useState([]);
 
     const [selectedHeistTx, setSelectedHeistTx] = useState(null);
     const [selectedColor, setSelectedColor] = useState('');
     const [selectedHeist, setSelectedHeist] = useState([]);
-    const [selectedInfo, setSelectedInfo] = useState({});
 
     useEffect(() => {
         setErrorLs([]);
@@ -92,18 +80,11 @@ function Heists(props) {
             url: '/engine/daily-heists',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData);
-
-                setTowerStages(responseData.towerStages);
-                setTrialStages(responseData.trialStages);
-                setDungeonStages(responseData.dungeonStages);
-                setCampaignStages(responseData.campaignStages);
-
-                setTowerInfo(responseData.towerInfo);
-                setTrialInfo(responseData.trialInfo);
-                setDungeonInfo(responseData.dungeonInfo);
-                setCampaignInfo(responseData.campaignInfo);
-
+                // console.log(responseData);
+                setTower(responseData.tower);
+                setTrial(responseData.trial);
+                setDungeon(responseData.dungeon);
+                setCampaign(responseData.campaign);
                 setSelectedHeistTx(responseData.lastHeist);
             }
             else {
@@ -121,36 +102,31 @@ function Heists(props) {
     // choose a heist
 
     useEffect(() => {
-        // console.log(selectedHeistTx);
         nextSelected(selectedHeistTx);
     }, [selectedHeistTx]);
 
     const nextSelected = (heistName) => {
         if (heistName == 'tower') {
-            setSelectedHeist(towerStages);
-            setSelectedInfo(towerInfo);
+            setSelectedHeist(tower);
             setSelectedColor('#ffe033');    // gold
         }
         if (heistName == 'trial') {
-            setSelectedHeist(trialStages);
-            setSelectedInfo(trialInfo);
+            setSelectedHeist(trial);
             setSelectedColor('SpringGreen');
         }
         if (heistName == 'dungeon') {
-            setSelectedHeist(dungeonStages);
-            setSelectedInfo(dungeonInfo);
+            setSelectedHeist(dungeon);
             setSelectedColor('coral');
         }
         if (heistName == 'campaign') {
-            setSelectedHeist(campaignStages);
-            setSelectedInfo(campaignInfo);
+            setSelectedHeist(campaign);
             setSelectedColor('#ff66ff');   // fuchsia
         }
     };
 
     const handleHeist = (heistName) => {
 
-        setSelectedHeistTx(heistName);
+        nextSelected(heistName);
 
         AxiosConfig({
             method: 'POST',     
@@ -201,7 +177,7 @@ function Heists(props) {
                             infoTx={['Refreshes daily', 'Rewards are 2x']}
                             notifyHeist={ handleHeist }
                         />
-                        { dungeonStages.length > 0 && <HeistGroup
+                        { dungeon.length > 0 && <HeistGroup
                             buttonImage={RC.DungeonHeist}
                             title={ 'Dungeon' }
                             titleCode={ 'dungeon' }
@@ -217,7 +193,9 @@ function Heists(props) {
                             notifyHeist={ handleHeist }
                         />
                     </HeistContainer>
+                </Grid>
 
+                <Grid item xs={12}>
                     { message && 
                         <ST.FlexHorizontal sx={{ justifyContent: 'flex-start' }} >
                             <Broadcast>
@@ -228,102 +206,83 @@ function Heists(props) {
                     { errorLs.length > 0 &&
                         <ReadOnlyArea label={ '' } valueLs={ errorLs } mode={ 'error' } />
                     }
-
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Box sx={{position: 'relative'}}>
+                    <Stack spacing={'12px'} sx={{alignItems: 'center'}}>
+                    { selectedHeist.length > 0 && selectedHeist.map( (val, idx) => 
+                        <StageContainer key={idx} sx={{ backgroundImage: `url(${getHeistTexture(val.Heist)})` }} >
 
+                            <ST.FlexVertical sx={{width: '110px', margin: '', padding: ''}}>
+                                <ST.BaseText sx={{ fontSize: '220%', marginTop: '-8px',
+                                    color: !val.StageRewards ? selectedColor : '#d3d9de',
+                                }}>
+                                    Stage {val.StageNo}
+                                </ST.BaseText>
+                            </ST.FlexVertical>
+                            <StageSeparator src={ SeparatorSilver } />
 
+                            <Box sx={{width: '140px', paddingBottom: '8px'}}>
+                                <LandingDisplay
+                                    landingNo={1}
+                                    roomType={val.LandingTypes[0]}
+                                    power={val.MinPower[0]}
+                                    obstCount={val.ObstCount[0]}
+                                    obstLevel={val.ObstLevels[0]}
+                                    textColor={selectedColor}
+                                    complete={val.LandingRewards[0]}
+                                />
+                            </Box>
+                            <StageSeparator src={ SeparatorSilver } />
 
-                        <InfoPositioner sx={{position: 'absolute'}}>
-                            <DisplayDict 
-                                infoDx={ selectedInfo } 
-                                width={ '170px' }
-                                height={ '117px' }
-                            />
-                        </InfoPositioner>
-
-                        { selectedHeistTx == 'dungeon' &&
-                            <Box sx={{width: '10px', height: '140px'}}></Box>
-                        }
-
-                        <Stack spacing={'12px'} sx={{alignItems: 'center'}}>
-                        { selectedHeist.length > 0 && selectedHeist.map( (val, idx) => 
-                            <StageContainer key={idx} sx={{ backgroundImage: `url(${getHeistTexture(val.Heist)})` }} >
-
-                                <ST.FlexVertical sx={{width: '110px', margin: '', padding: ''}}>
-                                    <ST.BaseText sx={{ fontSize: '220%', marginTop: '-8px',
-                                        color: !val.StageRewards ? selectedColor : '#d3d9de',
-                                    }}>
-                                        Stage {val.StageNo}
-                                    </ST.BaseText>
-                                </ST.FlexVertical>
-                                <StageSeparator src={ SeparatorSilver } />
-
+                            { !!val.LandingTypes[1] && <>
                                 <Box sx={{width: '140px', paddingBottom: '8px'}}>
                                     <LandingDisplay
-                                        landingNo={1}
-                                        roomType={val.LandingTypes[0]}
-                                        power={val.MinPower[0]}
-                                        obstCount={val.ObstCount[0]}
-                                        obstLevel={val.ObstLevels[0]}
+                                        landingNo={2}
+                                        roomType={val.LandingTypes[1]}
+                                        power={val.MinPower[1]} 
+                                        obstCount={val.ObstCount[1]}
+                                        obstLevel={val.ObstLevels[1]}
                                         textColor={selectedColor}
-                                        complete={val.LandingRewards[0]}
+                                        complete={val.LandingRewards[1]}
                                     />
                                 </Box>
                                 <StageSeparator src={ SeparatorSilver } />
+                            </>}
 
-                                { !!val.LandingTypes[1] && <>
-                                    <Box sx={{width: '140px', paddingBottom: '8px'}}>
-                                        <LandingDisplay
-                                            landingNo={2}
-                                            roomType={val.LandingTypes[1]}
-                                            power={val.MinPower[1]} 
-                                            obstCount={val.ObstCount[1]}
-                                            obstLevel={val.ObstLevels[1]}
-                                            textColor={selectedColor}
-                                            complete={val.LandingRewards[1]}
-                                        />
-                                    </Box>
-                                    <StageSeparator src={ SeparatorSilver } />
-                                </>}
+                            { !!val.LandingTypes[2] && <>
+                                <Box sx={{width: '140px', paddingBottom: '8px'}}>
+                                    <LandingDisplay
+                                        landingNo={3}
+                                        roomType={val.LandingTypes[2]}
+                                        power={val.MinPower[2]}
+                                        obstCount={val.ObstCount[2]}
+                                        obstLevel={val.ObstLevels[2]}
+                                        textColor={selectedColor}
+                                        complete={val.LandingRewards[2]}
+                                    />
+                                </Box>
+                                <StageSeparator src={ SeparatorSilver } />
+                            </>}
 
-                                { !!val.LandingTypes[2] && <>
-                                    <Box sx={{width: '140px', paddingBottom: '8px'}}>
-                                        <LandingDisplay
-                                            landingNo={3}
-                                            roomType={val.LandingTypes[2]}
-                                            power={val.MinPower[2]}
-                                            obstCount={val.ObstCount[2]}
-                                            obstLevel={val.ObstLevels[2]}
-                                            textColor={selectedColor}
-                                            complete={val.LandingRewards[2]}
-                                        />
-                                    </Box>
-                                    <StageSeparator src={ SeparatorSilver } />
-                                </>}
+                            <ST.FlexVertical sx={{width: '100px', margin: '0px 10px'}}>
+                                <ST.RegularButton 
+                                    variant='contained' 
+                                    onClick={() => {handleStart(val.id)}}
+                                    disabled={ val.Status != 'open' }
+                                    sx={{  '& .MuiTypography-root': { color: 'inherit' } }}
+                                >
+                                    <ST.LinkText sx={{
+                                        color: val.Status != 'complete' ? `${selectedColor} !important` : '#d3d9de !important',
+                                    }}>
+                                        { val.Status != 'complete' ? 'Burgle' : 'Vacant' }
+                                    </ST.LinkText>
+                                </ST.RegularButton>
+                            </ST.FlexVertical>
 
-                                <ST.FlexVertical sx={{width: '100px', margin: '0px 10px'}}>
-                                    <ST.RegularButton 
-                                        variant='contained' 
-                                        onClick={() => {handleStart(val.id)}}
-                                        disabled={ val.Status != 'open' }
-                                        sx={{  '& .MuiTypography-root': { color: 'inherit' } }}
-                                    >
-                                        <ST.LinkText sx={{
-                                            color: val.Status != 'complete' ? `${selectedColor} !important` : '#d3d9de !important',
-                                        }}>
-                                            { val.Status != 'complete' ? 'Burgle' : 'Vacant' }
-                                        </ST.LinkText>
-                                    </ST.RegularButton>
-                                </ST.FlexVertical>
-
-                            </StageContainer>
-                        )}
-                        </Stack>
-
-                    </Box>
+                        </StageContainer>
+                    )}
+                    </Stack>
                 </Grid>
 
             </ST.GridPage >

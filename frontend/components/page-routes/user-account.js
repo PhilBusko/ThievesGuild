@@ -2,12 +2,12 @@
 USER ACCOUNT
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
-import { Box, Grid, Stack, ButtonBase } from '@mui/material';
+import { Grid, Stack, ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles'
 import { DoubleArrow } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config'
-import { GlobalContext } from '../app-main/global-store';
+import { GlobalProvider, GlobalContext } from '../app-main/global-store';
 import PageLayout from '../layout/page-layout'
 import * as ST from '../elements/styled-elements'
 import DisplayDict from '../elements/display/display-dict';
@@ -40,11 +40,11 @@ const FillPanel = styled(ST.FlexVertical)(({ theme }) => ({
 
 function UserAccount(props) {
 
-
-    // update the global guild
+    // globals
 
     const { guildStore } = useContext(GlobalContext);
     const guildUpdate = () => {
+        // initial call is made in global store
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
@@ -55,10 +55,9 @@ function UserAccount(props) {
                 guildStore[1](responseData);
             }
         }).catch(errorLs => {
-            console.log('guildUpdate error', errorLs);
+            setErrorLs(errorLs);
         });
     }
-
 
     // load user data
 
@@ -118,6 +117,8 @@ function UserAccount(props) {
 
     const handleGuildSelect = (guildName, checked) => {
 
+        console.log('handleGuildSelect');
+
         if (!checked)
             return;
 
@@ -126,7 +127,9 @@ function UserAccount(props) {
             url: '/engine/select-guild',
             data: { 'guildName': guildName },
         }).then(responseData => {
-            userConnect();      // update the selected guild
+            console.log(responseData);
+            guildUpdate();
+            userConnect();
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });

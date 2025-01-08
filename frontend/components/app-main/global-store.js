@@ -1,7 +1,7 @@
 /**************************************************************************************************
 GLOBAL STORE
 **************************************************************************************************/
-import { useState, useEffect, createContext } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import * as TK from '../app-main/token-storage';
 import AxiosConfig from '../app-main/axios-config';
 
@@ -15,23 +15,22 @@ function GlobalProvider(props) {
     const [userDx, setUserDx] = useState(
         {'name': '', 'status': 'initial'});    // status: initial, guest, user, admin
     const [guildDx, setGuildDx] = useState(null);   
-    const [navOpen, setNavOpen] = useState(true);
     const [currentPage, setCurrentPage] = useState('initial');
     const store = {
-        userStore: [userDx, setUserDx],
-        guildStore: [guildDx, setGuildDx],
-        navStore: [navOpen, setNavOpen],
-        pageStore: [currentPage, setCurrentPage],
+        userStore: [userDx, setUserDx],                 // updated in log in and log out
+        guildStore: [guildDx, setGuildDx],              // updated in exported function
+        pageStore: [currentPage, setCurrentPage],       // updated in page-layout
     }
 
-    // guild update
+    // update global guild info
+    // not able to make this a callable from pages
 
-    const GuildUpdate = () => {
-        // console.log('global guild update')
+    const GlobalGuild = () => {
+
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
-            // console.log(responseData)
+            console.log(responseData)
             if (Object.keys(responseData).length === 0) {
                 setGuildDx(null);
             }
@@ -39,7 +38,7 @@ function GlobalProvider(props) {
                 setGuildDx(responseData);
             }
         }).catch(errorLs => {
-            console.log('guild update error', errorLs);
+            console.log('global guild error', errorLs);
         });
     }
 
@@ -71,7 +70,7 @@ function GlobalProvider(props) {
                 'status': responseData.admin ? 'admin' : 'user',
             }
             setUserDx(newUser);
-            GuildUpdate();
+            GlobalGuild();
             TK.storeAccessToken(responseData.access);
         }).catch(errorLs => {
             TK.wipeTokens();
@@ -94,7 +93,8 @@ function GlobalProvider(props) {
     );
 }
 
-export { 
-    GlobalContext,      // access to store for calling components
+
+export {
     GlobalProvider,     // included in index file
+    GlobalContext,      // access to store for calling components
 }
