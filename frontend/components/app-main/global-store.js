@@ -26,11 +26,10 @@ function GlobalProvider(props) {
     // not able to make this a callable from pages
 
     const GlobalGuild = () => {
-
         AxiosConfig({
             url: '/engine/chosen-guild',
         }).then(responseData => {
-            console.log(responseData)
+            // console.log(responseData)
             if (Object.keys(responseData).length === 0) {
                 setGuildDx(null);
             }

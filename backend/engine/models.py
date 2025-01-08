@@ -112,7 +112,7 @@ class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Heist = JM.TextField()                          # tower, trial, dungeon, campaign
     CreateDate = JM.DateField(default=now)
-    ThroneLevel = JM.IntegerField()
+    Level = JM.IntegerField()
     StageNo = JM.IntegerField()
 
     LandingTypes = JM.JSONField()                   # ['balanced', null, null]
@@ -128,6 +128,7 @@ class GuildStage(JM.Model):
 
     LandingRewards = JM.JSONField(null=True)        # flag for landing won
     StageRewards = JM.JSONField(null=True)          # flag for stage won
+    Burgles = JM.JSONField(null=True)               # number of attempts per landing
     StageQueue = JM.BooleanField(default=False)
     Assignments = JM.JSONField(null=True)           # ids of thieves assigned to each landing
     Actions = JM.JSONField(null=True)               # persist the same actions regardless of reloads

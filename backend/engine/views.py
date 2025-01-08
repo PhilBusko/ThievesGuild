@@ -462,25 +462,32 @@ def DailyHeists(request):
     currDt = timezone.now()
     currDate = f"{currDt.year}-{str(currDt.month).zfill(2)}-{str(currDt.day).zfill(2)}"
 
-    tower = CT.GetOrCreateTower(guildMd, currDate)
-    tower = CT.AttachDisplayData(tower)
+    towerStages = CT.GetOrCreateTower(guildMd, currDate)
+    towerStages = CT.AttachDisplayData(towerStages)
+    towerInfo = CT.GetHeistInfo(towerStages)
 
-    trial = CT.GetOrCreateTrial(guildMd, currDate)
-    trial = CT.AttachDisplayData(trial)
+    trialStages = CT.GetOrCreateTrial(guildMd, currDate)
+    trialStages = CT.AttachDisplayData(trialStages)
+    trialInfo = CT.GetHeistInfo(trialStages)
 
-    dungeon = CT.GetOrCreateDungeon(guildMd, currDate)
-    dungeon = CT.AttachDisplayData(dungeon)
+    dungeonStages = CT.GetOrCreateDungeon(guildMd, currDate)
+    dungeonStages = CT.AttachDisplayData(dungeonStages)
+    dungeonInfo = CT.GetHeistInfo(dungeonStages)
 
-    campaign = CT.GetOrCreateCampaign(guildMd, currDate)
-    campaign = CT.AttachDisplayData(campaign)
+    campaignStages = CT.GetOrCreateCampaign(guildMd, currDate)
+    campaignStages = CT.AttachDisplayData(campaignStages)
+    campaignInfo = CT.GetHeistInfo(campaignStages)
 
     responseDx = {
-        'tower': tower,
-        'trial': trial,
-        'dungeon': dungeon,
-        'campaign': campaign,
+        'towerStages': towerStages,
+        'trialStages': trialStages,
+        'dungeonStages': dungeonStages,
+        'campaignStages': campaignStages,
+        'towerInfo': towerInfo,
+        'trialInfo': trialInfo,
+        'dungeonInfo': dungeonInfo,
+        'campaignInfo': campaignInfo,
         'lastHeist': guildMd.LastHeist,
-        'message': None,
     }
     return Response(responseDx)
 
@@ -547,6 +554,7 @@ def LaunchLanding(request):
             if nt == 4: obstacleLs = queueStage.ObstaclesL5
 
             actions = LH.RunObstacles(thiefMd, obstacleLs)
+            queueStage.Burgles[nt] += 1
             queueStage.Actions[nt] = actions
             queueStage.save()
 

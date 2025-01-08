@@ -30,7 +30,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
-        newStage.ThroneLevel = RS.GetThroneLevel(guildMd)
+        newStage.Level = RS.GetThroneLevel(guildMd)
         newStage.Heist = heistType
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
@@ -43,6 +43,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
         }
         newStage.LandingRewards = [None, None, None, None, None]
         newStage.Assignments = [None, None, None, None, None]
+        newStage.Burgles = [0, 0, 0, 0, 0]
         newStage.Actions = [None, None, None, None, None]
 
         background = ST.StageBackground(lastBackground)
@@ -120,7 +121,7 @@ def GetOrCreateTower(guildMd, currDate):
     throneLevel = RS.GetThroneLevel(guildMd)
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='tower', ThroneLevel=throneLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='tower', Level=throneLevel, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -149,7 +150,7 @@ def GetOrCreateTrial(guildMd, currDate):
     throneLevel = RS.GetThroneLevel(guildMd)
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='trial', ThroneLevel=throneLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='trial', Level=throneLevel, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -179,7 +180,7 @@ def GetOrCreateDungeon(guildMd, currDate):
 
     if str(guildMd.DungeonCheck) == currDate:
         stage = GM.GuildStage.objects.filter(
-            GuildFK=guildMd, Heist='dungeon', ThroneLevel=throneLevel, CreateDate=currDate
+            GuildFK=guildMd, Heist='dungeon', Level=throneLevel, CreateDate=currDate
             ).values()
 
         stageDf = PD.DataFrame(stage).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
@@ -213,7 +214,7 @@ def GetOrCreateCampaign(guildMd, currDate):
     # check for existing campaign stages
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='campaign', ThroneLevel=guildMd.CampaignWorld
+        GuildFK=guildMd, Heist='campaign', Level=guildMd.CampaignWorld
         ).values()
 
     if checkStages:
@@ -340,6 +341,30 @@ def AttachDisplayData(stageLs):
         st['Status'] = status
 
     return stageLs
+
+def GetHeistInfo(stageLs):
+
+    completeLanding = 0
+    totalLanding = 0
+    burgles = 0
+
+    for st in stageLs:
+        for nt, tp in enumerate(st['LandingTypes']):
+            if not tp: continue
+            totalLanding += 1
+            if st['LandingRewards'][nt]:
+                completeLanding += 1
+            burgles += st['Burgles'][nt]
+
+    stage = stageLs[0]
+    infoDx = {
+        'Campaign': stage['Level'],
+        'Refresh': stage['CreateDate'],
+        'Progress': f"{completeLanding} / {totalLanding}",
+        'Burgles': burgles,
+    }
+
+    return infoDx
 
 
 def CreateExpedition(guildMd, currDate, slotNo):
