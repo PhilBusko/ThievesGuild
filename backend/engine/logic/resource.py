@@ -151,8 +151,8 @@ def GetBlueprints(userMd):
 
     # get items
 
-    def GetItemBlueprints(throne):
-        unlockItem = EM.UnlockableItem.objects.filter(Throne=throne, MagicLv__gt=0).values()
+    def GetItemBlueprints(level):
+        unlockItem = EM.UnlockableItem.objects.filter(UnlockLevel=level, MagicLv__gt=0).values()
         for rs in unlockItem:
             if rs['Slot'] in ['weapon', 'armor', 'back']: stat = rs['Trait'][:3]
             else:     stat = 'skl' if rs['Skill'] else 'cmb'

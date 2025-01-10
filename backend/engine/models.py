@@ -112,7 +112,7 @@ class GuildStage(JM.Model):
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     Heist = JM.TextField()                          # tower, trial, dungeon, campaign
     CreateDate = JM.DateField(default=now)
-    Level = JM.IntegerField()
+    World = JM.IntegerField()
     StageNo = JM.IntegerField()
 
     LandingTypes = JM.JSONField()                   # ['balanced', null, null]
@@ -159,7 +159,7 @@ class MarketStore(JM.Model):
 
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     CreateDate = JM.DateField(default=now)
-    ThroneLevel = JM.IntegerField()             # currently generated level
+    World = JM.IntegerField()                   # currently generated world
 
     ResourceId = JM.TextField()
     StoreType = JM.TextField()                  # common, rare

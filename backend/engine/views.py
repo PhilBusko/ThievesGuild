@@ -488,6 +488,7 @@ def DailyHeists(request):
         'dungeonInfo': dungeonInfo,
         'campaignInfo': campaignInfo,
         'lastHeist': guildMd.LastHeist,
+        'campaignForward': CT.GetCampaignForward(guildMd),
     }
     return Response(responseDx)
 
@@ -646,6 +647,14 @@ def FinishLanding(request):
         queueStage.StageQueue = False
         queueStage.save()
 
+        # check for end of campaign
+
+        if queueStage.Heist == 'campaign':
+            campaignStages = GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign')
+            if queueStage.StageNo == len(campaignStages):   # StageNo is 1-based
+                guildMd.CampaignWorld += 1
+                guildMd.save()
+
         resultDx = {
             'nextScene': 'victory',
             'heist': queueStage.Heist,
@@ -708,7 +717,7 @@ def ExpeditionUpdate(request):
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
         if endTime <= trunkNow and not ep.Results:
             runResults = LH.RunExpedition(ep)
-            winResults = LH.ExpeditionResults(RS.GetThroneLevel(guildMd), ep, runResults)
+            winResults = LH.ExpeditionResults(guildMd.CampaignWorld, ep, runResults)
             ep.Results = winResults                 # applied when user claims
             ep.save()
 

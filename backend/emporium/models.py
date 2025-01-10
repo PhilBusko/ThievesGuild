@@ -9,7 +9,7 @@ class UnlockableThief(JM.Model):
     ResourceId = JM.TextField()
     Class = JM.TextField()
     Stars = JM.IntegerField()
-    UnlockThrone = JM.IntegerField()
+    UnlockLevel = JM.IntegerField()
     StoreCost = JM.IntegerField(null=True)
     StartTrait = JM.TextField()
     RandomTraits = JM.IntegerField()
@@ -20,7 +20,7 @@ class UnlockableThief(JM.Model):
 class UnlockableItem(JM.Model):
     ResourceId = JM.TextField(unique=True)
     Name = JM.TextField()
-    Throne = JM.IntegerField()
+    UnlockLevel = JM.IntegerField()
     Level = JM.IntegerField()
     MagicLv = JM.IntegerField()
     TotalLv = JM.IntegerField()
@@ -45,7 +45,7 @@ class ThiefLevel(JM.Model):
 class CastleRoom(JM.Model):
     Name = JM.TextField(unique=True)
     UpgradeType = JM.TextField()            # unique, basic, advanced
-    UnlockThrone = JM.IntegerField()
+    UnlockLevel = JM.IntegerField()
     AllowedPlacement = JM.TextField()
     Description = JM.TextField(null=True)
     objects = DB.BaseManager()
@@ -133,7 +133,7 @@ class Enemy(JM.Model):
     class Meta: unique_together = ('Level', 'Name')
 
 class GothicTower(JM.Model):
-    Throne = JM.IntegerField()
+    World = JM.IntegerField()
     StageNo = JM.IntegerField()
     ObstaclesL1 = JM.IntegerField(null=True)
     LevelLnd1 = JM.IntegerField(null=True)
@@ -146,15 +146,13 @@ class GothicTower(JM.Model):
     ObstaclesL5 = JM.IntegerField(null=True)
     LevelLnd5 = JM.IntegerField(null=True)
     Gold = JM.IntegerField(null=True)
-    Gems = JM.IntegerField(null=True)
-    Wood = JM.IntegerField(null=True)
     Stone = JM.IntegerField(null=True)
-    Iron = JM.IntegerField(null=True)
+    Gems = JM.IntegerField(null=True)
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Throne', 'StageNo')
+    class Meta: unique_together = ('World', 'StageNo')
 
 class LeagueTrial(JM.Model):
-    Throne = JM.IntegerField()
+    World = JM.IntegerField()
     StageNo = JM.IntegerField()
     ObstaclesL1 = JM.IntegerField(null=True)
     LevelLnd1 = JM.IntegerField(null=True)
@@ -167,15 +165,13 @@ class LeagueTrial(JM.Model):
     ObstaclesL5 = JM.IntegerField(null=True)
     LevelLnd5 = JM.IntegerField(null=True)
     Gold = JM.IntegerField(null=True)
-    Gems = JM.IntegerField(null=True)
-    Wood = JM.IntegerField(null=True)
     Stone = JM.IntegerField(null=True)
-    Iron = JM.IntegerField(null=True)
+    Gems = JM.IntegerField(null=True)
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Throne', 'StageNo')
+    class Meta: unique_together = ('World', 'StageNo')
 
 class Dungeon(JM.Model):
-    Throne = JM.IntegerField()
+    World = JM.IntegerField()
     StageNo = JM.IntegerField()
     ObstaclesL1 = JM.IntegerField(null=True)
     LevelLnd1 = JM.IntegerField(null=True)
@@ -188,12 +184,10 @@ class Dungeon(JM.Model):
     ObstaclesL5 = JM.IntegerField(null=True)
     LevelLnd5 = JM.IntegerField(null=True)
     Gold = JM.IntegerField(null=True)
-    Gems = JM.IntegerField(null=True)
-    Wood = JM.IntegerField(null=True)
     Stone = JM.IntegerField(null=True)
-    Iron = JM.IntegerField(null=True)
+    Gems = JM.IntegerField(null=True)
     objects = DB.BaseManager()
-    class Meta: unique_together = ('Throne', 'StageNo')
+    class Meta: unique_together = ('World', 'StageNo')
 
 class Campaign(JM.Model):
     World = JM.IntegerField()
@@ -209,10 +203,8 @@ class Campaign(JM.Model):
     ObstaclesL5 = JM.IntegerField(null=True)
     LevelLnd5 = JM.IntegerField(null=True)
     Gold = JM.IntegerField(null=True)
-    Gems = JM.IntegerField(null=True)
-    Wood = JM.IntegerField(null=True)
     Stone = JM.IntegerField(null=True)
-    Iron = JM.IntegerField(null=True)
+    Gems = JM.IntegerField(null=True)
     objects = DB.BaseManager()
     class Meta: unique_together = ('World', 'StageNo')
 
@@ -222,7 +214,7 @@ class TrialDay(JM.Model):
     objects = DB.BaseManager()
 
 class ExpeditionLevel(JM.Model):
-    Throne = JM.IntegerField()
+    World = JM.IntegerField()
     Level = JM.IntegerField()
     Duration = JM.TextField()
     objects = DB.BaseManager()

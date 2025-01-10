@@ -63,8 +63,7 @@ function Castle(props) {
             url: '/engine/castle-details',
         }).then(responseData => {
             if (!responseData.message) {
-                console.log(responseData);
-
+                // console.log(responseData);
                 setCastle(responseData);
                 setCreateOptions(responseData.createOptions);
                 setPlaceOptions(responseData.placeOptions);
@@ -155,11 +154,7 @@ function Castle(props) {
             url: '/engine/castle-finalize',
             data: { 'placement': roomInfo.Placement, },
         }).then(responseData => {
-
-            console.log(responseData)
-
             updateData();
-            
         }).catch(errorLs => {
             setErrorLs(errorLs);
         });

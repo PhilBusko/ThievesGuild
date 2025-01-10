@@ -284,7 +284,7 @@ function CastleTrain(props) {
         AxiosConfig({
             url: '/engine/training-details',
         }).then(responseData => {
-            console.log(responseData)
+            // console.log(responseData)
             setThiefLs(responseData);
         }).catch(errorLs => {
             setErrorLs(errorLs);

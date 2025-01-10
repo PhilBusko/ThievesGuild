@@ -30,7 +30,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
 
         newStage = GM.GuildStage()
         newStage.GuildFK = guildMd
-        newStage.Level = RS.GetThroneLevel(guildMd)
+        newStage.World = guildMd.CampaignWorld
         newStage.Heist = heistType
         newStage.StageNo = st['StageNo']
         newStage.CreateDate = currDate
@@ -118,10 +118,8 @@ def GetOrCreateTower(guildMd, currDate):
 
     # check for existing daily stages
 
-    throneLevel = RS.GetThroneLevel(guildMd)
-
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='tower', Level=throneLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='tower', World=guildMd.CampaignWorld, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -132,7 +130,7 @@ def GetOrCreateTower(guildMd, currDate):
     # create during daily update
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='tower').delete()
-    rawStages = list(EM.GothicTower.objects.filter(Throne=throneLevel).values())
+    rawStages = list(EM.GothicTower.objects.filter(World=guildMd.CampaignWorld).values())
     CreateStageLandings(guildMd, 'tower', currDate, rawStages)
 
     # return the stages just created
@@ -147,10 +145,8 @@ def GetOrCreateTrial(guildMd, currDate):
 
     # check for existing daily stages
 
-    throneLevel = RS.GetThroneLevel(guildMd)
-
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='trial', Level=throneLevel, CreateDate=currDate
+        GuildFK=guildMd, Heist='trial', World=guildMd.CampaignWorld, CreateDate=currDate
         ).values()
 
     if checkStages:
@@ -161,7 +157,7 @@ def GetOrCreateTrial(guildMd, currDate):
     # create during daily update
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='trial').delete()
-    rawStages = list(EM.LeagueTrial.objects.filter(Throne=throneLevel).values())
+    rawStages = list(EM.LeagueTrial.objects.filter(World=guildMd.CampaignWorld).values())
     CreateStageLandings(guildMd, 'trial', currDate, rawStages)
 
     # return the stages just created
@@ -176,11 +172,9 @@ def GetOrCreateDungeon(guildMd, currDate):
 
     # check for existing daily stages
 
-    throneLevel = RS.GetThroneLevel(guildMd)
-
     if str(guildMd.DungeonCheck) == currDate:
         stage = GM.GuildStage.objects.filter(
-            GuildFK=guildMd, Heist='dungeon', Level=throneLevel, CreateDate=currDate
+            GuildFK=guildMd, Heist='dungeon', World=guildMd.CampaignWorld, CreateDate=currDate
             ).values()
 
         stageDf = PD.DataFrame(stage).drop(['_state', 'GuildFK_id'], axis=1, errors='ignore')
@@ -196,7 +190,7 @@ def GetOrCreateDungeon(guildMd, currDate):
     result = random.randint(1, 20)
 
     if result > 1:
-        rawStages = list(EM.Dungeon.objects.filter(Throne=throneLevel).values())
+        rawStages = list(EM.Dungeon.objects.filter(World=guildMd.CampaignWorld).values())
         CreateStageLandings(guildMd, 'dungeon', currDate, rawStages)
 
     # return the dungeon, if present today
@@ -214,7 +208,7 @@ def GetOrCreateCampaign(guildMd, currDate):
     # check for existing campaign stages
 
     checkStages = GM.GuildStage.objects.filter(
-        GuildFK=guildMd, Heist='campaign', Level=guildMd.CampaignWorld
+        GuildFK=guildMd, Heist='campaign', World=guildMd.CampaignWorld
         ).values()
 
     if checkStages:
@@ -358,7 +352,7 @@ def GetHeistInfo(stageLs):
 
     stage = stageLs[0]
     infoDx = {
-        'Campaign': stage['Level'],
+        'Campaign': stage['World'],
         'Refresh': stage['CreateDate'],
         'Progress': f"{completeLanding} / {totalLanding}",
         'Burgles': burgles,
@@ -366,13 +360,24 @@ def GetHeistInfo(stageLs):
 
     return infoDx
 
+def GetCampaignForward(guildMd):
+
+    nextW = guildMd.CampaignWorld +1
+    powerLs = list(EM.RequiredPower.objects.filter(World=nextW).values_list('RequiredPower'))
+    powerLs = [x[0] for x in powerLs]
+
+    infoTx = f"Clearing this stage forwards the guild to World {GD.GetRoman(guildMd.CampaignWorld +1)} "
+    infoTx += f"including Heists, Expeditions, and the Market. "
+    infoTx += f"The recommended thief power is {min(powerLs)} to {max(powerLs)}."
+
+    return infoTx
+
 
 def CreateExpedition(guildMd, currDate, slotNo):
 
     # get all the combinations
 
-    throneLevel = RS.GetThroneLevel(guildMd)
-    levelLs = EM.ExpeditionLevel.objects.filter(Throne=throneLevel)
+    levelLs = EM.ExpeditionLevel.objects.filter(World=guildMd.CampaignWorld)
     typeLs = EM.ExpeditionType.objects.all()
 
     allTypes = []
@@ -416,7 +421,7 @@ def GetExpeditions(guildMd, trunkNow):
 
         else:
             thiefDx = GM.ThiefInGuild.objects.GetOrNone(id=ep['ThiefFK_id']).__dict__
-            entriesRemove = ['_state', 'GuildFK_id', 'BasePower', 'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd',
+            entriesRemove = ['_state', 'GuildFK_id', 'PowerBase', 'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd',
                 'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd', ]
             for k in entriesRemove:
                 thiefDx.pop(k)
@@ -458,7 +463,7 @@ def GetReplacement(guildMd, rewardDx):
     replace = None
     FACTOR = 3
 
-    stageMd = EM.GothicTower.objects.GetOrNone(Throne=RS.GetThroneLevel(guildMd), StageNo=1)
+    stageMd = EM.GothicTower.objects.GetOrNone(World=guildMd.CampaignWorld, StageNo=1)
     gemsLevel = stageMd.Gems
 
     # check blueprints
@@ -498,7 +503,7 @@ def GetOrCreateMarket(userMd, guildMd):
     # check for existing daily market
 
     checkInventory = GM.MarketStore.objects.filter(
-        GuildFK=guildMd, CreateDate=currDate, ThroneLevel=throneLevel
+        GuildFK=guildMd, CreateDate=currDate, World=guildMd.CampaignWorld
         ).values()
 
     if len(checkInventory) > 0:
@@ -516,13 +521,13 @@ def GetOrCreateMarket(userMd, guildMd):
 
     commonThief = EM.UnlockableThief.objects.filter(Stars=1).values()
     commonItem = EM.UnlockableItem.objects.filter(
-        Throne=throneLevel, MagicLv=0, Requirement__isnull=False).values()
+        UnlockLevel=guildMd.CampaignWorld, MagicLv=0, Requirement__isnull=False).values()
 
     for cm in commonThief:
         newReso = GM.MarketStore()
         newReso.GuildFK = guildMd
         newReso.CreateDate = currDate
-        newReso.ThroneLevel = throneLevel
+        newReso.World = guildMd.CampaignWorld
         newReso.ResourceId = cm['ResourceId']
         newReso.StoreType = 'common'
         newReso.RareProperties = {
@@ -538,7 +543,7 @@ def GetOrCreateMarket(userMd, guildMd):
         newReso = GM.MarketStore()
         newReso.GuildFK = guildMd
         newReso.CreateDate = currDate
-        newReso.ThroneLevel = throneLevel
+        newReso.World = guildMd.CampaignWorld
         newReso.ResourceId = cm['ResourceId']
         newReso.StoreType = 'common'
         newReso.save()
@@ -547,13 +552,13 @@ def GetOrCreateMarket(userMd, guildMd):
     # has accessories, unlocked resources
 
     rareAccessory = EM.UnlockableItem.objects.filter(
-        Throne=throneLevel, MagicLv=0, Requirement__isnull=True)
+        UnlockLevel=guildMd.CampaignWorld, MagicLv=0, Requirement__isnull=True)
 
     rareThief = GM.ThiefUnlocked.objects.filter(
         UserFK=userMd)
 
     rareMagic = GM.ItemUnlocked.objects.filter(
-        UserFK=userMd, ItemFK__Throne__in=[throneLevel, throneLevel -1])
+        UserFK=userMd, ItemFK__UnlockLevel__in=[guildMd.CampaignWorld, guildMd.CampaignWorld -1])
 
     potentialLs = []
 
@@ -578,7 +583,7 @@ def GetOrCreateMarket(userMd, guildMd):
         newReso = GM.MarketStore()
         newReso.GuildFK = guildMd
         newReso.CreateDate = currDate
-        newReso.ThroneLevel = throneLevel
+        newReso.World = guildMd.CampaignWorld
         newReso.ResourceId = randomType
         newReso.StoreType = 'rare'
         newReso.RareProperties = None            
@@ -591,10 +596,7 @@ def GetOrCreateMarket(userMd, guildMd):
 
     # get the newly created data
 
-    inventory = GM.MarketStore.objects.filter(
-        GuildFK=guildMd, CreateDate=currDate, ThroneLevel=throneLevel
-        ).values()
-
+    inventory = GM.MarketStore.objects.filter(GuildFK=guildMd, CreateDate=currDate).values()
     inventory = AttachMarketDisplay(inventory)
 
     resourceDf = PD.DataFrame(inventory).drop(['_state', 'GuildFK_id',], axis=1, errors='ignore')
@@ -615,7 +617,7 @@ def AttachMarketDisplay(resourceLs):
             name = resourceMd.Class
             power = int(resourceMd.StoreCost / GD.POWER_FACTOR)
             resourceDx = resourceMd.__dict__
-            removeKeys = ['id', '_state', 'StartTrait', 'UnlockThrone', 'ResourceId']
+            removeKeys = ['id', '_state', 'StartTrait', 'UnlockLevel', 'ResourceId']
             for k in removeKeys:
                 resourceDx.pop(k)
             iconCode = f"class-{resourceMd.Class.lower()}-s{resourceMd.Stars}"
@@ -724,7 +726,7 @@ def BuyMarket(storeId, guildMd):
         newItem = {
             'GuildFK': guildMd,
             'ThiefFK': None,
-            'Throne': resourceMd.Throne,
+            'Throne': resourceMd.UnlockLevel,
             'Name': resourceMd.Name,
             'Slot': resourceMd.Slot,
             'MagicLv': resourceMd.MagicLv,

@@ -397,7 +397,7 @@ def ExpeditionResults(throne, expMd, runResults):
 
     # get the relative challenge of the expedition
 
-    levels = EM.ExpeditionLevel.objects.filter(Throne=throne).order_by('Level')
+    levels = EM.ExpeditionLevel.objects.filter(World=throne).order_by('Level')
     challenge = 'normal' if expMd.Level == levels[0].Level else 'advanced'
 
     # create the expedition rewards
@@ -459,11 +459,11 @@ def GenerateBlueprint(throne, existingDx):
     if randTypeNo >= 9:         # 30% chance
         randType = 'thief'
 
-    # thief S2 only unlocks at T4
+    # thief S2 only unlocks at W4
     if throne <= 3: randType = 'item'
 
     if randType == 'item':
-        blueprint = list(EM.UnlockableItem.objects.filter(Throne=throne, MagicLv__gte=1).values('ResourceId'))
+        blueprint = list(EM.UnlockableItem.objects.filter(UnlockLevel=throne, MagicLv__gte=1).values('ResourceId'))
         rand = random.choice(blueprint)
         resId = rand['ResourceId']
 
@@ -476,7 +476,7 @@ def GenerateBlueprint(throne, existingDx):
         if throne >= 4 and throne <= 6: unlockThrn = 4
         if throne >= 7 and throne <= 8: unlockThrn = 7
         if throne == 9: unlockThrn = 9
-        blueprint = list(EM.UnlockableThief.objects.filter(UnlockThrone=unlockThrn).values('ResourceId'))
+        blueprint = list(EM.UnlockableThief.objects.filter(UnlockLevel=unlockThrn).values('ResourceId'))
         rand = random.choice(blueprint)
         resId = rand['ResourceId']
 
@@ -523,13 +523,13 @@ def GenerateMaterial(throne, existingDx):
     FACTOR = 4
 
     randType = random.choice(typeLs)
-    resourceDx = EM.GothicTower.objects.GetOrNone(Throne=throne, StageNo=1).__dict__
+    resourceDx = EM.GothicTower.objects.GetOrNone(World=throne, StageNo=1).__dict__
     resourceDx.pop('_state')
     resId = randType.lower()
 
     while existingDx and resId == existingDx['resourceId']:
         randType = random.choice(typeLs)
-        resourceDx = EM.GothicTower.objects.GetOrNone(Throne=throne, StageNo=1).__dict__
+        resourceDx = EM.GothicTower.objects.GetOrNone(World=throne, StageNo=1).__dict__
         resourceDx.pop('_state')
         resId = randType.lower()
 

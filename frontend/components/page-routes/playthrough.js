@@ -129,7 +129,7 @@ function Playthrough(props) {
     // set the auto battle speed
 
     const SPEED1 = 90;
-    const SPEED2 = 32;
+    const SPEED2 = 33;
     const [battleSpeed, setBattleSpeed] = useState(SPEED1);       // microsec per animation frame
 
     const changeSpeed = () => {

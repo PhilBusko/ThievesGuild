@@ -199,10 +199,6 @@ def CastleDetails(guildMd):
         rm.pop('id')
         rm.pop('GuildFK_id')
 
-        # capture for later
-
-        if rm['Name'] == 'Throne': throneLevel = rm['Level']
-
         # update buttons and level info
 
         rm['infoDx'] = GetInfo(rm['UpgradeType'], rm['Name'], rm['Level'])
@@ -380,7 +376,7 @@ def CastleDetails(guildMd):
     createMenu = []
     upgradeMd = EM.RoomUpgrade.objects.GetOrNone(Level=1)
 
-    menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=throneLevel, UpgradeType='basic')
+    menuRoomLs = EM.CastleRoom.objects.filter(UnlockLevel__lte=guildMd.CampaignWorld, UpgradeType='basic')
     for rm in menuRoomLs:
         createMenu.append({
             'name': rm.Name,
@@ -388,7 +384,7 @@ def CastleDetails(guildMd):
             'duration': upgradeMd.Period_Basic,
         })
 
-    menuRoomLs = EM.CastleRoom.objects.filter(UnlockThrone__lte=throneLevel, UpgradeType='advanced')
+    menuRoomLs = EM.CastleRoom.objects.filter(UnlockLevel__lte=guildMd.CampaignWorld, UpgradeType='advanced')
     for rm in menuRoomLs:
         createMenu.append({
             'name': rm.Name,
@@ -410,7 +406,6 @@ def CastleDetails(guildMd):
         'rightTwoCol': rightTwoRooms,
         'createOptions': createMenu,
         'placeOptions': placeOptions,
-        'thiefLevels': [],
     }
     return details
 

@@ -3,8 +3,9 @@ HEISTS PAGE
 **************************************************************************************************/
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Box, Stack, } from '@mui/material';
+import { Grid, Box, Stack, ButtonBase, Popover } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Info } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config';
 import PageLayout from  '../layout/page-layout';
@@ -60,6 +61,20 @@ const StageSeparator = styled('img')(({ theme }) => ({
     // margin: '10px 0px 0px 0px',
 }));
 
+const InfoButton = styled(ButtonBase)(({ theme }) => ({
+    color: ST.FadedBlue,
+    borderRadius: '50%',
+    background: 'white',
+}));
+
+const InfoContainer = styled(Box)(({ theme }) => ({
+    width: '250px',
+    height: '100px',
+    border: `1px solid ${ST.FadedBlue}`,
+    padding: '2px 6px',
+    background: ST.TableBkgd, 
+}));
+
 
 function Heists(props) {    
 
@@ -85,6 +100,7 @@ function Heists(props) {
     const [selectedColor, setSelectedColor] = useState('');
     const [selectedHeist, setSelectedHeist] = useState([]);
     const [selectedInfo, setSelectedInfo] = useState({});
+    const [campaignForward, setCampaignForward] = useState('');
 
     useEffect(() => {
         setErrorLs([]);
@@ -105,6 +121,7 @@ function Heists(props) {
                 setCampaignInfo(responseData.campaignInfo);
 
                 setSelectedHeistTx(responseData.lastHeist);
+                setCampaignForward(responseData.campaignForward);
             }
             else {
                 setMessage(responseData.message);
@@ -176,6 +193,19 @@ function Heists(props) {
     const handleStart = (startId) => {
         const stage = selectedHeist.filter((item) => item.id == startId)[0];
         navigate('/deployment/', {state: {stage: stage}});
+    };
+
+
+    // campaign forward
+
+    const [tooltipAnchor, setTooltipAnchor] = useState(null);
+
+    const handleTooltip = (event) => {
+        setTooltipAnchor(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setTooltipAnchor(null);
     };
 
 
@@ -302,7 +332,30 @@ function Heists(props) {
                                     <StageSeparator src={ SeparatorSilver } />
                                 </>}
 
-                                <ST.FlexVertical sx={{width: '100px', margin: '0px 10px'}}>
+                                <ST.FlexVertical sx={{
+                                    width: '100px', height: '86px',
+                                    margin: '0px 10px',
+                                    justifyContent: 'space-around'}}
+                                >
+
+                                    { selectedHeistTx == 'campaign' && idx == selectedHeist.length -1 &&
+                                        <InfoButton onClick={ handleTooltip }>
+                                            <Info></Info>
+                                        </InfoButton>
+                                    }
+
+                                    <Popover
+                                        anchorEl={ tooltipAnchor }
+                                        open={ !!tooltipAnchor }
+                                        onClose={ handleClose }
+                                        anchorOrigin={{ vertical: 'top', horizontal: 'right', }}
+                                        transformOrigin={{ vertical: 'bottom', horizontal: 'center', }}
+                                    >
+                                        <InfoContainer>
+                                            <ST.BaseText>{ campaignForward }</ST.BaseText>
+                                        </InfoContainer>
+                                    </Popover>
+
                                     <ST.RegularButton 
                                         variant='contained' 
                                         onClick={() => {handleStart(val.id)}}
@@ -315,6 +368,7 @@ function Heists(props) {
                                             { val.Status != 'complete' ? 'Burgle' : 'Vacant' }
                                         </ST.LinkText>
                                     </ST.RegularButton>
+
                                 </ST.FlexVertical>
 
                             </StageContainer>
