@@ -106,25 +106,28 @@ def LandingType(heist, prevType, prevTypeLs):
 
     return chosen
 
-def AssembleRoom(stageType, stageLevel, maxObstacles):
+def AssembleRoom(landingType, stageLevel, maxObstacles):
 
     # generate the room randomly
     # then check if it passes certain requirements
-    # increase combat sampling so it can show up more than the min
 
-    potentialLs = ProductionTable(stageLevel,4,1,1,1)
+    if landingType == 'balanced':
+        potentialLs = ProductionTable(stageLevel,4,1,1,1)
+    if landingType == 'biased agi':
+        potentialLs = ProductionTable(stageLevel,3,3,1,1)
+    if landingType == 'biased cun':
+        potentialLs = ProductionTable(stageLevel,3,1,3,1)
+    if landingType == 'biased mig':
+        potentialLs = ProductionTable(stageLevel,3,1,1,3)
+    if landingType == 'biased cmb':
+        potentialLs = ProductionTable(stageLevel,5,1,1,1)
 
     obstacleLs = ObstacleSequence(potentialLs, maxObstacles)
-    permitted = CheckPermitted(obstacleLs, stageType, maxObstacles)
-
-    trials = 1
+    permitted = CheckPermitted(obstacleLs, landingType, maxObstacles)
 
     while not permitted:
-        trials += 1
         obstacleLs = ObstacleSequence(potentialLs, maxObstacles)
-        permitted = CheckPermitted(obstacleLs, stageType, maxObstacles)
-
-    print('AssembleRoom', stageType, trials)
+        permitted = CheckPermitted(obstacleLs, landingType, maxObstacles)
 
     return obstacleLs
 
@@ -201,27 +204,27 @@ def CheckPermitted(obstacleLs, stageType, maxObstacles):
     if stageType == 'balanced' and maxObstacles <= 15:
         minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 4}
     elif stageType == 'balanced':
-        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 5}
+        minDx = {'Agi': 3, 'Cun': 3, 'Mig': 3, 'All': 5}
         
     if stageType == 'biased agi' and maxObstacles <= 15:
-        minDx = {'Agi': 4, 'Cun': 1, 'Mig': 1, 'All': 4}
+        minDx = {'Agi': 5, 'Cun': 1, 'Mig': 1, 'All': 3}
     elif stageType == 'biased agi':
-        minDx = {'Agi': 5, 'Cun': 1, 'Mig': 1, 'All': 4}
+        minDx = {'Agi': 6, 'Cun': 2, 'Mig': 2, 'All': 4}
         
     if stageType == 'biased cun' and maxObstacles <= 15:
-        minDx = {'Agi': 1, 'Cun': 4, 'Mig': 1, 'All': 4}
+        minDx = {'Agi': 1, 'Cun': 5, 'Mig': 1, 'All': 3}
     elif stageType == 'biased cun':
-        minDx = {'Agi': 1, 'Cun': 5, 'Mig': 1, 'All': 4}
+        minDx = {'Agi': 2, 'Cun': 6, 'Mig': 2, 'All': 4}
         
     if stageType == 'biased mig' and maxObstacles <= 15:
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 4, 'All': 4}
+        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 5, 'All': 3}
     elif stageType == 'biased mig':
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 5, 'All': 4}
+        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 6, 'All': 4}
 
     if stageType == 'biased cmb' and maxObstacles <= 15:
-        minDx = {'Agi': 1, 'Cun': 1, 'Mig': 1, 'All': 5}
+        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 5}
     elif stageType == 'biased cmb':
-        minDx = {'Agi': 2, 'Cun': 2, 'Mig': 2, 'All': 6}
+        minDx = {'Agi': 3, 'Cun': 3, 'Mig': 3, 'All': 6}
 
     # compare the current run with the min and max
 
@@ -240,7 +243,7 @@ def CheckPermitted(obstacleLs, stageType, maxObstacles):
     if countDx['Mig'] < minDx['Mig'] or countDx['Mig'] > minDx['Mig'] +2:
         permited = False
 
-    if countDx['All'] < minDx['All'] or countDx['All'] > minDx['All'] +2:
+    if countDx['All'] != minDx['All']:
         permited = False
 
     return permited

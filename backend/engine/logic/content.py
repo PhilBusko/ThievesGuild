@@ -338,6 +338,9 @@ def AttachDisplayData(stageLs):
 
 def GetHeistInfo(stageLs):
 
+    if len(stageLs) == 0: 
+        return {}
+
     completeLanding = 0
     totalLanding = 0
     burgles = 0

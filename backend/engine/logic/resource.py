@@ -463,7 +463,7 @@ def SetThiefTotals(thiefMd):
 
     # set combat
 
-    thiefMd.Health = 70 + thiefMd.Endurance * 5
+    thiefMd.Health = 80 + thiefMd.Endurance * 5
 
     thiefMd.Attack = (thiefMd.Agility + GetTrainedSkill(thiefMd, 'att') + 
                     GetItemCombat(weapon, 'att') + GetItemCombat(armor, 'att') +
