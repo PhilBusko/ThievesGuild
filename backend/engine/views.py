@@ -829,14 +829,14 @@ def DailyMarket(request):
     commonStore, dailyStore = CT.GetOrCreateMarket(userMd, guildMd)
 
     gemStore = [
-        {'gems': 50,    'targetAmount': 230,    'targetIcon': 'material-gold', },
-        {'gems': 200,   'targetAmount': 1100,   'targetIcon': 'material-gold', },
-        {'gems': 400,   'targetAmount': 2600,   'targetIcon': 'material-gold', },
-        {'gems': 600,   'targetAmount': 4400,   'targetIcon': 'material-gold', },
-        {'gems': 40,    'targetAmount': 80,     'targetIcon': 'material-stone', },
-        {'gems': 160,   'targetAmount': 390,    'targetIcon': 'material-stone', },
-        {'gems': 320,   'targetAmount': 920,    'targetIcon': 'material-stone', },
-        {'gems': 520,   'targetAmount': 1700,   'targetIcon': 'material-stone', },
+        {'gems': 20,    'targetAmount': 190,    'targetIcon': 'material-gold', },
+        {'gems': 80,    'targetAmount': 900,    'targetIcon': 'material-gold', },
+        {'gems': 150,   'targetAmount': 1800,   'targetIcon': 'material-gold', },
+        {'gems': 300,   'targetAmount': 4100,   'targetIcon': 'material-gold', },
+        {'gems': 20,    'targetAmount': 90,     'targetIcon': 'material-stone', },
+        {'gems': 80,    'targetAmount': 390,    'targetIcon': 'material-stone', },
+        {'gems': 150,   'targetAmount': 820,    'targetIcon': 'material-stone', },
+        {'gems': 300,   'targetAmount': 1800,   'targetIcon': 'material-stone', },
     ]
 
     marketDx = {

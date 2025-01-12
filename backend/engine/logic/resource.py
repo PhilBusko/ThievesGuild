@@ -243,7 +243,7 @@ def GetExpeditionCount(guildMd):
 
     hallMd = GM.RoomInGuild.objects.GetOrNone(GuildFK=guildMd, Name='Great Hall')
     abilityMd = EM.UniqueRoom.objects.GetOrNone(Level=hallMd.Level)
-    count = abilityMd.Hall_Expedition
+    count = 3 #abilityMd.Hall_Expedition
 
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer', Level__gte=1)
     for rm in roomLs:
@@ -590,11 +590,11 @@ def AttachStartingWargear(thiefMd):
     # equip weapon
 
     weaponMd = EM.UnlockableItem.objects.GetOrNone(
-                Throne=1, MagicLv=0, Slot='weapon', Requirement=thiefMd.Class)
+                UnlockLevel=1, MagicLv=0, Slot='weapon', Requirement=thiefMd.Class)
     newWeapon = {
         'GuildFK': thiefMd.GuildFK,
         'ThiefFK': thiefMd,
-        'Throne': weaponMd.Throne,
+        'Throne': weaponMd.UnlockLevel,
         'Name': weaponMd.Name,
         'MagicLv': weaponMd.MagicLv,
         'TotalLv': weaponMd.TotalLv,
@@ -610,11 +610,11 @@ def AttachStartingWargear(thiefMd):
     # equip armor
 
     armorMd = EM.UnlockableItem.objects.GetOrNone(
-                Throne=1, MagicLv=0, Slot='armor', Requirement=thiefMd.Class)
+                UnlockLevel=1, MagicLv=0, Slot='armor', Requirement=thiefMd.Class)
     newArmor = {
         'GuildFK': thiefMd.GuildFK,
         'ThiefFK': thiefMd,
-        'Throne': armorMd.Throne,
+        'Throne': armorMd.UnlockLevel,
         'Name': armorMd.Name,
         'MagicLv': armorMd.MagicLv,
         'TotalLv': armorMd.TotalLv,
@@ -632,11 +632,11 @@ def StartingAccessories(guildMd):
     slots = ['head', 'hands', 'feet']
     for sl in slots:
 
-        accessoryDx = EM.UnlockableItem.objects.filter(Throne=1, MagicLv=0, Slot=sl).values()[0]
+        accessoryDx = EM.UnlockableItem.objects.filter(UnlockLevel=1, MagicLv=0, Slot=sl).values()[0]
         newAccessory = {
             'GuildFK': guildMd,
             'ThiefFK': None,
-            'Throne': accessoryDx['Throne'],
+            'Throne': accessoryDx['UnlockLevel'],
             'Name': accessoryDx['Name'],
             'MagicLv': accessoryDx['MagicLv'],
             'TotalLv': accessoryDx['TotalLv'],
@@ -647,11 +647,11 @@ def StartingAccessories(guildMd):
         }
         newModel = GM.ItemInGuild(**newAccessory).save()
 
-        accessoryDx = EM.UnlockableItem.objects.filter(Level=1, MagicLv=0, Slot=sl).values()[1]
+        accessoryDx = EM.UnlockableItem.objects.filter(UnlockLevel=1, MagicLv=0, Slot=sl).values()[1]
         newAccessory = {
             'GuildFK': guildMd,
             'ThiefFK': None,
-            'Throne': accessoryDx['Throne'],
+            'Throne': accessoryDx['UnlockLevel'],
             'Name': accessoryDx['Name'],
             'MagicLv': accessoryDx['MagicLv'],
             'TotalLv': accessoryDx['TotalLv'],

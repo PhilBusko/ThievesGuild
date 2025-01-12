@@ -26,7 +26,7 @@ function LandingDisplay(props) {
         if (roomCode.includes('cun')) return 'Cunning';
         if (roomCode.includes('mig')) return 'Might';
         if (roomCode.includes('cmb')) return 'Guards';
-        return 'Mixed';
+        return 'Standard';
     }
 
     return (<>
