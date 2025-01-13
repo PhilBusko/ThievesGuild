@@ -2,7 +2,7 @@
 ENGINE VIEWS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import pandas as PD
-from django.utils import timezone
+import pytz
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -459,22 +459,21 @@ def DailyHeists(request):
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
 
-    currDt = timezone.now()
-    currDate = f"{currDt.year}-{str(currDt.month).zfill(2)}-{str(currDt.day).zfill(2)}"
+    currDt = RS.TimezoneToday()
 
-    towerStages = CT.GetOrCreateTower(guildMd, currDate)
+    towerStages = CT.GetOrCreateTower(guildMd, currDt)
     towerStages = CT.AttachDisplayData(towerStages)
     towerInfo = CT.GetHeistInfo(towerStages)
 
-    trialStages = CT.GetOrCreateTrial(guildMd, currDate)
+    trialStages = CT.GetOrCreateTrial(guildMd, currDt)
     trialStages = CT.AttachDisplayData(trialStages)
     trialInfo = CT.GetHeistInfo(trialStages)
 
-    dungeonStages = CT.GetOrCreateDungeon(guildMd, currDate)
+    dungeonStages = CT.GetOrCreateDungeon(guildMd, currDt)
     dungeonStages = CT.AttachDisplayData(dungeonStages)
     dungeonInfo = CT.GetHeistInfo(dungeonStages)
 
-    campaignStages = CT.GetOrCreateCampaign(guildMd, currDate)
+    campaignStages = CT.GetOrCreateCampaign(guildMd, currDt)
     campaignStages = CT.AttachDisplayData(campaignStages)
     campaignInfo = CT.GetHeistInfo(campaignStages)
 
@@ -687,15 +686,14 @@ def ExpeditionUpdate(request):
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
 
-    trunkNow = timezone.now().replace(microsecond=0)
-    currDate = f"{trunkNow.year}-{str(trunkNow.month).zfill(2)}-{str(trunkNow.day).zfill(2)}"
+    currDt = RS.TimezoneToday()
 
     # remove any closed expeditions: expired or claimed from previous day
 
-    expireLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, ThiefFK__isnull=True)
+    expireLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDt, ThiefFK__isnull=True)
     for ep in expireLs: ep.delete()
 
-    claimLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDate, Claimed=True)
+    claimLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, CreateDate__lt=currDt, Claimed=True)
     for ep in claimLs: ep.delete()
 
     # create the expeditions in slots to keep the order on the frontend
@@ -704,7 +702,7 @@ def ExpeditionUpdate(request):
     for sl in range(1, dailySlots +1):
         exists = GM.GuildExpedition.objects.GetOrNone(GuildFK=guildMd, SlotNo=sl)
         if not exists:
-            CT.CreateExpedition(guildMd, currDate, sl)
+            CT.CreateExpedition(guildMd, currDt, sl)
 
     # check if any expeditions have ended
     # if they have, the results are created but not claimed
@@ -712,10 +710,11 @@ def ExpeditionUpdate(request):
     RS.ResetInjuryCooldowns(guildMd)
 
     expeditionLs = GM.GuildExpedition.objects.filter(GuildFK=guildMd, StartDate__isnull=False)
+    currTm = RS.TimezoneToday(withTime=True)
 
     for ep in expeditionLs:
         endTime = ep.StartDate + PD.Timedelta(ep.Duration).to_pytimedelta()
-        if endTime <= trunkNow and not ep.Results:
+        if endTime <= currTm and not ep.Results:
             runResults = LH.RunExpedition(ep)
             winResults = LH.ExpeditionResults(guildMd.CampaignWorld, ep, runResults)
             ep.Results = winResults                 # applied when user claims
@@ -725,7 +724,7 @@ def ExpeditionUpdate(request):
     # will include all previous edits of this function
     # check for reward replacements here
 
-    expeditionLs = CT.GetExpeditions(guildMd, trunkNow) 
+    expeditionLs = CT.GetExpeditions(guildMd, currTm) 
     return Response({'expeditions': expeditionLs})
 
 @api_view(['POST'])
@@ -738,7 +737,7 @@ def ExpeditionLaunch(request):
     expToStart = GM.GuildExpedition.objects.GetOrNone(id=expeditionId)
     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
 
-    trunkNow = timezone.now().replace(microsecond=0)
+    trunkNow = RS.TimezoneToday(withTime=True)
     expireTm = PD.Timedelta(expToStart.Duration).to_pytimedelta()
 
     expToStart.StartDate = trunkNow

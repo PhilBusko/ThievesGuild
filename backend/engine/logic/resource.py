@@ -1,7 +1,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 ENGINE RESOURCE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import random, datetime
+import random, datetime, pytz
 import pandas as PD
 from django.utils import timezone
 
@@ -18,6 +18,9 @@ def GetThiefList(guildMd):
 
     for md in thiefMds:
 
+        totalSkill = GetTotalSkill(md)
+        totalCombat = GetTotalCombat(md)
+
         thiefDx = md.__dict__
         thiefLs.append(thiefDx)
 
@@ -28,9 +31,12 @@ def GetThiefList(guildMd):
         thiefDx['StageIcon'] = f"thief-{thiefDx['Class'].lower()}"
         thiefDx['ExpNextLevel'] = GD.GetNextLevelXp(thiefDx['Level'])
 
+        thiefDx['TotalSkill'] = totalSkill
+        thiefDx['TotalCombat'] = totalCombat
+
         cooldown = None
         if thiefDx['CooldownExpire']:
-            trunkNow = timezone.now().replace(microsecond=0)
+            trunkNow = TimezoneToday(withTime=True)
             cooldown = thiefDx['CooldownExpire'] - trunkNow
 
         thiefDx['Cooldown'] = cooldown
@@ -137,6 +143,62 @@ def GetDisplayInfo(itemDx):
 
     return iconCode, bonusLs, magicLs
 
+def GetTotalSkill(thiefMd):
+
+    itemLs = [
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='weapon'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='armor'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='head'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='hands'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='feet'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='back'),
+    ]
+
+    total = 0
+
+    for tm in itemLs:
+        if tm:
+            if tm.Skill:
+                total += int(tm.Skill.split(' ')[1])
+            if tm.Magic:
+                for mg in tm.Magic:
+                    if 'sab' in mg or 'per' in mg or 'tra' in mg:
+                        total += int(mg.split(' ')[1])
+
+    for tr in thiefMd.TrainedSkills:
+        if 'sab' in tr or 'per' in tr or 'tra' in tr:
+            total += int(tr.split(' ')[1])
+
+    return total
+
+def GetTotalCombat(thiefMd):
+
+    itemLs = [
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='weapon'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='armor'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='head'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='hands'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='feet'),
+        GM.ItemInGuild.objects.GetOrNone(ThiefFK=thiefMd, Slot='back'),
+    ]
+
+    total = 0
+
+    for tm in itemLs:
+        if tm:
+            if tm.Combat:
+                total += int(tm.Combat.split(' ')[1])
+            if tm.Magic:
+                for mg in tm.Magic:
+                    if 'att' in mg or 'dmg' in mg or 'def' in mg:
+                        total += int(mg.split(' ')[1])
+
+    for tr in thiefMd.TrainedSkills:
+        if 'att' in tr or 'dmg' in tr or 'def' in tr:
+            total += int(tr.split(' ')[1])
+
+    return total
+
 def GetBlueprints(userMd):
 
     # get thieves
@@ -172,6 +234,14 @@ def GetBlueprints(userMd):
         'itemsW4': [],
         'itemsW5': [],
     }
+
+def TimezoneToday(withTime=False):
+    currDt = timezone.now().replace(microsecond=0)
+    userTz = pytz.timezone('America/New_York')
+    currDt = currDt.astimezone(userTz)
+    if not withTime:
+        currDt = currDt.date()
+    return currDt
 
 
 def GetTotalPower(guildMd):
@@ -353,7 +423,7 @@ def ApplyWounds(thiefMd, wounds):
         cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).KnockedOutPeriod
 
     if cooldown:
-        trunkNow = timezone.now().replace(microsecond=0)
+        trunkNow = TimezoneToday(withTime=True)
         expireTm = PD.Timedelta(cooldown).to_pytimedelta()
         thiefMd.CooldownExpire = trunkNow + expireTm
 
@@ -369,7 +439,7 @@ def ResetInjuryCooldowns(guildMd):
 
     for md in thiefMds:
 
-        trunkNow = timezone.now().replace(microsecond=0)
+        trunkNow = TimezoneToday(withTime=True)
 
         if md.CooldownExpire and md.Status in ['Wounded', 'Knocked Out']:
             if trunkNow >= md.CooldownExpire:
@@ -380,13 +450,11 @@ def ResetInjuryCooldowns(guildMd):
 
 def PrepGuild(userMd):
 
-    currDt = timezone.now()
-    currDate = f"{currDt.year}-{str(currDt.month).zfill(2)}-{str(currDt.day).zfill(2)}"
-
+    currDt = TimezoneToday()
     guildMd = GM.Guild.objects.GetOrNone(UserFK=userMd, Selected=True)
 
-    if guildMd and guildMd.LastPlayed != currDate:
-        guildMd.LastPlayed = currDate
+    if guildMd and guildMd.LastPlayed != currDt:
+        guildMd.LastPlayed = currDt
         guildMd.save()
 
     return guildMd
@@ -513,7 +581,13 @@ def CreateNewGuild(user, guildName):
 
     # create and select guild object
 
-    newGuild = GM.Guild(**{'UserFK': user, 'Name': guildName, 'Selected': True})
+    newGuild = GM.Guild(**{
+        'UserFK': user,
+        'Name': guildName,
+        'LastPlayed': TimezoneToday(),
+        'CreateDate': TimezoneToday(),
+        'Selected': True,
+    })
     newGuild.save()
 
     # starting thieves

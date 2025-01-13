@@ -2,7 +2,7 @@
 SELECTOR HEIST
 **************************************************************************************************/
 import { useState } from 'react';
-import { Box, Button, Menu, MenuItem, Stack } from '@mui/material';
+import { Box, Button, Menu, MenuItem, Stack, LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import * as ST from  '../styled-elements';
@@ -33,8 +33,6 @@ const RoomWorkspace = styled(Box)(({ theme }) => ({
 }));
 
 const ThiefWorkspace = styled(ST.FlexVertical)(({ theme }) => ({
-    // width: '100%',
-    // height: '100%',
     border: `2px solid silver`,
     borderRadius: '6px',
     padding: '6px',
@@ -48,6 +46,15 @@ const ButtonWorkspace = styled(Box)(({ theme }) => ({
     border: `2px solid silver`,
     borderRadius: '6px',
     //backgroundImage: // set in sx
+}));
+
+const SelectorButton = styled(Button)(({ theme }) => ({
+    padding: '8px 4px',
+    backgroundColor: ST.FadedBlue,
+    '& .MuiTypography-root': { 
+        color: 'white',
+        letterSpacing: 1.5,   
+    }, 
 }));
 
 
@@ -76,29 +83,27 @@ const ItemContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
 }));
 
 const StatGroup = styled(ST.FlexVertical)(({ theme }) => ({
-    height: '75px', 
+    minWidth: '60px',
     marginTop: '-6px',
     padding: '3px', 
     alignItems: 'flex-start',
 }));
 
 const ThiefIcon = styled('img')(({ theme }) => ({
-    width: '44px',
+    width: '42px',
 }));
 
 const SeparatorMenu = styled('img')(({ theme }) => ({
-    height: '64px',
+    height: '50px',
     width: '4px',
     margin: '0px 3px',
 }));
 
-const SelectorButton = styled(Button)(({ theme }) => ({
-    padding: '8px 4px',
-    backgroundColor: ST.FadedBlue,
-    '& .MuiTypography-root': { 
-        color: 'white',
-        letterSpacing: 1.5,   
-    }, 
+const ExperienceBar = styled(LinearProgress)(({ theme }) => ({
+    width: '56px',
+    height: '8px',
+    margin: '10px 0px 0px 0px',
+    borderRadius: '4px',
 }));
 
 
@@ -170,8 +175,8 @@ function SelectorHeist(props) {
                 anchorEl={anchorEl}
                 open={!!anchorEl}
                 onClose={handleClose}
-                anchorOrigin={{ horizontal: 'left', vertical: 'top', }}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'left', vertical: 'center', }}
+                transformOrigin={{ horizontal: 'right', vertical: 'center' }}
             >
                 <Stack spacing='8px'>
                     { props.thiefChoices.map((thf, id) => (
@@ -186,40 +191,39 @@ function SelectorHeist(props) {
                                 </ST.FlexVertical>
                                 <SeparatorMenu src={ SeparatorGold } />
 
-                                <StatGroup sx={{}}>
+                                <StatGroup>
                                     <ST.FlexHorizontal sx={{ width: '100px', justifyContent: 'space-between' }}>
                                         <ST.BaseText>{thf.Name}</ST.BaseText>
-                                        <ST.BaseText>{thf.Power}</ST.BaseText>
+                                        <ST.BaseText>[{thf.Power}]</ST.BaseText>
                                     </ST.FlexHorizontal>
-                                    <ST.BaseText>{ thf.Class }</ST.BaseText>
-                                    <ST.FlexHorizontal sx={{ width: '100px', }}>
-                                        {thf.Cooldown == 'Ready' && 
-                                            <ST.BaseText sx={{color: '#00FF7F'}}>{thf.Cooldown}</ST.BaseText>
-                                        }
+
+                                    <ST.FlexHorizontal sx={{ width: '100px', justifyContent: 'space-between' }}>
+                                        <ST.BaseText>Lv {thf.Level}</ST.BaseText>
+                                        <ExperienceBar 
+                                            variant='determinate' 
+                                            value={ thf.Experience / thf.ExpNextLevel * 100  }
+                                        />
                                     </ST.FlexHorizontal>
-                                </StatGroup>
-                                <SeparatorMenu src={ SeparatorGold } />
-
-                                <StatGroup sx={{width: '100px', flexWrap: 'wrap'}}>
-                                    <ST.BaseText>Agi { thf.Agility }</ST.BaseText>
-                                    <ST.BaseText>Cun { thf.Cunning }</ST.BaseText>
-                                    <ST.BaseText>Mig { thf.Might }</ST.BaseText>
-                                    <ST.BaseText>End { thf.Endurance }</ST.BaseText>
-                                    <ST.BaseText>Hlt { thf.Health }</ST.BaseText>
-                                </StatGroup>
-                                <SeparatorMenu src={ SeparatorGold } />
-
-                                <StatGroup sx={{width: '50px',}}>
-                                    <ST.BaseText>Sab { thf.Sabotage ? `+${thf.Sabotage}` : '0'}</ST.BaseText>
-                                    <ST.BaseText>Per { thf.Perceive ? `+${thf.Perceive}` : '0'}</ST.BaseText>
-                                    <ST.BaseText>Tra { thf.Traverse ? `+${thf.Traverse}` : '0'}</ST.BaseText>
                                 </StatGroup>
                                 <SeparatorMenu src={ SeparatorGold } />
 
                                 <StatGroup>
-                                    <ST.BaseText>Att +{ thf.Attack }</ST.BaseText>
-                                    <ST.BaseText>Dmg { thf.DisplayDamage }</ST.BaseText>
-                                    <ST.BaseText>Def { thf.Defense }</ST.BaseText>
+                                    { thf.Class == 'Burglar' &&
+                                        <ST.BaseText>Agi {thf.Agility}</ST.BaseText>
+                                    }
+                                    { thf.Class == 'Scoundrel' &&
+                                        <ST.BaseText>Cun {thf.Cunning}</ST.BaseText>
+                                    }
+                                    { thf.Class == 'Ruffian' &&
+                                        <ST.BaseText>Mig {thf.Might}</ST.BaseText>
+                                    }
+                                    <ST.BaseText>End {thf.Endurance}</ST.BaseText>
+                                </StatGroup>
+                                <SeparatorMenu src={ SeparatorGold } />
+
+                                <StatGroup>
+                                    <ST.BaseText>Skills +{thf.TotalSkill}</ST.BaseText>
+                                    <ST.BaseText>Combat +{thf.TotalCombat}</ST.BaseText>
                                 </StatGroup>
 
                             </ItemContainer>

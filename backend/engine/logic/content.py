@@ -3,7 +3,6 @@ ENGINE CONTENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random
 import pandas as PD
-from django.utils import timezone
 import app_proj.notebooks as NT
 
 import emporium.models as EM 
@@ -53,7 +52,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
 
         # landing 1 
 
-        landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+        landingType = ST.LandingType(heistType, lastType, lastTypeLs, currDate)
         lastType = landingType
         obstacles = ST.AssembleRoom(landingType, st['LevelLnd1'], st['ObstaclesL1'])
         newStage.LandingTypes.append(landingType)
@@ -63,7 +62,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
         # landing 2
 
         if st['LevelLnd2']:
-            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs, currDate)
             lastType = landingType
             obstacles = ST.AssembleRoom(landingType, st['LevelLnd2'], st['ObstaclesL2'])
             newStage.LandingTypes.append(landingType)
@@ -76,7 +75,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
         # landing 3 
 
         if st['LevelLnd3']:
-            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs, currDate)
             lastType = landingType
             obstacles = ST.AssembleRoom(landingType, st['LevelLnd3'], st['ObstaclesL3'])
             newStage.LandingTypes.append(landingType)
@@ -89,7 +88,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
         # landing 4
 
         if st['LevelLnd4']:
-            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs, currDate)
             lastType = landingType
             obstacles = ST.AssembleRoom(landingType, st['LevelLnd4'], st['ObstaclesL4'])
             newStage.LandingTypes.append(landingType)
@@ -102,7 +101,7 @@ def CreateStageLandings(guildMd, heistType, currDate, rawStages):
         # landing 5
 
         if st['LevelLnd5']:
-            landingType = ST.LandingType(heistType, lastType, lastTypeLs)
+            landingType = ST.LandingType(heistType, lastType, lastTypeLs, currDate)
             lastType = landingType
             obstacles = ST.AssembleRoom(landingType, st['LevelLnd5'], st['ObstaclesL5'])
             newStage.LandingTypes.append(landingType)
@@ -172,7 +171,10 @@ def GetOrCreateDungeon(guildMd, currDate):
 
     # check for existing daily stages
 
-    if str(guildMd.DungeonCheck) == currDate:
+    if guildMd.DungeonCheck == currDate:
+
+        # filter can return an empty list
+
         stage = GM.GuildStage.objects.filter(
             GuildFK=guildMd, Heist='dungeon', World=guildMd.CampaignWorld, CreateDate=currDate
             ).values()
@@ -181,15 +183,22 @@ def GetOrCreateDungeon(guildMd, currDate):
         stageLs = NT.DataframeToDicts(stageDf)
         return stageLs
 
-    # create during the daily update
+    # since it's the next day, mark the dungeon as checked
 
     guildMd.DungeonCheck = currDate
     guildMd.save()
 
+    # if it's the first day don't create dungeon
+
+    if guildMd.CreateDate == currDate:
+        return []
+
+    # create during the daily update
+
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').delete()
     result = random.randint(1, 20)
 
-    if result > 1:
+    if result >= 18:
         rawStages = list(EM.Dungeon.objects.filter(World=guildMd.CampaignWorld).values())
         CreateStageLandings(guildMd, 'dungeon', currDate, rawStages)
 
@@ -499,8 +508,7 @@ def GetReplacement(guildMd, rewardDx):
 
 def GetOrCreateMarket(userMd, guildMd):
 
-    trunkNow = timezone.now().replace(microsecond=0)
-    currDate = f"{trunkNow.year}-{str(trunkNow.month).zfill(2)}-{str(trunkNow.day).zfill(2)}"
+    currDate = RS.TimezoneToday()
     throneLevel = RS.GetThroneLevel(guildMd)
 
     # check for existing daily market

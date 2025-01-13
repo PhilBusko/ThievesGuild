@@ -3,7 +3,6 @@ EMPORIUM STAGE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random, math
 import pandas as PD
-from django.utils import timezone
 
 import app_proj.notebooks as NT
 import emporium.models as EM
@@ -73,7 +72,7 @@ def StageBackground(lastBackground):
     chosen = random.choice(potential)
     return chosen
 
-def LandingType(heist, prevType, prevTypeLs):
+def LandingType(heist, prevType, prevTypeLs, currDt):
 
     if heist == 'tower' or heist == 'campaign':
         potential = [
@@ -85,14 +84,13 @@ def LandingType(heist, prevType, prevTypeLs):
             chosen = 'balanced'
 
     if heist == 'trial':
-        trunkNow = timezone.now().replace(microsecond=0)
         dayOfWeek = 'monday'
-        if trunkNow.weekday() == 1:   dayOfWeek = 'tuesday'
-        if trunkNow.weekday() == 2:   dayOfWeek = 'wednesday'
-        if trunkNow.weekday() == 3:   dayOfWeek = 'thursday'
-        if trunkNow.weekday() == 4:   dayOfWeek = 'friday'
-        if trunkNow.weekday() == 5:   dayOfWeek = 'saturday'
-        if trunkNow.weekday() == 6:   dayOfWeek = 'sunday'
+        if currDt.weekday() == 1:   dayOfWeek = 'tuesday'
+        if currDt.weekday() == 2:   dayOfWeek = 'wednesday'
+        if currDt.weekday() == 3:   dayOfWeek = 'thursday'
+        if currDt.weekday() == 4:   dayOfWeek = 'friday'
+        if currDt.weekday() == 5:   dayOfWeek = 'saturday'
+        if currDt.weekday() == 6:   dayOfWeek = 'sunday'
         trialDay = EM.TrialDay.objects.GetOrNone(WeekDay=dayOfWeek)
         chosen = f"biased {trialDay.StageType}"
 

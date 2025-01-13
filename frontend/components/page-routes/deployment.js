@@ -98,11 +98,11 @@ function Deployment(props) {
             url: '/engine/thief-details',
         }).then(responseData => {
             if (!responseData.message) {
-                // console.log(responseData.thiefLs);
+                console.log(responseData.thiefLs);
                 setThiefLs(responseData.thiefLs);
             }
             else {
-                setMessage(responseData.message)
+                setMessage(responseData.message);
             }
         }).catch(errorLs => {
             if (errorLs[0].includes('401'))

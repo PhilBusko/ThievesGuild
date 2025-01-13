@@ -2,7 +2,6 @@
 ENGINE CASTLE ROOMS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import pandas as PD
-from django.utils import timezone
 
 import app_proj.notebooks as NT
 import emporium.models as EM 
@@ -214,7 +213,7 @@ def CastleDetails(guildMd):
         status = rm['Status']
         cooldown = None
         if rm['CooldownExpire']:
-            trunkNow = timezone.now().replace(microsecond=0)
+            trunkNow = RS.TimezoneToday(withTime=True)
             cooldown = rm['CooldownExpire'] - trunkNow
             if cooldown.total_seconds() <= 0 and status == 'Upgrading': status = 'Upgraded'
 
@@ -234,7 +233,7 @@ def CastleDetails(guildMd):
 
             cooldown = None
             if roomTrial.CooldownExpire:
-                trunkNow = timezone.now().replace(microsecond=0)
+                trunkNow = RS.TimezoneToday(withTime=True)
                 cooldown = roomTrial.CooldownExpire - trunkNow
 
             cooldownFix = cooldown.total_seconds() if cooldown else 0
@@ -284,7 +283,7 @@ def CastleDetails(guildMd):
 
             cooldown = None
             if roomTrial.CooldownExpire:
-                trunkNow = timezone.now().replace(microsecond=0)
+                trunkNow = RS.TimezoneToday(withTime=True)
                 cooldown = roomTrial.CooldownExpire - trunkNow
 
             cooldownFix = cooldown.total_seconds() if cooldown else 0
@@ -334,7 +333,7 @@ def CastleDetails(guildMd):
 
             cooldown = None
             if roomTrial.CooldownExpire:
-                trunkNow = timezone.now().replace(microsecond=0)
+                trunkNow = RS.TimezoneToday(withTime=True)
                 cooldown = roomTrial.CooldownExpire - trunkNow
 
             cooldownFix = cooldown.total_seconds() if cooldown else 0
@@ -457,7 +456,7 @@ def CreateRoom(roomName, placement, guildMd):
     guildMd.VaultStone -= cost
     guildMd.save()
 
-    trunkNow = timezone.now().replace(microsecond=0)
+    trunkNow = RS.TimezoneToday(withTime=True)
     expireTm = PD.Timedelta(period).to_pytimedelta()
 
     # create the room
@@ -527,7 +526,7 @@ def UpgradeRoom(placement, guildMd):
     guildMd.VaultStone -= cost
     guildMd.save()
 
-    trunkNow = timezone.now().replace(microsecond=0)
+    trunkNow = RS.TimezoneToday(withTime=True)
     expireTm = PD.Timedelta(period).to_pytimedelta()
 
     roomMd.Status = 'Upgrading'
@@ -693,7 +692,7 @@ def TrainingStart(guildMd, thiefId, advance, placement):
     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
     upgradeMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
 
-    trunkNow = timezone.now().replace(microsecond=0)
+    trunkNow = RS.TimezoneToday(withTime=True)
     expireTm = PD.Timedelta(upgradeMd.TrainPeriod).to_pytimedelta()
     advance = advance.lower().replace('+', '')
 

@@ -13,8 +13,8 @@ import emporium.models as EM
 class Guild(JM.Model):
     UserFK = JM.ForeignKey(MM.User, on_delete=JM.CASCADE)
     Name = JM.TextField()
-    LastPlayed = JM.DateField(default=now)
-    CreateDate = JM.DateField(default=now)
+    LastPlayed = JM.DateField()
+    CreateDate = JM.DateField()
     Selected = JM.BooleanField(default=False)
 
     VaultGold = JM.IntegerField(default=0)
