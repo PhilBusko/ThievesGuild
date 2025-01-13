@@ -156,7 +156,6 @@ class GuildExpedition(JM.Model):
     objects = DB.BaseManager()
 
 class MarketStore(JM.Model):
-
     GuildFK = JM.ForeignKey(Guild, on_delete=JM.CASCADE)
     CreateDate = JM.DateField(default=now)
     World = JM.IntegerField()                   # currently generated world
@@ -165,5 +164,4 @@ class MarketStore(JM.Model):
     StoreType = JM.TextField()                  # common, rare
     RareProperties = JM.JSONField(null=True)    # may have property if rare
     Bought = JM.BooleanField(default=False)
-
     objects = DB.BaseManager()

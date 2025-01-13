@@ -508,13 +508,12 @@ def GetReplacement(guildMd, rewardDx):
 
 def GetOrCreateMarket(userMd, guildMd):
 
-    currDate = RS.TimezoneToday()
-    throneLevel = RS.GetThroneLevel(guildMd)
+    currentDt = RS.TimezoneToday()
 
     # check for existing daily market
 
     checkInventory = GM.MarketStore.objects.filter(
-        GuildFK=guildMd, CreateDate=currDate, World=guildMd.CampaignWorld
+        GuildFK=guildMd, CreateDate=currentDt, World=guildMd.CampaignWorld
         ).values()
 
     if len(checkInventory) > 0:
@@ -526,7 +525,7 @@ def GetOrCreateMarket(userMd, guildMd):
         return  NT.DataframeToDicts(commonDf), NT.DataframeToDicts(rareDf)
 
     # create common item inventory
-    # has thief 1S and class wargear
+    # has thief 1S and world's wargear
 
     GM.MarketStore.objects.filter(GuildFK=guildMd).delete()
 
@@ -537,7 +536,7 @@ def GetOrCreateMarket(userMd, guildMd):
     for cm in commonThief:
         newReso = GM.MarketStore()
         newReso.GuildFK = guildMd
-        newReso.CreateDate = currDate
+        newReso.CreateDate = currentDt
         newReso.World = guildMd.CampaignWorld
         newReso.ResourceId = cm['ResourceId']
         newReso.StoreType = 'common'
@@ -553,7 +552,7 @@ def GetOrCreateMarket(userMd, guildMd):
     for cm in commonItem:
         newReso = GM.MarketStore()
         newReso.GuildFK = guildMd
-        newReso.CreateDate = currDate
+        newReso.CreateDate = currentDt
         newReso.World = guildMd.CampaignWorld
         newReso.ResourceId = cm['ResourceId']
         newReso.StoreType = 'common'
@@ -593,11 +592,11 @@ def GetOrCreateMarket(userMd, guildMd):
 
         newReso = GM.MarketStore()
         newReso.GuildFK = guildMd
-        newReso.CreateDate = currDate
+        newReso.CreateDate = currentDt
         newReso.World = guildMd.CampaignWorld
         newReso.ResourceId = randomType
         newReso.StoreType = 'rare'
-        newReso.RareProperties = None            
+        newReso.RareProperties = None
 
         if 'thief' in randomType:
             newName = RS.GetThiefName(guildMd)
@@ -605,9 +604,24 @@ def GetOrCreateMarket(userMd, guildMd):
 
         newReso.save()
 
+    # on first day add 4 cloaks to rare store
+
+    if guildMd.CreateDate == currentDt and guildMd.CampaignWorld == 1:
+        for rg in range(0, 4):
+            cloakMd = EM.UnlockableItem.objects.GetOrNone(UnlockLevel=1, MagicLv=0, Slot='back')
+            newReso = GM.MarketStore()
+            newReso.GuildFK = guildMd
+            newReso.CreateDate = currentDt
+            newReso.World = guildMd.CampaignWorld
+            newReso.ResourceId = cloakMd.ResourceId
+            newReso.StoreType = 'rare'
+            newReso.RareProperties = None
+            newReso.save()
+
+
     # get the newly created data
 
-    inventory = GM.MarketStore.objects.filter(GuildFK=guildMd, CreateDate=currDate).values()
+    inventory = GM.MarketStore.objects.filter(GuildFK=guildMd, CreateDate=currentDt).values()
     inventory = AttachMarketDisplay(inventory)
 
     resourceDf = PD.DataFrame(inventory).drop(['_state', 'GuildFK_id',], axis=1, errors='ignore')
