@@ -637,8 +637,13 @@ def TrainingDetails(guildMd):
 
     for md in thiefMds:
 
+        totalSkill = RS.GetTotalSkill(md)
+        totalCombat = RS.GetTotalCombat(md)
+
         thiefDx = md.__dict__
         thiefLs.append(thiefDx)
+
+        # display formatting
 
         thiefDx['DisplayDamage'] = f"<{thiefDx['Damage']}>"
         thiefDx['GuildIcon'] = f"class-{thiefDx['Class'].lower()}-s{thiefDx['Stars']}"
@@ -650,6 +655,11 @@ def TrainingDetails(guildMd):
         thiefDx['ExpNextLevel'] = levelNextMd.Experience
         thiefDx['PowerNext'] = thiefDx['Power'] + levelNextMd.Power - levelMd.Power
         thiefDx['Duration'] = levelMd.TrainPeriod
+
+        thiefDx['TotalSkill'] = totalSkill
+        thiefDx['TotalCombat'] = totalCombat
+
+        # advancement data structure
 
         traitAdv = [
             {'stat': 'Agi +1', 'base': thiefDx['BaseAgi'], 'trained': thiefDx['TrainedAgi']},
@@ -677,12 +687,19 @@ def TrainingDetails(guildMd):
             tr['selected'] = 0
         thiefDx['Advances'] = traitAdv + skillAdv
 
+        # sorting
+
+        majorSort = 'C'
+        if thiefDx['Class'] == 'Scoundrel': majorSort = 'B'
+        if thiefDx['Class'] == 'Ruffian': majorSort = 'A'
+        thiefDx['sorting'] = f"{majorSort}-{str(thiefDx['Power']).zfill(4)}"
+
     thiefDf = PD.DataFrame(thiefLs)
     thiefDf = thiefDf.drop(['_state', 'GuildFK_id', 'CooldownExpire',
                             'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
                             'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd'], 
                             axis=1, errors='ignore')
-    thiefDf = thiefDf.sort_values(by=['Level', 'Experience'], ascending=[False, False])
+    thiefDf = thiefDf.sort_values(by=['sorting'], ascending=[False])
 
     return NT.DataframeToDicts(thiefDf)
 

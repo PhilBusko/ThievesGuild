@@ -17,6 +17,7 @@ import ThiefStats from '../elements/custom/thief-stats';
 import * as GI from '../assets/guild-icons';
 import * as RC from '../assets/resource';
 import CardTexture from '../assets/layout/card-texture.jpg';
+import SeparatorGold from '../assets/layout/separator-gold.png';
 import ThiefBurglar from '../assets/stage/thief-burglar.png';
 import ThiefScoundrel from '../assets/stage/thief-scoundrel.png';
 import ThiefRuffian from '../assets/stage/thief-ruffian.png';
@@ -228,8 +229,21 @@ const ItemContainer = styled(ST.FlexHorizontal)(({ theme }) => ({
     background: ST.MenuBkgd,
 }));
 
+const StatGroup = styled(ST.FlexVertical)(({ theme }) => ({
+    minWidth: '60px',
+    marginTop: '-6px',
+    padding: '3px', 
+    alignItems: 'flex-start',
+}));
+
 const ThiefIcon = styled('img')(({ theme }) => ({
-    width: '36px',
+    width: '42px',
+}));
+
+const SeparatorMenu = styled('img')(({ theme }) => ({
+    height: '50px',
+    width: '4px',
+    margin: '0px 3px',
 }));
 
 const ExperienceText = styled(ST.BaseText)(({ theme }) => ({
@@ -238,9 +252,9 @@ const ExperienceText = styled(ST.BaseText)(({ theme }) => ({
 }));
 
 const ExperienceBar = styled(LinearProgress)(({ theme }) => ({
-    width: '60px',
+    width: '56px',
     height: '8px',
-    marginTop: '6px',
+    margin: '10px 0px 0px 0px',
     borderRadius: '4px',
 }));
 
@@ -284,7 +298,7 @@ function CastleTrain(props) {
         AxiosConfig({
             url: '/engine/training-details',
         }).then(responseData => {
-            // console.log(responseData)
+            console.log(responseData)
             setThiefLs(responseData);
         }).catch(errorLs => {
             setErrorLs(errorLs);
@@ -310,7 +324,18 @@ function CastleTrain(props) {
     };
 
     const handleThiefChoice = (thief) => {
-        setSelectedThief(thief);
+
+        if (!!selectedThief) {
+            let thiefCopy = { ...selectedThief };
+            thiefCopy.Advances.forEach( (tr) => {
+                tr.selected = 0;
+            });
+            setSelectedThief(thiefCopy);
+        }
+        else {
+            setSelectedThief(thief);
+        }
+
         setSelectedAdvance(null);
         setAnchorEl(null);
     };
@@ -355,7 +380,6 @@ function CastleTrain(props) {
             setErrorLs(errorLs);
         });
     };
-
 
     const GetThiefIcon = (code) => {
         if (code == 'thief-burglar')    return ThiefBurglar;
@@ -411,7 +435,7 @@ function CastleTrain(props) {
                                 }
                                 </SheetControl>
 
-                                <ThiefMenu
+                                {/* <ThiefMenu
                                     anchorEl={anchorEl}
                                     open={!!anchorEl}
                                     onClose={handleClose}
@@ -452,7 +476,73 @@ function CastleTrain(props) {
                                             </ThiefMenuItem>
                                         ))}
                                     </Stack>
+                                </ThiefMenu> */}
+
+
+                                <ThiefMenu
+                                    anchorEl={anchorEl}
+                                    open={!!anchorEl}
+                                    onClose={handleClose}
+                                    anchorOrigin={{ horizontal: 'left', vertical: 'center', }}
+                                    transformOrigin={{ horizontal: 'right', vertical: 'center' }}
+                                >
+                                    <Stack spacing='8px'>
+                                        { thiefLs.map((thf, id) => (
+                                            <ThiefMenuItem key={id} 
+                                                onClick={()=> { handleThiefChoice(thf); }}
+                                                disabled={ thf.Status != 'Ready' || thf.Experience != thf.ExpNextLevel }
+                                            >
+                                                <ItemContainer>
+
+                                                    <ST.FlexVertical sx={{padding: '3px',}}>
+                                                        <ThiefIcon src={ GI.GetIconAsset(thf.GuildIcon) } />
+                                                    </ST.FlexVertical>
+                                                    <SeparatorMenu src={ SeparatorGold } />
+
+                                                    <StatGroup>
+                                                        <ST.FlexHorizontal sx={{ width: '100px', justifyContent: 'space-between' }}>
+                                                            <ST.BaseText>{thf.Name}</ST.BaseText>
+                                                            <ST.BaseText>[{thf.Power}]</ST.BaseText>
+                                                        </ST.FlexHorizontal>
+
+                                                        <ST.FlexHorizontal sx={{ width: '100px', justifyContent: 'space-between' }}>
+                                                            <ST.BaseText>Lv {thf.Level}</ST.BaseText>
+                                                            <ExperienceBar 
+                                                                variant='determinate' 
+                                                                value={ thf.Experience / thf.ExpNextLevel * 100  }
+                                                            />
+                                                        </ST.FlexHorizontal>
+                                                    </StatGroup>
+                                                    <SeparatorMenu src={ SeparatorGold } />
+
+                                                    <StatGroup>
+                                                        { thf.Class == 'Burglar' &&
+                                                            <ST.BaseText>Agi {thf.Agility}</ST.BaseText>
+                                                        }
+                                                        { thf.Class == 'Scoundrel' &&
+                                                            <ST.BaseText>Cun {thf.Cunning}</ST.BaseText>
+                                                        }
+                                                        { thf.Class == 'Ruffian' &&
+                                                            <ST.BaseText>Mig {thf.Might}</ST.BaseText>
+                                                        }
+                                                        <ST.BaseText>End {thf.Endurance}</ST.BaseText>
+                                                    </StatGroup>
+                                                    <SeparatorMenu src={ SeparatorGold } />
+
+                                                    <StatGroup>
+                                                        <ST.BaseText>Skills +{thf.TotalSkill}</ST.BaseText>
+                                                        <ST.BaseText>Combat +{thf.TotalCombat}</ST.BaseText>
+                                                    </StatGroup>
+
+                                                </ItemContainer>
+                                            </ThiefMenuItem>
+                                        ))}
+                                    </Stack>
                                 </ThiefMenu>
+
+
+
+
 
                                 <ST.RegularButton variant='contained' onClick={ handleMenu }
                                     sx={{marginTop: '16px'}}>
@@ -467,7 +557,7 @@ function CastleTrain(props) {
                                     dataLs={ selectedThief && selectedThief.Advances || [] }
                                     notifyAdvance={ handleAdvanceSelected }
                                 />
-                                
+
                                 <ST.FlexHorizontal sx={{justifyContent: 'space-evenly'}}>
 
                                     <SheetControl sx={{width: '100px', height: '100px'}}>

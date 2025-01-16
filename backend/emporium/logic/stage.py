@@ -25,20 +25,25 @@ def RollReward(aveResource):
     return roll
 
 def GetTreasureReward(obsLevel):
-    trapObs = EM.Trap.objects.filter(Level=obsLevel, Trait='Agi').order_by('Damage')
-    trapDx = list(trapObs)[0]
-    randomType = random.randint(1, 4)
-    treasureType = ''
-    treasureAmount = 0
 
-    if randomType != 4:
+    stageLs = EM.GothicTower.objects.filter(LevelLnd1=obsLevel).order_by('StageNo')
+    stageMd = list(stageLs)[0]
+    randomType = random.randint(1, 5)
+
+    if randomType in [1, 2]:
         treasureType = 'gold'
-        treasureBase = trapDx.Damage
+        treasureBase = round(stageMd.Gold / 4)
+        treasureAmount = RollReward(treasureBase)
+
+    elif randomType in [3, 4]:
+        treasureType = 'stone'
+        treasureBase = round(stageMd.Stone / 4)
         treasureAmount = RollReward(treasureBase)
 
     else:
         treasureType = 'gems'
-        treasureBase = math.floor(trapDx.Damage / 10)
+        treasureBase = round(stageMd.Gems / 4)
+        if treasureBase == 0: treasureBase = 1
         treasureAmount = treasureBase
 
     return f"{treasureType} {treasureAmount}"

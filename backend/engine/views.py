@@ -2,7 +2,6 @@
 ENGINE VIEWS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import pandas as PD
-import pytz
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -335,11 +334,10 @@ def ThiefDetails(request):
         })
 
     RS.ResetInjuryCooldowns(guildMd)
-    thiefDf = RS.GetThiefList(guildMd)
-    thiefDf = thiefDf.sort_values(by=['Class', 'Power'], ascending=[True, False])
+    thiefLs = RS.GetThiefList(guildMd)
 
     details = {
-        'thiefLs': NT.DataframeToDicts(thiefDf),
+        'thiefLs': thiefLs,
         'message': None,
     }
     return Response(details)
@@ -354,10 +352,8 @@ def VaultDetails(request):
     if not guildMd:
         return Response({'message': '* A guild must be chosen in the Account page.'})
 
-    assetDf = RS.GetAssetList(guildMd)
-
     details = {
-        'assetLs': NT.DataframeToDicts(assetDf),
+        'assetLs': RS.GetAssetList(guildMd),
         'message': None,
     }
     return Response(details)
@@ -404,12 +400,9 @@ def ChangeEquip(request):
 
     # refresh the frontend
 
-    thiefDf = RS.GetThiefList(guildMd)
-    assetDf = RS.GetAssetList(guildMd)
-
     details = {
-        'thiefLs': NT.DataframeToDicts(thiefDf),
-        'assetLs': NT.DataframeToDicts(assetDf),
+        'thiefLs': RS.GetThiefList(guildMd),
+        'assetLs': RS.GetAssetList(guildMd),
         'message': None,
     }
     return Response(details)
@@ -828,14 +821,14 @@ def DailyMarket(request):
     commonStore, dailyStore = CT.GetOrCreateMarket(userMd, guildMd)
 
     gemStore = [
-        {'gems': 20,    'targetAmount': 190,    'targetIcon': 'material-gold', },
-        {'gems': 80,    'targetAmount': 900,    'targetIcon': 'material-gold', },
-        {'gems': 150,   'targetAmount': 1800,   'targetIcon': 'material-gold', },
-        {'gems': 300,   'targetAmount': 4100,   'targetIcon': 'material-gold', },
-        {'gems': 20,    'targetAmount': 90,     'targetIcon': 'material-stone', },
-        {'gems': 80,    'targetAmount': 390,    'targetIcon': 'material-stone', },
-        {'gems': 150,   'targetAmount': 820,    'targetIcon': 'material-stone', },
-        {'gems': 300,   'targetAmount': 1800,   'targetIcon': 'material-stone', },
+        {'gems': 20,    'targetAmount': 220,    'targetIcon': 'material-gold', },
+        {'gems': 80,    'targetAmount': 1000,    'targetIcon': 'material-gold', },
+        {'gems': 150,   'targetAmount': 2100,   'targetIcon': 'material-gold', },
+        {'gems': 300,   'targetAmount': 4600,   'targetIcon': 'material-gold', },
+        {'gems': 20,    'targetAmount': 100,     'targetIcon': 'material-stone', },
+        {'gems': 80,    'targetAmount': 440,    'targetIcon': 'material-stone', },
+        {'gems': 150,   'targetAmount': 920,    'targetIcon': 'material-stone', },
+        {'gems': 300,   'targetAmount': 2000,   'targetIcon': 'material-stone', },
     ]
 
     marketDx = {

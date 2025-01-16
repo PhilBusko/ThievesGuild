@@ -73,8 +73,9 @@ const DeleteButton = styled(ButtonBase)(({ theme }) => ({
 function ThiefTable(props) {
 
     const [sortModel, setSortModel] = useState([
+        // multi column sorting only available in pro
         {
-            field: 'Power',
+            field: 'sorting',
             sort: 'desc',
         },
     ]);
@@ -101,6 +102,12 @@ function ThiefTable(props) {
             field: 'Power', headerName: 'Power', 
             sortable: true, sortingOrder: ['asc', 'desc'],
             width: 90, headerAlign: 'center', align: 'center',
+            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
+        },
+        {
+            field: 'sorting', headerName: 'sorting', 
+            sortable: true, sortingOrder: ['asc', 'desc'],
+            width: 80, headerAlign: 'center', align: 'center', hide: true,
             renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
         },
         {

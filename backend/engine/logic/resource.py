@@ -5,6 +5,7 @@ import random, datetime, pytz
 import pandas as PD
 from django.utils import timezone
 
+import app_proj.notebooks as NT
 import emporium.models as EM 
 import emporium.logic.guild as GD
 import emporium.logic.character_names as CN
@@ -85,14 +86,22 @@ def GetThiefList(guildMd):
 
         thiefDx['advances'] = advances
 
+        # create sorting columns since datagrid can only sort by 1 column
+
+        majorSort = 'C'
+        if thiefDx['Class'] == 'Scoundrel': majorSort = 'B'
+        if thiefDx['Class'] == 'Ruffian': majorSort = 'A'
+        thiefDx['sorting'] = f"{majorSort}-{str(thiefDx['Power']).zfill(4)}"
+
     thiefDf = PD.DataFrame(thiefLs)
     thiefDf = thiefDf.drop(['_state', 'GuildFK_id', 'BasePower', 'CooldownExpire',
                             'BaseAgi', 'BaseCun', 'BaseMig', 'BaseEnd', 
                             'TrainedAgi', 'TrainedCun', 'TrainedMig', 'TrainedEnd', ], 
                             axis=1, errors='ignore')
-    thiefDf = thiefDf.sort_values('Power', ascending=False)
+    thiefDf = thiefDf.sort_values(by=['sorting'], ascending=[False])
+    thiefLs = NT.DataframeToDicts(thiefDf)
 
-    return thiefDf
+    return thiefLs
 
 def GetAssetList(guildMd):
 
@@ -115,8 +124,9 @@ def GetAssetList(guildMd):
     assetDf = PD.DataFrame(assetLs)
     assetDf = assetDf.drop(['GuildFK_id', ], axis=1, errors='ignore')
     assetDf = assetDf.sort_values('Power', ascending=False)
+    assetLs = NT.DataframeToDicts(assetDf)
 
-    return assetDf
+    return assetLs
 
 def GetDisplayInfo(itemDx):
     # subroutine for GetThiefList, GetAssetList
