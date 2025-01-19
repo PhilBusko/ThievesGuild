@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Grid, Box, Menu, MenuItem, Stack } from '@mui/material';
 import { TextField, LinearProgress } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 
 import AxiosConfig from '../app-main/axios-config';
@@ -25,160 +24,7 @@ import ThiefRuffian from '../assets/stage/thief-ruffian.png';
 
 // TRAINING TABLE
 
-/*
-const StyledTable = styled(DataGrid)(({ theme }) => ({
-    border: `1px solid ${ST.FadedBlue}`,
-    borderRadius: '2px',
-    background: ST.TableBkgd,
-
-    '& .MuiDataGrid-columnHeader': {
-        fontFamily: 'started by a mouse', 
-        fontSize: '180%',
-        letterSpacing: 0.7,
-        color: ST.DefaultText,
-        fontWeight: 'bold',
-    },
-    // remove outline on click
-    '& .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator': {
-        display: 'none', 
-    },
-    '& .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus': {
-        outline: 'none !important',
-    },
-    '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
-        outline: 'none !important',
-    },
-    '& .MuiDataGrid-footerContainer': {
-        minHeight: 'initial !important',
-        height: '10px',
-    },
-    '& .MuiTablePagination-root': {
-        color: ST.DefaultText,
-    },
-    '& .MuiTablePagination-displayedRows': {
-        fontFamily: 'mercy christole',
-    },
-    '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
-        background: ST.FadedBlue,
-        cursor: 'default',
-    },
-    '& .MuiButtonBase-root.MuiIconButton-root': {
-        color: ST.DefaultText,
-    },
-    '& .MuiDataGrid-row:hover': {
-        // cursor: 'pointer',
-    },
-}));
-
-const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
-    width: '460px',
-    height: '120px',
-    border: `1px solid ${ST.FadedBlue}`,
-    borderRadius: '2px',
-    background: ST.TableBkgd, 
-}));
-
-const StyledNumber = styled(TextField)(({ theme }) => ({
-    margin: '3px 0px',
-    '& .MuiInputBase-root': {
-        padding: '2px 0px',
-        background: ST.ControlBkgd,
-        fontFamily: 'midnight flame',
-        fontSize: '20px',
-        lineHeight: 0.1,
-    },
-    '& .MuiInputBase-input': {
-        margin: '-4px 0px',
-        padding: '0px 6px 0px 10px',
-    },
-}));
-
-
-function TrainingTable(props) {
-
-    const hasSelected = () => {
-        let selected = false;
-        props.dataLs.forEach( (tr) => {
-            if (tr.selected) selected = true;
-        });
-        return selected;
-    }
-
-    // create the column definitions
-
-    var colDefs = [
-        {
-            field: 'base', headerName: 'Base', sortable: false,
-            width: 60, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
-        },
-        {
-            field: 'stat', headerName: 'Stat', sortable: false,
-            width: 80, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (<ST.BaseText> { params.value } </ST.BaseText>),
-        },
-        {
-            field: 'selected', headerName: 'Trained', sortable: false,
-            width: 70, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (
-                <StyledNumber 
-                    id={params.row.id.toString()}
-                    type='number'
-                    InputProps={{
-                        inputProps: { min: params.row.trained, max: params.row.trained +1, },
-                    }}
-                    value={ Number(params.row.trained) + Number(params.value) }
-                    onChange={(event) => { props.notifyAdvance(params.row.stat, event.target.value); }}
-                    onKeyDown={ (event) => {event.preventDefault();} }
-                    disabled={ params.row.available == 0 || 
-                        (hasSelected() && params.row.selected == 0) }
-                />
-            ),
-        },
-        {
-            field: 'available', headerName: 'Usable', sortable: false,
-            width: 70, headerAlign: 'center', align: 'center',
-            renderCell: (params) => (
-                <ST.BaseText> { params.value - params.row.selected } </ST.BaseText>
-            ),
-        },
-    ];
-
-    // render
-
-    return (<>
-        { props.dataLs.length > 0 && true
-            // <StyledTable
-            //     rows={props.dataLs}
-            //     columns={colDefs}
-            //     sx={{ width: '286px' }}
-            //     autoHeight={true}
-            //     // rowHeight={40}
-            //     getRowHeight={() => 'auto'}
-            //     density='compact'            
-            //     disableColumnMenu            
-            //     hideFooter
-            //     disableSelectionOnClick
-            // />
-        }
-        { props.dataLs.length === 0 &&
-            <EmptyTable sx={{ width: '285px', height: '343px' }}>
-                <ST.BaseText>Training Options</ST.BaseText>
-            </EmptyTable>
-        }
-    </>);
-}
-
-TrainingTable.defaultProps = {
-    dataLs: [],
-    notifyAdvance: () => {},
-};
-*/
-
-
 const AdvanceTable = styled(Stack)(({ theme }) => ({
-    // maxWidth: '460px',
-    // padding: '0px 6px 4px 6px', 
     border: `1px solid ${ST.FadedBlue}`,
     borderRadius: '3px',
     background: ST.TableBkgd,
@@ -192,7 +38,6 @@ const AdvanceRow = styled(ST.FlexHorizontal)(({ theme }) => ({
 const AdvanceCell = styled(Box)(({ theme }) => ({
     width: '70px',
 }));
-
 
 const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
     // width: '460px',
@@ -298,10 +143,6 @@ TrainingTable.defaultProps = {
 };
 
 
-
-
-
-
 // TRAINING PAGE
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -372,11 +213,6 @@ const SeparatorMenu = styled('img')(({ theme }) => ({
     margin: '0px 3px',
 }));
 
-const ExperienceText = styled(ST.BaseText)(({ theme }) => ({
-    // marginTop: '-12px',
-    fontSize: '22px',
-}));
-
 const ExperienceBar = styled(LinearProgress)(({ theme }) => ({
     width: '56px',
     height: '8px',
@@ -444,7 +280,7 @@ function CastleTrain(props) {
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
     };
-    
+
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -456,11 +292,8 @@ function CastleTrain(props) {
             thiefCopy.Advances.forEach( (tr) => {
                 tr.selected = 0;
             });
-            setSelectedThief(thiefCopy);
         }
-        else {
-            setSelectedThief(thief);
-        }
+        setSelectedThief(thief);
 
         setSelectedAdvance(null);
         setAnchorEl(null);
