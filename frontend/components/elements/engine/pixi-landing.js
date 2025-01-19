@@ -130,10 +130,10 @@ function PixiLanding(props) {
             return `${rawTx.split(' ')[1]} exp`;
         if (rawTx.includes('gold'))
             return `${rawTx.split(' ')[1]} gold`;
+        if (rawTx.includes('stone'))
+            return `${rawTx.split(' ')[1]} stone`;
         if (rawTx.includes('gems'))
             return `${rawTx.split(' ')[1]} gems`;
-        if (rawTx.includes('heal'))
-            return `${rawTx.split(' ')[1]} healing`;
     }
 
     useEffect(() => {
@@ -647,10 +647,10 @@ function PixiLanding(props) {
                 let newText = '';
                 if (actionDx.reward.includes('xp'))
                     newText = `${actionDx.reward.split(' ')[1]} exp\n`;
-                if (actionDx.reward.includes('heal'))
-                    newText = `${actionDx.reward.split(' ')[1]} healing\n`;
                 if (actionDx.reward.includes('gold'))
                     newText = `${actionDx.reward.split(' ')[1]} gold\n`;
+                if (actionDx.reward.includes('stone'))
+                    newText = `${actionDx.reward.split(' ')[1]} stone\n`;
                 if (actionDx.reward.includes('gems'))
                     newText = `${actionDx.reward.split(' ')[1]} gems\n`;
                 setRewardResults(newText);
@@ -822,6 +822,20 @@ function PixiLanding(props) {
     }
 
 
+    useEffect(() => {
+        // dev call to speed up runs
+
+        if (!!props.clickSkip) {
+            let lastPos = props.actionLs[props.actionLs.length -1];
+            console.log(lastPos);
+            setAnimPos(lastPos.posCurr -1);
+        }
+        else {
+            return;
+        }
+    }, [props.clickSkip]);
+
+
     // render
     // z-index is set by display order, not z-index prop
 
@@ -962,6 +976,7 @@ PixiLanding.defaultProps = {
     thiefAssigned: {},
     speed: 100,
     setForward: () => {},
+    clickSkip: false,
 };
 
 export default PixiLanding;

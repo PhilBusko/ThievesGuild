@@ -188,17 +188,17 @@ def GetOrCreateDungeon(guildMd, currDate):
     guildMd.DungeonCheck = currDate
     guildMd.save()
 
-    # if it's the first day don't create dungeon
+    # if it's the first world don't create dungeon
 
-    if guildMd.CreateDate == currDate:
+    if guildMd.CampaignWorld == 1:
         return []
 
     # create during the daily update
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='dungeon').delete()
-    result = random.randint(1, 20)
+    result = random.randint(1, 100)
 
-    if result >= 18:
+    if result > 80:
         rawStages = list(EM.Dungeon.objects.filter(World=guildMd.CampaignWorld).values())
         CreateStageLandings(guildMd, 'dungeon', currDate, rawStages)
 

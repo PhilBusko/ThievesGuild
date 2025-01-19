@@ -25,6 +25,7 @@ import ThiefRuffian from '../assets/stage/thief-ruffian.png';
 
 // TRAINING TABLE
 
+/*
 const StyledTable = styled(DataGrid)(({ theme }) => ({
     border: `1px solid ${ST.FadedBlue}`,
     borderRadius: '2px',
@@ -146,19 +147,142 @@ function TrainingTable(props) {
     // render
 
     return (<>
-        { props.dataLs.length > 0 &&
-            <StyledTable
-                rows={props.dataLs}
-                columns={colDefs}
-                sx={{ width: '286px' }}
-                autoHeight={true}
-                // rowHeight={40}
-                getRowHeight={() => 'auto'}
-                density='compact'            
-                disableColumnMenu            
-                hideFooter
-                disableSelectionOnClick
-            />
+        { props.dataLs.length > 0 && true
+            // <StyledTable
+            //     rows={props.dataLs}
+            //     columns={colDefs}
+            //     sx={{ width: '286px' }}
+            //     autoHeight={true}
+            //     // rowHeight={40}
+            //     getRowHeight={() => 'auto'}
+            //     density='compact'            
+            //     disableColumnMenu            
+            //     hideFooter
+            //     disableSelectionOnClick
+            // />
+        }
+        { props.dataLs.length === 0 &&
+            <EmptyTable sx={{ width: '285px', height: '343px' }}>
+                <ST.BaseText>Training Options</ST.BaseText>
+            </EmptyTable>
+        }
+    </>);
+}
+
+TrainingTable.defaultProps = {
+    dataLs: [],
+    notifyAdvance: () => {},
+};
+*/
+
+
+const AdvanceTable = styled(Stack)(({ theme }) => ({
+    // maxWidth: '460px',
+    // padding: '0px 6px 4px 6px', 
+    border: `1px solid ${ST.FadedBlue}`,
+    borderRadius: '3px',
+    background: ST.TableBkgd,
+}));
+
+const AdvanceRow = styled(ST.FlexHorizontal)(({ theme }) => ({
+    borderBottom: `1px solid ${ST.DefaultText}`,
+    textAlign: 'center',
+}));
+
+const AdvanceCell = styled(Box)(({ theme }) => ({
+    width: '70px',
+}));
+
+
+const EmptyTable = styled(ST.FlexHorizontal)(({ theme }) => ({
+    // width: '460px',
+    // height: '120px',
+    border: `1px solid ${ST.FadedBlue}`,
+    borderRadius: '3px',
+    background: ST.TableBkgd, 
+}));
+
+const StyledNumber = styled(TextField)(({ theme }) => ({
+    width: '52px',
+    margin: '3px 0px',
+    '& .MuiInputBase-root': {
+        padding: '2px 0px',
+        background: ST.ControlBkgd,
+        fontFamily: 'midnight flame',
+        fontSize: '20px',
+        lineHeight: 0.1,
+    },
+    '& .MuiInputBase-input': {
+        margin: '-4px 0px',
+        padding: '0px 6px 0px 10px',
+    },
+}));
+
+
+function TrainingTable(props) {
+
+    const hasSelected = () => {
+        let selected = false;
+        props.dataLs.forEach( (tr) => {
+            if (tr.selected) selected = true;
+        });
+        return selected;
+    }
+
+    // render
+
+    return (<>
+        { props.dataLs.length > 0 && 
+
+            <AdvanceTable>
+                <AdvanceRow sx={{height: '38px'}}>
+                    <AdvanceCell sx={{ borderRight: `2px solid ${ST.DefaultText}`,}}>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>Base</ST.BaseText>
+                    </AdvanceCell>
+                    <AdvanceCell sx={{borderRight: `2px solid ${ST.DefaultText}`,}}>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>Stat</ST.BaseText>
+                    </AdvanceCell>
+                    <AdvanceCell sx={{borderRight: `2px solid ${ST.DefaultText}`,}}>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>Trained</ST.BaseText>
+                    </AdvanceCell>
+                    <AdvanceCell>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>Usable</ST.BaseText>
+                    </AdvanceCell>
+                </AdvanceRow>
+            { props.dataLs.map((adv, id) => (
+                <AdvanceRow 
+                    key={ id }
+                    sx={{ borderBottom: id != props.dataLs.length -1 ? `1px solid ${ST.DefaultText}`: '0px', }}
+                >
+                    <AdvanceCell>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>{ adv.base }</ST.BaseText>
+                    </AdvanceCell>
+                    <AdvanceCell>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>{ adv.stat }</ST.BaseText>
+                    </AdvanceCell>
+                    <AdvanceCell>
+
+                        <StyledNumber 
+                            id={adv.id.toString()}
+                            type='number'
+                            InputProps={{
+                                inputProps: { min: adv.trained, max: adv.trained +1, },
+                            }}
+                            value={ Number(adv.trained) + Number(adv.selected) }
+                            onChange={(event) => { props.notifyAdvance(adv.stat, event.target.value); }}
+                            onKeyDown={ (event) => {event.preventDefault();} }
+                            disabled={ adv.available == 0 || 
+                                (hasSelected() && adv.selected == 0) }
+                        />
+
+                    </AdvanceCell>
+                    <AdvanceCell>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>{ adv.available }</ST.BaseText>
+                    </AdvanceCell>
+                </AdvanceRow>
+            ))}
+            </AdvanceTable>
+
         }
         { props.dataLs.length === 0 &&
             <EmptyTable sx={{ width: '285px', height: '343px' }}>
@@ -174,6 +298,10 @@ TrainingTable.defaultProps = {
 };
 
 
+
+
+
+
 // TRAINING PAGE
 
 const Broadcast = styled(Box)(({ theme }) => ({
@@ -184,17 +312,15 @@ const Broadcast = styled(Box)(({ theme }) => ({
 }));
 
 const SheetControl = styled(Box)(({ theme }) => ({
-    //width: '310px',
     padding: '6px 8px', 
     border: `1px solid ${ST.FadedBlue}`,
-    borderRadius: '2px',
+    borderRadius: '3px',
     background: ST.TableBkgd,
 }));
 
 const ThiefContainer = styled(Box)(({ theme }) => ({
     width: '136px', 
     height: '190px',
-    // margin: '0px 28px 0px 8px',     // T R B L
     border: '1px solid tan', 
     background: 'darkslategrey',
 }));
@@ -435,50 +561,6 @@ function CastleTrain(props) {
                                 }
                                 </SheetControl>
 
-                                {/* <ThiefMenu
-                                    anchorEl={anchorEl}
-                                    open={!!anchorEl}
-                                    onClose={handleClose}
-                                    anchorOrigin={{ horizontal: 'right', vertical: 'center', }}
-                                    transformOrigin={{ horizontal: 'left', vertical: 'center' }}
-                                >
-                                    <Stack spacing='8px'>
-                                        { thiefLs.map((thf, id) => (
-                                            <ThiefMenuItem key={id} 
-                                                onClick={()=> { handleThiefChoice(thf) }}
-                                                disabled={ thf.Status != 'Ready' || thf.Experience != thf.ExpNextLevel }
-                                            >
-                                                <ItemContainer>
-
-                                                    <ST.FlexVertical>
-                                                        <ThiefIcon src={ GI.GetIconAsset(thf.GuildIcon) } />
-                                                    </ST.FlexVertical>
-
-                                                    <ST.BaseText sx={{width: '80px', marginTop: '-6px'}}>
-                                                        { thf.Name }
-                                                    </ST.BaseText>
-
-                                                    <ST.BaseText sx={{marginTop: '-6px'}}>
-                                                        L{ thf.Level }
-                                                    </ST.BaseText>
-
-                                                    <ST.FlexVertical sx={{width: '80px'}}>
-                                                        <ExperienceText>
-                                                            { thf.Experience.toLocaleString() } / { thf.ExpNextLevel.toLocaleString() }
-                                                        </ExperienceText>
-                                                        <ExperienceBar 
-                                                            variant='determinate' 
-                                                            value={ thf.Experience / thf.ExpNextLevel * 100 }
-                                                        />
-                                                    </ST.FlexVertical>
-
-                                                </ItemContainer>
-                                            </ThiefMenuItem>
-                                        ))}
-                                    </Stack>
-                                </ThiefMenu> */}
-
-
                                 <ThiefMenu
                                     anchorEl={anchorEl}
                                     open={!!anchorEl}
@@ -539,10 +621,6 @@ function CastleTrain(props) {
                                         ))}
                                     </Stack>
                                 </ThiefMenu>
-
-
-
-
 
                                 <ST.RegularButton variant='contained' onClick={ handleMenu }
                                     sx={{marginTop: '16px'}}>

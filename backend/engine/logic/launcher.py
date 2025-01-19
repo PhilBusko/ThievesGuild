@@ -165,6 +165,7 @@ def GetLandingRewards(pActions):
         if reward:
             if 'xp' in reward:      rewardDx['xp'] = rewardDx.get('xp', 0) + int(reward.split(' ')[1])
             if 'gold' in reward:    rewardDx['gold'] = rewardDx.get('gold', 0) + int(reward.split(' ')[1])
+            if 'stone' in reward:   rewardDx['stone'] = rewardDx.get('stone', 0) + int(reward.split(' ')[1])
             if 'gems' in reward:    rewardDx['gems'] = rewardDx.get('gems', 0) + int(reward.split(' ')[1])
     return rewardDx
 

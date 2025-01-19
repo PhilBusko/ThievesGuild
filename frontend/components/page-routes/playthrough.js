@@ -98,6 +98,9 @@ function Playthrough(props) {
     // go to next scene with forward button
 
     const advancePhase = () => {
+
+        setSkip(false);
+
         AxiosConfig({
             method: 'POST',     
             url: '/engine/finish-landing',
@@ -135,6 +138,15 @@ function Playthrough(props) {
     const changeSpeed = () => {
         if (battleSpeed == SPEED1)      setBattleSpeed(SPEED2);
         if (battleSpeed == SPEED2)      setBattleSpeed(SPEED1);
+    }
+
+
+    // dev call to skipp all obstacles
+
+    const [skip, setSkip] = useState(false);
+
+    const skipObstacles = () => {
+        setSkip(true);
     }
 
 
@@ -217,7 +229,7 @@ function Playthrough(props) {
                                     <ST.FlexVertical sx={{width: '64px'}}>
                                         { !!deployment[idx] && <>
                                             <ST.BaseText>{ deployment[idx].Class }</ST.BaseText>
-                                            <ST.BaseText>{ deployment[idx].Name }</ST.BaseText>
+                                            <ST.BaseText sx={{whiteSpace: 'nowrap'}}>{ deployment[idx].Name }</ST.BaseText>
                                             <ST.BaseText>[{ deployment[idx].Power }]</ST.BaseText>
                                         </>}
                                     </ST.FlexVertical>
@@ -258,6 +270,7 @@ function Playthrough(props) {
                             thiefAssigned={ deployment[landingIdx] }
                             speed={ battleSpeed }
                             setForward={ setForwardEnabled }
+                            clickSkip={ skip }
                         />
 
                         <ST.FlexHorizontal sx={{ justifyContent: 'space-evenly', }}>
@@ -270,6 +283,15 @@ function Playthrough(props) {
                                     {battleSpeed == SPEED2 && 'Speed 2x'}
                                 </ST.LinkText>
                             </ST.RegularButton>
+
+                            <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
+                                onClick={ skipObstacles }
+                            >
+                                <ST.LinkText>
+                                    Skip >>
+                                </ST.LinkText>
+                            </ST.RegularButton>
+
                             <ST.RegularButton variant='contained' sx={{margin: '20px 20px 4px 0px'}}
                                 onClick={ advancePhase }
                                 disabled={ !forwardEnabled }

@@ -13,6 +13,7 @@ import * as GI from '../../assets/guild-icons';
 
 const StyledTable = styled(DataGrid)(({ theme }) => ({
     border: `1px solid ${ST.FadedBlue}`,
+    borderRadius: '3px',
     background: ST.TableBkgd, 
 
     '& .MuiDataGrid-main': {

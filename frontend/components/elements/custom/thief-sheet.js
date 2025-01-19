@@ -18,7 +18,7 @@ const SheetControl = styled(Box)(({ theme }) => ({
     //width: '310px',
     padding: '6px 8px', 
     border: `1px solid ${ST.FadedBlue}`,
-    borderRadius: '2px',
+    borderRadius: '3px',
     background: ST.TableBkgd,
 }));
 

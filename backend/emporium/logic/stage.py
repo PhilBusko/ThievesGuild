@@ -15,12 +15,8 @@ def RollDamage(aveDamage):
     return roll
 
 def RollReward(aveResource):
-    factor = 5
-    if aveResource > 100: factor = 6
-    if aveResource > 500: factor = 7
-    if aveResource > 1000: factor = 8
-    variance = math.floor(aveResource / factor)
-    if variance == 0: variance = 1
+    variance = math.floor(aveResource / 2)
+    if variance > 10: variance = 10
     roll = random.randint(aveResource - variance, aveResource + variance)
     return roll
 
