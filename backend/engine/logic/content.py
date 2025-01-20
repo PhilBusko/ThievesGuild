@@ -3,6 +3,7 @@ ENGINE CONTENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random
 import pandas as PD
+from django.db.models import Min
 import app_proj.notebooks as NT
 
 import emporium.models as EM 
@@ -387,27 +388,32 @@ def GetCampaignForward(guildMd):
 
 def CreateExpedition(guildMd, currDate, slotNo):
 
-    # get all the combinations
+    # bias the combinations towards lower level expeditions
 
     levelLs = EM.ExpeditionLevel.objects.filter(World=guildMd.CampaignWorld)
     typeLs = EM.ExpeditionType.objects.all()
+    levelMin = levelLs.values('Level').aggregate(Min('Level'))['Level__min']
 
     allTypes = []
     for lv in levelLs:
         for tp in typeLs:
             allTypes.append(f"{lv.Level}-{tp.Type}")
+            if lv.Level == levelMin: allTypes.append(f"{lv.Level}-{tp.Type}")
 
-    # remove the existing ones
+    # remove the existing ones along with their duplicates
 
     existMd = GM.GuildExpedition.objects.filter(GuildFK=guildMd)
 
     if existMd:
         for ep in existMd:
             allTypes.remove(ep.FullType)
+            if ep.Level == levelMin: allTypes.remove(ep.FullType)
 
     # create a random expedition from the remaining
 
     fullType = random.choice(allTypes)
+    fullLevel = int(fullType.split('-')[0])
+    levelMd = EM.ExpeditionLevel.objects.GetOrNone(World=guildMd.CampaignWorld, Level=fullLevel)
 
     newExp = GM.GuildExpedition()
     newExp.GuildFK = guildMd
@@ -416,7 +422,7 @@ def CreateExpedition(guildMd, currDate, slotNo):
     newExp.Level = fullType.split('-')[0]
     newExp.BaseType = fullType.split('-')[1]
     newExp.FullType = fullType
-    newExp.Duration = '1 min'
+    newExp.Duration = levelMd.Duration
     newExp.save()
 
 def GetExpeditions(guildMd, trunkNow):

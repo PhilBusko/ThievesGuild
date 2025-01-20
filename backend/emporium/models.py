@@ -81,7 +81,8 @@ class BasicRoom(JM.Model):
     Dorm_MaxThieves = JM.IntegerField()
     Dorm_Recovery = JM.TextField()
     Cartog_Slots = JM.IntegerField()
-    Cartog_Recovery = JM.TextField()
+    Cartog_Bonus = JM.TextField()
+    Cartog_MinDur = JM.TextField()
     objects = DB.BaseManager()
 
 class AdvancedRoom(JM.Model):
