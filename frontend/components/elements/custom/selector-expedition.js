@@ -2,8 +2,9 @@
 SELECTOR EXPEDITION
 **************************************************************************************************/
 import { useState } from 'react';
-import { Box, Button, Menu, MenuItem, Stack, LinearProgress } from '@mui/material';
+import { Box, Button, ButtonBase, Menu, MenuItem, Stack, LinearProgress, Popover } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Info } from '@mui/icons-material';
 
 import * as ST from  '../styled-elements';
 import ThiefStats from './thief-stats';
@@ -37,6 +38,24 @@ const SelectorButton = styled(Button)(({ theme }) => ({
         letterSpacing: 1.5,   
     }, 
 }));
+
+const InfoButton = styled(ButtonBase)(({ theme }) => ({
+    color: ST.FadedBlue,
+    background:ST.DefaultText,
+    borderRadius:'50%',
+
+    fontSize: '200%',
+}));
+
+const InfoContainer = styled(ST.FlexVertical)(({ theme }) => ({
+    padding: '0px 4px 4px 4px',
+    overflow: 'hidden',
+    alignItems: 'flex-start',
+    border: `1px solid ${ST.FadedBlue}`,
+    background: ST.TableBkgd,
+}));
+
+
 
 
 const ThiefMenu = styled(Menu)(({ theme }) => ({
@@ -90,6 +109,7 @@ const ExperienceBar = styled(LinearProgress)(({ theme }) => ({
 
 function SelectorExpedition(props) {
 
+
     // display expeditions
 
     const getExpNumber = (expNo) => {
@@ -130,6 +150,7 @@ function SelectorExpedition(props) {
         return bkgd;
     }
 
+
     // thief selection menu
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -147,6 +168,20 @@ function SelectorExpedition(props) {
         setAnchorEl(null);
     };
 
+
+    // duration info
+
+    const [infoAnchor, setInfoAnchor] = useState(null);
+
+    const infoClick = (event) => {
+        setInfoAnchor(event.currentTarget);
+    };
+
+    const infoClose = () => {
+        setInfoAnchor(null);
+    };
+
+
     // render
 
     return (
@@ -160,7 +195,30 @@ function SelectorExpedition(props) {
                     <ST.BaseText>{getLongType(props.type)}</ST.BaseText>
                     <ST.BaseText>Power: {props.power}</ST.BaseText>
                     <ST.BaseText>Level: {props.level}</ST.BaseText>
-                    <ST.BaseText>Duration: {props.duration}</ST.BaseText>
+
+                    <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                        <ST.BaseText>Duration: {props.duration}</ST.BaseText>
+
+                        <InfoButton onClick={ infoClick }>
+                            <Info  sx={{fontSize: '60%'}}></Info>
+                        </InfoButton>
+
+                        <Popover
+                            anchorEl={ infoAnchor }
+                            open={ !!infoAnchor }
+                            onClose={ infoClose }
+                            anchorOrigin={{ vertical: 'center', horizontal: 'right', }}
+                            transformOrigin={{ vertical: 'center', horizontal: 'left', }}
+                        >
+                            <InfoContainer>
+                            { props.durationInfo.map((nf, id) => (
+                               <ST.BaseText key={id}>{ nf }</ST.BaseText>
+                            ))}
+                            </InfoContainer>
+                        </Popover>
+
+                    </ST.FlexHorizontal>
+
                 </ST.FlexVertical>
             </ControlWorkspace>
 
@@ -293,6 +351,7 @@ SelectorExpedition.defaultProps = {
     power: 0,
     level: 0,
     duration: '',
+    durationInfo: [],
 
     thiefChoices: [],
     selectedThief: null,

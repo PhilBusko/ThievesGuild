@@ -63,7 +63,7 @@ def GetInfo(upgradeType, roomName, roomLevel):
         if roomName == 'Cartographer':
             infoDx = {
                 'Expedition Slots': abilityMd.Cartog_Slots,
-                'Rest Bonus': abilityMd.Cartog_Recovery,
+                'Duration Bonus': f"-{abilityMd.Cartog_Bonus}",
             }
 
     if upgradeType == 'advanced':
@@ -150,7 +150,7 @@ def GetUpgradeInfo(upgradeType, roomName, roomLevel):
         if roomName == 'Cartographer':
             infoDx = {
                 'Expedition Slots': f"{currMd.Cartog_Slots} -> {nextMd.Cartog_Slots}",
-                'Rest Bonus': f"{currMd.Cartog_Recovery} -> {nextMd.Cartog_Recovery}",
+                'Duration Bonus': f"{currMd.Cartog_Bonus} -> {nextMd.Cartog_Bonus}",
             }
 
     if upgradeType == 'advanced':

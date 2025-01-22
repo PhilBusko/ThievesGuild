@@ -82,7 +82,6 @@ class BasicRoom(JM.Model):
     Dorm_Recovery = JM.TextField()
     Cartog_Slots = JM.IntegerField()
     Cartog_Bonus = JM.TextField()
-    Cartog_MinDur = JM.TextField()
     objects = DB.BaseManager()
 
 class AdvancedRoom(JM.Model):
@@ -218,6 +217,7 @@ class ExpeditionLevel(JM.Model):
     World = JM.IntegerField()
     Level = JM.IntegerField()
     Duration = JM.TextField()
+    DurationMin = JM.TextField()
     objects = DB.BaseManager()
 
 class ExpeditionType(JM.Model):

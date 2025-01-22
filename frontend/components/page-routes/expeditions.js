@@ -62,7 +62,7 @@ function Expedition(props) {
             url: '/engine/expedition-update',
         }).then(responseData => {
             if (!responseData.message && responseData.expeditions.length > 0) {
-                // console.log(responseData);
+                console.log(responseData);
                 setExpeditionLs(responseData.expeditions);
             }
             else if (!responseData.message && responseData.expeditions.length == 0) {
@@ -231,6 +231,7 @@ function Expedition(props) {
                                         power={ ep.Power }
                                         level={ ep.Level }
                                         duration={ ep.Duration }
+                                        durationInfo={ ep.DurationInfo }
 
                                         thiefChoices={ thiefLs }
                                         selectedThief={ ep.ThiefDx }

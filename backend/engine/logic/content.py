@@ -473,6 +473,31 @@ def GetExpeditions(guildMd, trunkNow):
 
         ep['Power'] = EM.RequiredPower.objects.GetOrNone(Level=ep['Level'], Obstacles=15).RequiredPower
 
+        durationInfo = []
+
+        expeditionMd = EM.ExpeditionLevel.objects.GetOrNone(Level=ep['Level'])
+        durationInfo.append(f"Expedition {ep['Level']}: {expeditionMd.Duration}")
+        levelTm = PD.Timedelta(expeditionMd.Duration).to_pytimedelta()
+        durationFinal = levelTm
+
+        roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+        for rm in roomLs:
+            if rm.Level == 0: continue
+            referenceMd = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+            durationInfo.append(f"Cartographer {rm.Level}: -{referenceMd.Cartog_Bonus}")
+            roomTm = PD.Timedelta(referenceMd.Cartog_Bonus).to_pytimedelta()
+            durationFinal -= roomTm
+
+        minDt = PD.Timedelta(expeditionMd.DurationMin).to_pytimedelta()
+        if durationFinal >= minDt:
+            durationInfo.append(f"Final: {durationFinal.seconds//3600} hr")
+        else:
+            durationFinal = minDt
+            durationInfo.append(f"Final: {durationFinal.seconds//3600} hr (minimum)")
+
+        ep['Duration'] = f"{durationFinal.seconds//3600} hr"
+        ep['DurationInfo'] = durationInfo
+
     expeditionLs = sorted(expeditionLs, key=lambda d: d['SlotNo'])
     return expeditionLs
 

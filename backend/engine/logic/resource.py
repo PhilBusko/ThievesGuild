@@ -1,7 +1,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 ENGINE RESOURCE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import random, datetime, pytz
+import random, pytz
 import pandas as PD
 from django.utils import timezone
 
@@ -356,11 +356,6 @@ def GetRecoveryTime(guildMd):
     for rm in roomLs:
         roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
         count += PD.Timedelta(roomLookup.Dorm_Recovery).to_pytimedelta() 
-
-    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer', Level__gte=1)
-    for rm in roomLs:
-        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
-        count += PD.Timedelta(roomLookup.Cartog_Recovery).to_pytimedelta() 
 
     return count
 
