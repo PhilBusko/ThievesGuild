@@ -41,7 +41,7 @@ const SelectorButton = styled(Button)(({ theme }) => ({
 
 const InfoButton = styled(ButtonBase)(({ theme }) => ({
     color: ST.FadedBlue,
-    background:ST.DefaultText,
+    background: ST.DefaultText,
     borderRadius:'50%',
 
     fontSize: '200%',

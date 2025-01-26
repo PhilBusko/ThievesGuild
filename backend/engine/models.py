@@ -59,7 +59,7 @@ class ThiefInGuild(JM.Model):
     Perceive = JM.IntegerField(null=True)
     Traverse = JM.IntegerField(null=True)
 
-    Status = JM.TextField(default='Ready')      # Ready, Looting, Wounded, Knocked Out, Exploring, Training
+    Status = JM.TextField(default='Ready')      # Ready, Looting, Wounded, Beaten, Exploring, Training
     CooldownExpire = JM.DateTimeField(null=True)
     # Position = JM.TextField(default='Available')
 

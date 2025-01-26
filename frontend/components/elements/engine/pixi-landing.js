@@ -827,7 +827,7 @@ function PixiLanding(props) {
 
         if (!!props.clickSkip) {
             let lastPos = props.actionLs[props.actionLs.length -1];
-            console.log(lastPos);
+            // console.log(lastPos);
             setAnimPos(lastPos.posCurr -1);
         }
         else {

@@ -3,8 +3,9 @@ STAGE AFTERMATH
 **************************************************************************************************/
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Grid, Box, Stack, LinearProgress } from '@mui/material';
+import { Grid, Box, ButtonBase, LinearProgress, Popover } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Info } from '@mui/icons-material';
 
 import AxiosConfig from '../app-main/axios-config';
 import { GlobalContext } from '../app-main/global-store';
@@ -88,6 +89,22 @@ const MaterialImage = styled('img')(({ theme }) => ({
     // border: '1px solid black',
 }));
 
+const InfoButton = styled(ButtonBase)(({ theme }) => ({
+    color: ST.FadedBlue,
+    background: ST.DefaultText,
+    borderRadius:'50%',
+
+    fontSize: '180%',
+}));
+
+const InfoContainer = styled(ST.FlexVertical)(({ theme }) => ({
+    padding: '0px 4px 4px 4px',
+    overflow: 'hidden',
+    alignItems: 'flex-start',
+    border: `1px solid ${ST.FadedBlue}`,
+    background: ST.TableBkgd,
+}));
+
 
 function Aftermath(props) {
 
@@ -112,7 +129,7 @@ function Aftermath(props) {
             navigate('/heists/');
         }
         else {
-            // console.log(location.state);  
+            console.log(location.state);  
             setNextScene(location.state.nextScene);
 
             let heist = `${getTitle(location.state.heist)} - Stage ${location.state.stageNo}`;
@@ -151,6 +168,19 @@ function Aftermath(props) {
     }
 
 
+    // wound duration info
+
+    const [infoAnchor, setInfoAnchor] = useState(null);
+
+    const infoClick = (event) => {
+        setInfoAnchor(event.currentTarget);
+    };
+
+    const infoClose = () => {
+        setInfoAnchor(null);
+    };
+
+
     // display helpers
 
     const getTitle = (heist) => {
@@ -170,14 +200,14 @@ function Aftermath(props) {
     }
 
     const getStatusColor = (status) => {
-        if (status == 'Ready') return 'green';
-        if (status == 'Wounded') return 'crimson';
-        if (status == 'Knocked Out') return '#00004d';
+        if (status == 'Ready')      return 'green';
+        if (status == 'Wounded')    return 'crimson';
+        if (status == 'Beaten')     return '#00004d';
         return '';
     }
 
     const getStatusTx = (status, cooldown) => {
-        let statusTx = cooldown ? `${status} - ${cooldown}` : status;
+        let statusTx = cooldown ? `${status}: ${cooldown}` : status;
         if (statusTx == 'Ready') statusTx = 'Fatigued';
         return statusTx
     }
@@ -231,47 +261,71 @@ function Aftermath(props) {
                     <ST.ContentCard elevation={3} sx={{textAlign: 'center'}}>
 
                         <ST.FlexHorizontal sx={{margin: '0px 0px 16px 0px'}}>
-                        { assignments.map((val, idx) => 
+                        { assignments.map((asg, idx) => 
 
                             <RoomResults key={idx}>
                                 <ST.FlexHorizontal  sx={{alignItems: 'flex-start',}}>
 
                                     <ST.FlexVertical>
-                                        <ST.AltText sx={{marginTop: '-6px'}}>{val.Name}</ST.AltText>
+                                        <ST.AltText sx={{marginTop: '-6px'}}>{asg.Name}</ST.AltText>
                                         <ImageSpacer>
-                                            <ClassImage src={ getClassImage(val.Class) } />
+                                            <ClassImage src={ getClassImage(asg.Class) } />
                                         </ImageSpacer>
                                     </ST.FlexVertical>
 
                                     <ST.FlexVertical sx={{alignItems: 'flex-start', margin: '23px 0px 0px 8px',}}>
 
-                                        <ST.BaseText>Health {val.Health - val.Wounds} / {val.Health}</ST.BaseText>
+                                        <ST.BaseText>Health {asg.Health - asg.Wounds} / {asg.Health}</ST.BaseText>
                                         <LinearBar 
                                             variant='determinate' 
-                                            value={ val.Wounds < val.Health ?
-                                                (val.Health - val.Wounds) / val.Health * 100 : 100 }
+                                            asgue={ asg.Wounds < asg.Health ?
+                                                (asg.Health - asg.Wounds) / asg.Health * 100 : 100 }
                                             sx={{ '& .MuiLinearProgress-bar' : 
-                                                { backgroundColor: getStatusColor(val.Status), }
+                                                { backgroundColor: getStatusColor(asg.Status), }
                                             }}
                                         />
-                                        <ST.BaseText>{ getStatusTx(val.Status, val.Cooldown) }
-                                        </ST.BaseText>
+
+                                        <ST.FlexHorizontal sx={{justifyContent: 'space-between'}}>
+                                            <ST.BaseText>
+                                                { getStatusTx(asg.Status, asg.Cooldown) }
+                                            </ST.BaseText>
+
+                                            <InfoButton onClick={ infoClick }>
+                                                <Info  sx={{fontSize: '60%'}}></Info>
+                                            </InfoButton>
+
+                                            <Popover
+                                                anchorEl={ infoAnchor }
+                                                open={ !!infoAnchor }
+                                                onClose={ infoClose }
+                                                anchorOrigin={{ vertical: 'center', horizontal: 'right', }}
+                                                transformOrigin={{ vertical: 'center', horizontal: 'left', }}
+                                            >
+                                                <InfoContainer>
+                                                { asg.CooldownInfo.map((nf, id) => (
+                                                    <ST.BaseText key={id}>{ nf }</ST.BaseText>
+                                                ))}
+                                                </InfoContainer>
+                                            </Popover>
+
+                                        </ST.FlexHorizontal>
+
                                         <Separator src={ SeparatorHoriz } />
 
-                                        <ST.BaseText>Exp +{val.ExpReward}</ST.BaseText>
+                                        <ST.BaseText>Exp +{asg.ExpReward}</ST.BaseText>
                                         <LinearBar 
                                             variant='determinate' 
-                                            value={ (val.Experience + val.ExpReward) < val.ExpNextLevel ?
-                                                (val.Experience + val.ExpReward) / val.ExpNextLevel * 100 : 100 }
+                                            asgue={ (asg.Experience + asg.ExpReward) < asg.ExpNextLevel ?
+                                                (asg.Experience + asg.ExpReward) / asg.ExpNextLevel * 100 : 100 }
                                         />
-                                        { (val.Experience + val.ExpReward) < val.ExpNextLevel &&
-                                            <ST.BaseText>Next Level: {val.ExpNextLevel}</ST.BaseText>
+                                        { (asg.Experience + asg.ExpReward) < asg.ExpNextLevel &&
+                                            <ST.BaseText>Next Level: {asg.ExpNextLevel}</ST.BaseText>
                                         }
-                                        { (val.Experience + val.ExpReward) >= val.ExpNextLevel &&
-                                            val.Experience != val.ExpNextLevel &&
+                                        { (asg.Experience + asg.ExpReward) >= asg.ExpNextLevel &&
+                                            asg.Experience != asg.ExpNextLevel &&
                                             <ST.BaseText sx={{color: 'lime'}}>Level Up!</ST.BaseText>
                                         }
-                                        { val.Experience == val.ExpNextLevel &&
+                                        { asg.Experience == asg.ExpNextLevel &&
                                             <ST.BaseText>Max Exp reached</ST.BaseText>
                                         }
                                     </ST.FlexVertical>

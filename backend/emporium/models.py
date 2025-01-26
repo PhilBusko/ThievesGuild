@@ -39,7 +39,9 @@ class ThiefLevel(JM.Model):
     Power = JM.IntegerField()
     TrainPeriod = JM.TextField()
     WoundPeriod = JM.TextField()
-    KnockedOutPeriod = JM.TextField()
+    WoundPeriodMin = JM.TextField()
+    BeatenPeriod = JM.TextField()
+    BeatenPeriodMin = JM.TextField()
     objects = DB.BaseManager()
 
 class CastleRoom(JM.Model):

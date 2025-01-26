@@ -144,7 +144,7 @@ function ThiefTable(props) {
                 { ['Ready', 'Looting'].includes(params.row.Status) && 
                     <ST.BaseText> { params.value } </ST.BaseText>
                 }
-                { ['Wounded', 'Knocked Out'].includes(params.row.Status) && <>
+                { ['Wounded', 'Beaten'].includes(params.row.Status) && <>
                     <ST.BaseText>Rest&nbsp;</ST.BaseText>
                     <Timer 
                         periodSec={ params.row.Cooldown * 1000 }

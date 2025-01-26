@@ -106,9 +106,16 @@ def GuildInfo(request):
         'Magic Store': RS.GetMagicStoreCount(guildMd),
     }
 
-    recovery = RS.GetRecoveryTime(guildMd)
+    recovery, recInfo = RS.GetRecoveryReduction(guildMd)
+    hours = int(recovery.seconds/3600 % 24)
+    minutes = int(recovery.seconds/60 % 60)
+    seconds = recovery.seconds % 60
+    if hours >= 1:      finalRecTx = f"{hours} hr"
+    elif minutes >= 1:  finalRecTx = f"{minutes} min"
+    else:               finalRecTx = f"{seconds} secs"
+
     rightDx = {
-        'Rest Bonus': f"{recovery} min" if recovery else "0 min",
+        'Rest Bonus': finalRecTx,
         'Gold Bonus': f"{RS.GetGoldBonus(guildMd)}%",
         'Stone Bonus': f"{RS.GetStoneBonus(guildMd)}%",
         'Gems Bonus': f"+{RS.GetGemsBonus(guildMd)}",
@@ -724,21 +731,41 @@ def ExpeditionUpdate(request):
 @permission_classes([IsAuthenticated])
 def ExpeditionLaunch(request):
 
+    userMd = request.user
+    guildMd = RS.PrepGuild(userMd)
     expeditionId = request.data.get('expeditionId')
     thiefId = request.data.get('thiefId')
 
     expToStart = GM.GuildExpedition.objects.GetOrNone(id=expeditionId)
     thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=thiefId)
 
+    # get the reduced duration
+
+    expeditionMd = EM.ExpeditionLevel.objects.GetOrNone(Level=expToStart.Level)
+    levelTm = PD.Timedelta(expeditionMd.Duration).to_pytimedelta()
+    durationFinal = levelTm
+
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+    for rm in roomLs:
+        if rm.Level == 0: continue
+        referenceMd = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        roomTm = PD.Timedelta(referenceMd.Cartog_Bonus).to_pytimedelta()
+        durationFinal -= roomTm
+
+    minDt = PD.Timedelta(expeditionMd.DurationMin).to_pytimedelta()
+    if durationFinal < minDt:
+        durationFinal = minDt
+
+    # save values on expedition instance
+
     trunkNow = RS.TimezoneToday(withTime=True)
-    expireTm = PD.Timedelta(expToStart.Duration).to_pytimedelta()
 
     expToStart.StartDate = trunkNow
     expToStart.ThiefFK = thiefMd
     expToStart.save()
 
     thiefMd.Status = 'Exploring'
-    thiefMd.CooldownExpire = trunkNow + expireTm
+    thiefMd.CooldownExpire = trunkNow + durationFinal
     thiefMd.save()
 
     return Response({'success': True})
@@ -790,6 +817,7 @@ def ExpeditionClaim(request):
     # apply results to thief
 
     RS.GrantExperience(thiefMd, expToClaim.Results['xp'])
+    woundReduce = RS.GetRecoveryReduction(guildMd)
 
     if selectReward['category'] != 'injury':
         thiefMd.Status = 'Ready'
@@ -797,7 +825,7 @@ def ExpeditionClaim(request):
         thiefMd.save()
 
     else:
-        RS.ApplyWounds(thiefMd, thiefMd.Health)
+        RS.ApplyWounds(thiefMd, thiefMd.Health, woundReduce)
 
     # mark the expedition as claimed
     # it will be wiped on the next day when the user updates the expeditions

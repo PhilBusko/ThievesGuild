@@ -349,15 +349,19 @@ def GetMagicStoreCount(guildMd):
         count += roomLookup.Fence_MagicSlots
     return count
 
-def GetRecoveryTime(guildMd):
-    count = PD.Timedelta(0).to_pytimedelta()
+def GetRecoveryReduction(guildMd):
+    woundReduce = PD.Timedelta('0 sec').to_pytimedelta()
+    reduceInfo = []
 
-    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Dormitory', Level__gte=1)
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Dormitory')
     for rm in roomLs:
-        roomLookup = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
-        count += PD.Timedelta(roomLookup.Dorm_Recovery).to_pytimedelta() 
+        if rm.Level == 0: continue
+        referenceMd = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        roomTm = PD.Timedelta(referenceMd.Dorm_Recovery).to_pytimedelta()
+        woundReduce += roomTm
+        reduceInfo.append(f"Dormitory {rm.Level}: -{referenceMd.Dorm_Recovery}")
 
-    return count
+    return woundReduce, reduceInfo
 
 def GetGoldBonus(guildMd):
     count = 0
@@ -413,29 +417,60 @@ def GrantGems(guildMd, amount):
     guildMd.VaultGems = newAmount
     guildMd.save()
 
-def ApplyWounds(thiefMd, wounds):
+def ApplyWounds(thiefMd, wounds, woundReduceTm, woundReduceInfo):
 
     ratio = round(wounds / thiefMd.Health, 3)
     status = 'Ready'
-    cooldown = None
+    recPeriod = None
+    finalRecTx = None
+    woundInfo = []
+
+    levelMd = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
 
     if ratio >= .500 and ratio <= .999:
         status = 'Wounded'
-        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).WoundPeriod
+        recPeriod = levelMd.WoundPeriod
+        recPeriodMin = levelMd.WoundPeriodMin
 
     elif ratio >= 1.000:
-        status = 'Knocked Out'
-        cooldown = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level).KnockedOutPeriod
+        status = 'Beaten'
+        recPeriod = levelMd.BeatenPeriod
+        recPeriodMin = levelMd.BeatenPeriodMin
 
-    if cooldown:
+    if recPeriod:
+        levelRecoveryTm = PD.Timedelta(recPeriod).to_pytimedelta()
+        finalRecoveryTm = levelRecoveryTm - woundReduceTm
+        recMinTm = PD.Timedelta(recPeriodMin).to_pytimedelta()
+        if finalRecoveryTm < recMinTm: 
+            finalRecoveryTm = recMinTm
+
+        days = finalRecoveryTm.days
+        hours = int(finalRecoveryTm.seconds/3600 % 24)
+        minutes = int(finalRecoveryTm.seconds/60 % 60)
+        seconds = finalRecoveryTm.seconds % 60
+
+        if days >= 1:       finalRecTx = f"{days} days"
+        elif hours > 1:     finalRecTx = f"{hours} hrs"
+        elif hours == 1:    finalRecTx = f"{hours} hr"
+        elif minutes > 1:   finalRecTx = f"{minutes} mins"
+        elif minutes == 1:  finalRecTx = f"{minutes} min"
+        else:               finalRecTx = f"{seconds} secs"
+
         trunkNow = TimezoneToday(withTime=True)
-        expireTm = PD.Timedelta(cooldown).to_pytimedelta()
-        thiefMd.CooldownExpire = trunkNow + expireTm
+        thiefMd.CooldownExpire = trunkNow + finalRecoveryTm
+
+        woundInfo.append(f"{status} Thief {thiefMd.Level}: {recPeriod}")
+        woundInfo += woundReduceInfo
+        if finalRecoveryTm != recMinTm:
+            woundInfo.append(f"Duration: {finalRecTx}")
+        else:
+            woundInfo.append(f"Duration: {finalRecTx} (minimum)")
+
 
     thiefMd.Status = status
     thiefMd.save()
 
-    return status, cooldown
+    return status, finalRecTx, woundInfo
 
 def ResetInjuryCooldowns(guildMd):
 
@@ -446,7 +481,7 @@ def ResetInjuryCooldowns(guildMd):
 
         trunkNow = TimezoneToday(withTime=True)
 
-        if md.CooldownExpire and md.Status in ['Wounded', 'Knocked Out']:
+        if md.CooldownExpire and md.Status in ['Wounded', 'Beaten']:
             if trunkNow >= md.CooldownExpire:
                 md.Status = 'Ready'
                 md.CooldownExpire = None

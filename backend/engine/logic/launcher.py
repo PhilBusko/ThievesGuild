@@ -2,6 +2,7 @@
 ENGINE LAUNCHER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import json, random, math
+import pandas as PD
 
 import emporium.models as EM 
 import emporium.logic.guild as GD
@@ -174,6 +175,8 @@ def ThiefResults(stageMd):
     # this runs on win or loss
     # either way release all thieves to injuries or ready
 
+    woundReduce, woundReduceInfo = RS.GetRecoveryReduction(stageMd.GuildFK)
+
     assigned = []
     for nt, thId in enumerate(stageMd.Assignments):
 
@@ -190,7 +193,7 @@ def ThiefResults(stageMd):
                 RS.GrantExperience(thiefMd, xpReward)
                 wounds = actions[-1]['woundsTotal']
 
-            status, cooldown = RS.ApplyWounds(thiefMd, wounds)
+            status, cooldown, cooldownInfo = RS.ApplyWounds(thiefMd, wounds, woundReduce, woundReduceInfo)
 
             # return thief display for aftermath
 
@@ -208,6 +211,7 @@ def ThiefResults(stageMd):
             thiefDx['Wounds'] = wounds
             thiefDx['Status'] = status
             thiefDx['Cooldown'] = cooldown
+            thiefDx['CooldownInfo'] = cooldownInfo
             assigned.append( thiefDx )
         else:
             assigned.append( None )
@@ -452,12 +456,21 @@ def ExpeditionResults(throne, expMd, runResults):
         resDx['grade'] = 'D'
         thiefMd = GM.ThiefInGuild.objects.GetOrNone(id=expMd.ThiefFK.id)
         thiefLevel = EM.ThiefLevel.objects.GetOrNone(Level=thiefMd.Level)
+
+        finalRecTm = PD.Timedelta(thiefLevel.BeatenPeriod).to_pytimedelta()
+        recReduceTm = RS.GetRecoveryReduction(expMd.GuildFK)
+        finalRecTm -= recReduceTm
+        minRecTm = PD.Timedelta(thiefLevel.BeatenPeriodMin).to_pytimedelta()
+        if finalRecTm < minRecTm: finalRecTm = minRecTm
+
+        print(finalRecTm, minRecTm)
+
         resDx['reward'] = {
             'category': 'injury',
             'resourceId': 'injury',
             'title': 'Expedition Failure',
             'iconCode': None,
-            'value': f"Injured - {thiefLevel.KnockedOutPeriod}",
+            'value': f"Injured - {finalRecTm.seconds//3600}",
         }
 
     # experience reward
