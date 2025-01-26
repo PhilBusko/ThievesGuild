@@ -29,10 +29,12 @@ const SelectorWrapper = styled(Box)(({ theme }) => ({
 
 function Expedition(props) {
 
+
     // globals
 
     const [message, setMessage] = useState('');
     const [errorLs, setErrorLs] = useState([]);
+
 
     // guild update
 
@@ -53,6 +55,7 @@ function Expedition(props) {
         });
     }
 
+
     // expedition data
 
     const [expeditionLs, setExpeditionLs] = useState([]);
@@ -62,7 +65,7 @@ function Expedition(props) {
             url: '/engine/expedition-update',
         }).then(responseData => {
             if (!responseData.message && responseData.expeditions.length > 0) {
-                console.log(responseData);
+                // console.log(responseData);
                 setExpeditionLs(responseData.expeditions);
             }
             else if (!responseData.message && responseData.expeditions.length == 0) {
@@ -85,6 +88,7 @@ function Expedition(props) {
         setMessage('');
         updateExpeditions();
     }, []);
+
 
     // thieves data
 
@@ -112,6 +116,7 @@ function Expedition(props) {
         setMessage('');
         updateThieves();
     }, []);
+
 
     // expedition controls 
 
@@ -189,6 +194,7 @@ function Expedition(props) {
             setErrorLs(errorLs);
         });
     };
+
 
     // render
 

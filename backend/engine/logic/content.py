@@ -480,13 +480,9 @@ def GetExpeditions(guildMd, trunkNow):
         levelTm = PD.Timedelta(expeditionMd.Duration).to_pytimedelta()
         durationFinal = levelTm
 
-        roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
-        for rm in roomLs:
-            if rm.Level == 0: continue
-            referenceMd = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
-            durationInfo.append(f"Cartographer {rm.Level}: -{referenceMd.Cartog_Bonus}")
-            roomTm = PD.Timedelta(referenceMd.Cartog_Bonus).to_pytimedelta()
-            durationFinal -= roomTm
+        durationReduceTm, reduceInfo = RS.GetExpeditionReduction(guildMd)
+        durationFinal -= durationReduceTm
+        durationInfo += reduceInfo
 
         minDt = PD.Timedelta(expeditionMd.DurationMin).to_pytimedelta()
         if durationFinal >= minDt:

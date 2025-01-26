@@ -122,7 +122,7 @@ function TrainingTable(props) {
 
                     </AdvanceCell>
                     <AdvanceCell>
-                        <ST.BaseText sx={{marginTop: '-4px'}}>{ adv.available }</ST.BaseText>
+                        <ST.BaseText sx={{marginTop: '-4px'}}>{ adv.available - adv.selected }</ST.BaseText>
                     </AdvanceCell>
                 </AdvanceRow>
             ))}

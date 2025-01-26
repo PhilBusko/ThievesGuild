@@ -231,7 +231,7 @@ function Castle(props) {
                         <ST.FlexHorizontal sx={{alignItems: 'flex-start'}}>
                             <DisplayDict infoDx={ leftInfo } width={ '190px' }/>
                             <DisplayDict infoDx={ middleInfo } width={ '180px' }/>
-                            <DisplayDict infoDx={ rightInfo } width={ '180px' }/>
+                            <DisplayDict infoDx={ rightInfo } width={ '200px' }/>
                         </ST.FlexHorizontal>
 
                     </ST.ContentCard>

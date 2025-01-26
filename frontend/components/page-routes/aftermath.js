@@ -90,6 +90,7 @@ const MaterialImage = styled('img')(({ theme }) => ({
 }));
 
 const InfoButton = styled(ButtonBase)(({ theme }) => ({
+    marginLeft: '8px',
     color: ST.FadedBlue,
     background: ST.DefaultText,
     borderRadius:'50%',
@@ -129,7 +130,7 @@ function Aftermath(props) {
             navigate('/heists/');
         }
         else {
-            console.log(location.state);  
+            // console.log(location.state);  
             setNextScene(location.state.nextScene);
 
             let heist = `${getTitle(location.state.heist)} - Stage ${location.state.stageNo}`;

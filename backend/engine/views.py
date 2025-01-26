@@ -110,12 +110,17 @@ def GuildInfo(request):
     hours = int(recovery.seconds/3600 % 24)
     minutes = int(recovery.seconds/60 % 60)
     seconds = recovery.seconds % 60
-    if hours >= 1:      finalRecTx = f"{hours} hr"
-    elif minutes >= 1:  finalRecTx = f"{minutes} min"
-    else:               finalRecTx = f"{seconds} secs"
+    if hours >= 1:      recoveryTx = f"{hours} hr"
+    elif minutes >= 1:  recoveryTx = f"{minutes} min"
+    else:               recoveryTx = f"{seconds} sec"
+
+    expedition, expInfo = RS.GetExpeditionReduction(guildMd)
+    hours = int(expedition.seconds/3600 % 24)
+    expeditionTx = f"{hours} hr"
 
     rightDx = {
-        'Rest Bonus': finalRecTx,
+        'Rest Bonus': recoveryTx,
+        'Expedition Bonus': expeditionTx,
         'Gold Bonus': f"{RS.GetGoldBonus(guildMd)}%",
         'Stone Bonus': f"{RS.GetStoneBonus(guildMd)}%",
         'Gems Bonus': f"+{RS.GetGemsBonus(guildMd)}",

@@ -363,6 +363,20 @@ def GetRecoveryReduction(guildMd):
 
     return woundReduce, reduceInfo
 
+def GetExpeditionReduction(guildMd):
+    durationReduce = PD.Timedelta('0 sec').to_pytimedelta()
+    reduceInfo = []
+
+    roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Cartographer')
+    for rm in roomLs:
+        if rm.Level == 0: continue
+        referenceMd = EM.BasicRoom.objects.GetOrNone(Level=rm.Level)
+        roomTm = PD.Timedelta(referenceMd.Cartog_Bonus).to_pytimedelta()
+        durationReduce += roomTm
+        reduceInfo.append(f"Cartographer {rm.Level}: -{referenceMd.Cartog_Bonus}")
+
+    return durationReduce, reduceInfo
+
 def GetGoldBonus(guildMd):
     count = 0
     roomLs = GM.RoomInGuild.objects.filter(GuildFK=guildMd, Name='Fence', Level__gte=1)

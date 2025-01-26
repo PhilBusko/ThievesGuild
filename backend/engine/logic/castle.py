@@ -56,14 +56,14 @@ def GetInfo(upgradeType, roomName, roomLevel):
 
         if roomName == 'Dormitory':
             infoDx = {
-                'Max Thieves': f"+{abilityMd.Dorm_MaxThieves}",
+                'Max Thieves': f"{abilityMd.Dorm_MaxThieves}",
                 'Rest Bonus': abilityMd.Dorm_Recovery,
             }
 
         if roomName == 'Cartographer':
             infoDx = {
                 'Expedition Slots': abilityMd.Cartog_Slots,
-                'Duration Bonus': f"-{abilityMd.Cartog_Bonus}",
+                'Duration Bonus': f"{abilityMd.Cartog_Bonus}",
             }
 
     if upgradeType == 'advanced':
@@ -143,7 +143,7 @@ def GetUpgradeInfo(upgradeType, roomName, roomLevel):
 
         if roomName == 'Dormitory':
             infoDx = {
-                'Max Thieves': f"+{currMd.Dorm_MaxThieves} -> {nextMd.Dorm_MaxThieves}",
+                'Max Thieves': f"{currMd.Dorm_MaxThieves} -> {nextMd.Dorm_MaxThieves}",
                 'Rest Bonus': f"{currMd.Dorm_Recovery} -> {nextMd.Dorm_Recovery}",
             }
 
