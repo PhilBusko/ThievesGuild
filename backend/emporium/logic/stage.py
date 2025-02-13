@@ -28,17 +28,17 @@ def GetTreasureReward(obsLevel):
 
     if randomType in [1, 2]:
         treasureType = 'gold'
-        treasureBase = round(stageMd.Gold / 4)
+        treasureBase = round(stageMd.Gold / 2)
         treasureAmount = RollReward(treasureBase)
 
     elif randomType in [3, 4]:
         treasureType = 'stone'
-        treasureBase = round(stageMd.Stone / 4)
+        treasureBase = round(stageMd.Stone / 2)
         treasureAmount = RollReward(treasureBase)
 
     else:
         treasureType = 'gems'
-        treasureBase = round(stageMd.Gems / 4)
+        treasureBase = round(stageMd.Gems / 2)
         if treasureBase == 0: treasureBase = 1
         treasureAmount = treasureBase
 

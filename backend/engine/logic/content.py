@@ -3,7 +3,7 @@ ENGINE CONTENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import random
 import pandas as PD
-from django.db.models import Min
+from django.db.models import Min, Max
 import app_proj.notebooks as NT
 
 import emporium.models as EM 
@@ -19,6 +19,77 @@ def BackgroundBias():
     potential = [0, 0, 0, 1, 2, 3, 4]
     chosen = random.choice(potential)
     return chosen
+
+def GetDifficultyProps(world, difficultyRaw):
+
+    levelLs = EM.ExpeditionLevel.objects.filter(World=world)
+    levelMin = levelLs.values('Level').aggregate(Min('Level'))['Level__min']
+    levelMax = levelLs.values('Level').aggregate(Max('Level'))['Level__max']
+    difficulty = random.choice(difficultyRaw.split(' / '))
+
+    if difficulty == 'easy':
+        potentialLs = [
+            (12, levelMin), (13, levelMin), (14, levelMin), (15, levelMin), 
+            (12, levelMax), (13, levelMax), (14, levelMax), (15, levelMax),
+        ]
+
+    if difficulty == 'med':
+        potentialLs = [
+            (14, levelMin), (15, levelMin), (16, levelMin), (17, levelMin), 
+            (14, levelMax), (15, levelMax), (16, levelMax), (17, levelMax),
+        ]
+
+    if difficulty == 'hard':
+        potentialLs = [
+            (16, levelMin), (17, levelMin), (18, levelMin), (19, levelMin), 
+            (16, levelMax), (17, levelMax), (18, levelMax), (19, levelMax),
+        ]
+
+    props = random.choice(potentialLs)
+    return props
+
+def ConvertLandings(rawStages):
+
+    for st in rawStages:
+
+        if st['DifficultyL1']:
+            obstacles, level = GetDifficultyProps(st['World'], st['DifficultyL1']) 
+            st['ObstaclesL1'] = obstacles
+            st['LevelLnd1'] = level
+
+        if st['DifficultyL2']:
+            obstacles, level = GetDifficultyProps(st['World'], st['DifficultyL2']) 
+            st['ObstaclesL2'] = obstacles
+            st['LevelLnd2'] = level
+        else:
+            st['ObstaclesL2'] = None
+            st['LevelLnd2'] = None
+
+        if st['DifficultyL3']:
+            obstacles, level = GetDifficultyProps(st['World'], st['DifficultyL3']) 
+            st['ObstaclesL3'] = obstacles
+            st['LevelLnd3'] = level
+        else:
+            st['ObstaclesL3'] = None
+            st['LevelLnd3'] = None
+
+        if st['DifficultyL4']:
+            obstacles, level = GetDifficultyProps(st['World'], st['DifficultyL4']) 
+            st['ObstaclesL4'] = obstacles
+            st['LevelLnd4'] = level
+        else:
+            st['ObstaclesL4'] = None
+            st['LevelLnd4'] = None
+
+        if st['DifficultyL5']:
+            obstacles, level = GetDifficultyProps(st['World'], st['DifficultyL5']) 
+            st['ObstaclesL5'] = obstacles
+            st['LevelLnd5'] = level
+        else:
+            st['ObstaclesL5'] = None
+            st['LevelLnd5'] = None
+
+    return rawStages
 
 def CreateStageLandings(guildMd, heistType, currDate, rawStages):
 
@@ -201,6 +272,7 @@ def GetOrCreateDungeon(guildMd, currDate):
 
     if result > 80:
         rawStages = list(EM.Dungeon.objects.filter(World=guildMd.CampaignWorld).values())
+        rawStages = ConvertLandings(rawStages)
         CreateStageLandings(guildMd, 'dungeon', currDate, rawStages)
 
     # return the dungeon, if present today
@@ -230,6 +302,7 @@ def GetOrCreateCampaign(guildMd, currDate):
 
     GM.GuildStage.objects.filter(GuildFK=guildMd, Heist='campaign').delete()
     rawStages = list(EM.Campaign.objects.filter(World=guildMd.CampaignWorld).values())
+    rawStages = ConvertLandings(rawStages)
     CreateStageLandings(guildMd, 'campaign', currDate, rawStages)
 
     # return campaign
