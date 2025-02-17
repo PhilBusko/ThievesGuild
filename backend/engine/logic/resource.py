@@ -475,11 +475,10 @@ def ApplyWounds(thiefMd, wounds, woundReduceTm, woundReduceInfo):
 
         woundInfo.append(f"{status} Thief {thiefMd.Level}: {recPeriod}")
         woundInfo += woundReduceInfo
-        if finalRecoveryTm != recMinTm:
+        if finalRecoveryTm != recMinTm or len(woundReduceInfo) == 0:
             woundInfo.append(f"Duration: {finalRecTx}")
         else:
             woundInfo.append(f"Duration: {finalRecTx} (minimum)")
-
 
     thiefMd.Status = status
     thiefMd.save()

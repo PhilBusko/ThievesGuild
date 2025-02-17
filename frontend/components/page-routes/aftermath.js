@@ -130,7 +130,7 @@ function Aftermath(props) {
             navigate('/heists/');
         }
         else {
-            // console.log(location.state);  
+            console.log(location.state);  
             setNextScene(location.state.nextScene);
 
             let heist = `${getTitle(location.state.heist)} - Stage ${location.state.stageNo}`;
@@ -278,8 +278,8 @@ function Aftermath(props) {
 
                                         <ST.BaseText>Health {asg.Health - asg.Wounds} / {asg.Health}</ST.BaseText>
                                         <LinearBar 
-                                            variant='determinate' 
-                                            asgue={ asg.Wounds < asg.Health ?
+                                            variant='determinate'
+                                            value={ asg.Wounds < asg.Health ?
                                                 (asg.Health - asg.Wounds) / asg.Health * 100 : 100 }
                                             sx={{ '& .MuiLinearProgress-bar' : 
                                                 { backgroundColor: getStatusColor(asg.Status), }
@@ -291,7 +291,10 @@ function Aftermath(props) {
                                                 { getStatusTx(asg.Status, asg.Cooldown) }
                                             </ST.BaseText>
 
-                                            <InfoButton onClick={ infoClick }>
+                                            <InfoButton 
+                                                onClick={ infoClick }
+                                                sx={{display: asg.CooldownInfo.length > 2 ? 'flex' : 'none'}}
+                                            >
                                                 <Info  sx={{fontSize: '60%'}}></Info>
                                             </InfoButton>
 
@@ -316,7 +319,7 @@ function Aftermath(props) {
                                         <ST.BaseText>Exp +{asg.ExpReward}</ST.BaseText>
                                         <LinearBar 
                                             variant='determinate' 
-                                            asgue={ (asg.Experience + asg.ExpReward) < asg.ExpNextLevel ?
+                                            value={ (asg.Experience + asg.ExpReward) < asg.ExpNextLevel ?
                                                 (asg.Experience + asg.ExpReward) / asg.ExpNextLevel * 100 : 100 }
                                         />
                                         { (asg.Experience + asg.ExpReward) < asg.ExpNextLevel &&

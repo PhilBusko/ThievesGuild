@@ -30,18 +30,18 @@ def GetDifficultyProps(world, difficultyRaw):
     if difficulty == 'easy':
         potentialLs = [
             (12, levelMin), (13, levelMin), (14, levelMin), (15, levelMin), 
-            (12, levelMax), (13, levelMax), (14, levelMax), (15, levelMax),
+            (12, levelMax), (13, levelMax),
         ]
 
     if difficulty == 'med':
         potentialLs = [
-            (14, levelMin), (15, levelMin), (16, levelMin), (17, levelMin), 
-            (14, levelMax), (15, levelMax), (16, levelMax), (17, levelMax),
+            (15, levelMin), (16, levelMin), (17, levelMin), (18, levelMin),
+            (13, levelMax), (14, levelMax), (15, levelMax), (16, levelMax),
         ]
 
     if difficulty == 'hard':
         potentialLs = [
-            (16, levelMin), (17, levelMin), (18, levelMin), (19, levelMin), 
+            (18, levelMin), (19, levelMin), 
             (16, levelMax), (17, levelMax), (18, levelMax), (19, levelMax),
         ]
 
