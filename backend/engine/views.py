@@ -854,11 +854,11 @@ def DailyMarket(request):
     commonStore, dailyStore = CT.GetOrCreateMarket(userMd, guildMd)
 
     gemStore = [
-        {'gems': 20,    'targetAmount': 220,    'targetIcon': 'material-gold', },
-        {'gems': 80,    'targetAmount': 1000,    'targetIcon': 'material-gold', },
-        {'gems': 150,   'targetAmount': 2100,   'targetIcon': 'material-gold', },
-        {'gems': 300,   'targetAmount': 4600,   'targetIcon': 'material-gold', },
-        {'gems': 20,    'targetAmount': 100,     'targetIcon': 'material-stone', },
+        {'gems': 20,    'targetAmount': 340,    'targetIcon': 'material-gold', },
+        {'gems': 80,    'targetAmount': 1500,   'targetIcon': 'material-gold', },
+        {'gems': 150,   'targetAmount': 3200,   'targetIcon': 'material-gold', },
+        {'gems': 300,   'targetAmount': 7100,   'targetIcon': 'material-gold', },
+        {'gems': 20,    'targetAmount': 100,    'targetIcon': 'material-stone', },
         {'gems': 80,    'targetAmount': 440,    'targetIcon': 'material-stone', },
         {'gems': 150,   'targetAmount': 920,    'targetIcon': 'material-stone', },
         {'gems': 300,   'targetAmount': 2000,   'targetIcon': 'material-stone', },

@@ -206,7 +206,7 @@ function CastleUpgrade(props) {
                                 variant='contained'
                                 onClick={() => {handleUpgrade(props.placement);}}
                             >
-                                <ST.LinkText>Reconfigure</ST.LinkText>
+                                <ST.LinkText>Renovate</ST.LinkText>
                             </RegularButton>
                         }
                         { !!upgradeRoom.permission && 

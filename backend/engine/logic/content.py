@@ -704,10 +704,29 @@ def GetOrCreateMarket(userMd, guildMd):
 
         newReso.save()
 
-    # on first day add 4 cloaks to rare store
+    # on first day create the magic store differently
 
     if guildMd.CreateDate == currentDt and guildMd.CampaignWorld == 1:
-        for rg in range(0, 4):
+
+        rareInv = GM.MarketStore.objects.filter(
+            GuildFK=guildMd, CreateDate=currentDt, StoreType='rare')
+
+        for iv in rareInv:
+            iv.delete()
+
+        accessories = EM.UnlockableItem.objects.filter(UnlockLevel=1, TotalLv=1)
+
+        for ac in accessories:
+            newReso = GM.MarketStore()
+            newReso.GuildFK = guildMd
+            newReso.CreateDate = currentDt
+            newReso.World = guildMd.CampaignWorld
+            newReso.ResourceId = ac.ResourceId
+            newReso.StoreType = 'rare'
+            newReso.RareProperties = None
+            newReso.save()
+
+        for rg in range(0, 5):
             cloakMd = EM.UnlockableItem.objects.GetOrNone(UnlockLevel=1, MagicLv=0, Slot='back')
             newReso = GM.MarketStore()
             newReso.GuildFK = guildMd
@@ -717,7 +736,6 @@ def GetOrCreateMarket(userMd, guildMd):
             newReso.StoreType = 'rare'
             newReso.RareProperties = None
             newReso.save()
-
 
     # get the newly created data
 
